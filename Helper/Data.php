@@ -5,6 +5,8 @@ namespace MageModule\Core\Helper;
 class Data
 {
     /**
+     * Nullifies any string with a length of 0
+     *
      * @param array $array
      */
     public function nullifyEmpty(array &$array)
@@ -24,10 +26,12 @@ class Data
      */
     public function removeObjects(array &$array)
     {
-        $array = array_filter($array,
+        $array = array_filter(
+            $array,
             function ($value) {
                 return !is_object($value);
-            });
+            }
+        );
     }
 
     /**
@@ -35,10 +39,12 @@ class Data
      */
     public function removeArrays(array &$array)
     {
-        $array = array_filter($array,
+        $array = array_filter(
+            $array,
             function ($value) {
                 return !is_object($value) && !is_array($value);
-            });
+            }
+        );
     }
 
     /**
@@ -48,23 +54,30 @@ class Data
      */
     public function equalizeArrayKeys(array &$array)
     {
+        /** note to self: using nested for each to ensure that numeric array keys are preserved */
+
         $fields = [];
         foreach ($array as &$subarray) {
-            $fields = array_merge($fields, $subarray);
-        }
-
-        foreach ($fields as &$value) {
-            $value = null;
+            foreach ($subarray as $key => $value) {
+                $fields[$key] = null;
+            }
         }
 
         foreach ($array as &$subarray) {
-            $subarray = array_merge($fields, $subarray);
+            $newData = $fields;
+            foreach ($fields as $field => $null) {
+                if (isset($subarray[$field])) {
+                    $newData[$field] = $subarray[$field];
+                }
+            }
+            $subarray = $newData;
+            $newData  = null;
         }
     }
 
     /**
      * Takes the array keys from the first element in array and adds them as the first
-     * subarray to create csv headers row
+     * subarray to create csv headers row. $this->equalizeArrayKeys() should be run first
      *
      * @param array $array
      */
@@ -98,6 +111,8 @@ class Data
 
         if ($isObject) {
             $item->setData($array);
+        } else {
+            $item = $array;
         }
     }
 

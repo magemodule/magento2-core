@@ -51,9 +51,10 @@ class Mapper
      */
     public function validateMapping(array $mapping)
     {
-        $fullCount   = count($mapping);
-        $uniqueCount = count(array_unique($mapping));
-        if ($fullCount !== $uniqueCount) {
+        $fieldCount   = count($mapping);
+        $oldFieldUniqueCount = count(array_unique(array_keys($mapping)));
+        $newFieldUniqueCount = count(array_unique($mapping));
+        if ($fieldCount !== $newFieldUniqueCount || $fieldCount !== $oldFieldUniqueCount) {
             throw new LocalizedException(__('Mapped field names must be unique.'));
         }
 
@@ -162,7 +163,8 @@ class Mapper
         );
 
         $allData = [];
-        foreach ($this->helper->stringifyPaths($object->getData()) as $key) {
+        $paths = $this->helper->stringifyPaths($object->getData());
+        foreach ($paths as $key) {
             $allData[$key] = $object->getData($key);
         }
 

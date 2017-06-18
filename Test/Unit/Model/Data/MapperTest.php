@@ -17,7 +17,13 @@ class MapperTest extends \PHPUnit_Framework_TestCase
     public function setUp()
     {
         $this->objectManager = new \Magento\Framework\TestFramework\Unit\Helper\ObjectManager($this);
-        $this->model         = $this->objectManager->getObject(\MageModule\Core\Model\Data\Mapper::class);
+
+        $helper = $this->objectManager->getObject(\MageModule\Core\Helper\Data::class);
+
+        $this->model = $this->objectManager->getObject(
+            \MageModule\Core\Model\Data\Mapper::class,
+            ['helper' => $helper]
+        );
     }
 
     /**
@@ -120,6 +126,28 @@ class MapperTest extends \PHPUnit_Framework_TestCase
         $this->model->setMapping($this->getValidMapping());
         $this->model->map($object);
 
-        $test = $object;
+        $this->assertTrue(!$object->hasData('entity_id'));
+        $this->assertTrue(!$object->hasData('name'));
+        $this->assertTrue(!$object->hasData('postal_code'));
+
+        $this->assertEquals(1, $object->getData('test_entity_id'));
+        $this->assertEquals('MageModule', $object->getData('customer_name'));
+        $this->assertEquals(90210, $object->getData('zip_code'));
+        $this->assertEquals('123 Rodeo Drive', $object->getData('street1'));
+        $this->assertEquals('Beverly Hills', $object->getData('city'));
+    }
+
+    public function testGetExistingMappedField()
+    {
+        $this->model->setMapping($this->getValidMapping());
+        $result = $this->model->getMappedField('name');
+        $this->assertEquals('customer_name', $result);
+    }
+
+    public function testGetNonExistentMappedField()
+    {
+        $this->model->setMapping($this->getValidMapping());
+        $result = $this->model->getMappedField('some_non_field');
+        $this->assertNull($result);
     }
 }

@@ -154,7 +154,21 @@ class DataTest extends \PHPUnit_Framework_TestCase
         }
     }
 
-    public function testStringifyPaths()
+    public function testStringifyPathsFlatArray()
+    {
+        $data   = $this->getCsvDataSampleArray();
+        $result = $this->helper->stringifyPaths($data[1]);
+
+        $this->assertEquals('coupon_code', $result[0]);
+        $this->assertEquals('protect_code', $result[1]);
+        $this->assertEquals('shipping_description', $result[2]);
+        $this->assertEquals('is_virtual', $result[3]);
+        $this->assertEquals('store_id', $result[4]);
+        $this->assertEquals('customer_id', $result[5]);
+        $this->assertCount(6, $result);
+    }
+
+    public function testStringifyPathsMultidimensionalArray()
     {
         $data   = $this->getCsvDataSampleArray();
         $result = $this->helper->stringifyPaths($data);

@@ -2,7 +2,7 @@
 
 namespace MageModule\Core\Helper;
 
-class Data
+class Data extends \Magento\Framework\App\Helper\AbstractHelper
 {
     /**
      * Nullifies any string with a length of 0

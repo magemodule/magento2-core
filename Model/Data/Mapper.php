@@ -51,7 +51,7 @@ class Mapper
      */
     public function validateMapping(array $mapping)
     {
-        $fieldCount   = count($mapping);
+        $fieldCount          = count($mapping);
         $oldFieldUniqueCount = count(array_unique(array_keys($mapping)));
         $newFieldUniqueCount = count(array_unique($mapping));
         if ($fieldCount !== $newFieldUniqueCount || $fieldCount !== $oldFieldUniqueCount) {
@@ -163,7 +163,7 @@ class Mapper
         );
 
         $allData = [];
-        $paths = $this->helper->stringifyPaths($object->getData());
+        $paths   = $this->helper->stringifyPaths($object->getData());
         foreach ($paths as $key) {
             $allData[$key] = $object->getData($key);
         }

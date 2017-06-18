@@ -82,11 +82,11 @@ class Iterator extends \MageModule\Core\Model\Data\Formatter
                 }
             }
             $items = $this->append(
-                $this->getAppend(),
                 $this->prepend(
-                    $this->getPrepend(),
-                    implode($this->getGlue(), $items)
-                )
+                    implode($this->getGlue(), $items),
+                    $this->getPrepend()
+                ),
+                $this->getAppend()
             );
         }
 
@@ -99,11 +99,11 @@ class Iterator extends \MageModule\Core\Model\Data\Formatter
                 }
             }
             $items = $this->append(
-                $this->getAppend(),
                 $this->prepend(
-                    $this->getPrepend(),
-                    implode($this->getGlue(), $data)
-                )
+                    implode($this->getGlue(), $data),
+                    $this->getPrepend()
+                ),
+                $this->getAppend()
             );
         }
 

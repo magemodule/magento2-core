@@ -2,6 +2,8 @@
 
 namespace MageModule\Core\Model\Data;
 
+use Magento\Framework\Exception\LocalizedException;
+
 class Formatter implements FormatterInterface
 {
     /**
@@ -131,9 +133,9 @@ class Formatter implements FormatterInterface
         $this->setValueWrapPattern($valueWrapPattern);
         $this->setIncludedFields($includedFields);
         $this->setExcludedFields($excludedFields);
-        $this->allowNewlineChar = $allowNewlineChar;
-        $this->allowReturnChar  = $allowReturnChar;
-        $this->allowTabChar     = $allowTabChar;
+        $this->setAllowNewlineChar($allowNewlineChar);
+        $this->setAllowReturnChar($allowReturnChar);
+        $this->setAllowTabChar($allowTabChar);
     }
 
     /**
@@ -236,29 +238,67 @@ class Formatter implements FormatterInterface
     }
 
     /**
-     * Acceptable values are string, array, object
-     *
-     * @param string $format
+     * @param bool $bool
      *
      * @return $this
      */
-    public function setFormat($format)
+    public function setAllowNewlineChar($bool)
     {
-        $this->format = $format;
+        $this->allowNewlineChar = (bool)$bool;
 
         return $this;
     }
 
     /**
-     * @return string
+     * @return bool
      */
-    public function getFormat()
+    public function getAllowNewlineChar()
     {
-        return $this->format;
+        return $this->allowNewlineChar;
     }
 
     /**
-     * @param string $value
+     * @param bool $bool
+     *
+     * @return $this
+     */
+    public function setAllowReturnChar($bool)
+    {
+        $this->allowReturnChar = (bool)$bool;
+
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function getAllowReturnChar()
+    {
+        return $this->allowReturnChar;
+    }
+
+    /**
+     * @param bool $bool
+     *
+     * @return $this
+     */
+    public function setAllowTabChar($bool)
+    {
+        $this->allowTabChar = (bool)$bool;
+
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function getAllowTabChar()
+    {
+        return $this->allowTabChar;
+    }
+
+    /**
+     * @param string|array $value
      *
      * @return $this
      */
@@ -278,12 +318,16 @@ class Formatter implements FormatterInterface
     }
 
     /**
-     * @param string|array $glue
+     * @param string|array|null $glue
      *
      * @return string
      */
     public function prepareGlue($glue)
     {
+        if (is_object($glue)) {
+            return null;
+        }
+
         if (is_array($glue)) {
             foreach ($glue as &$subglue) {
                 $subglue = $this->prepareGlue($subglue);
@@ -292,15 +336,15 @@ class Formatter implements FormatterInterface
         }
 
         if ($glue === '\n' || $glue === 'newline') {
-            $glue = $this->allowNewlineChar ? PHP_EOL : null;
+            $glue = $this->getAllowNewlineChar() ? PHP_EOL : null;
         }
 
         if ($glue === '\r' || $glue === 'return') {
-            $glue = $this->allowReturnChar ? "\r" : null;
+            $glue = $this->getAllowReturnChar() ? "\r" : null;
         }
 
         if ($glue === '\t' || $glue === 'tab') {
-            $glue = $this->allowTabChar ? "\t" : null;
+            $glue = $this->getAllowTabChar() ? "\t" : null;
         }
 
         return $glue;
@@ -309,7 +353,7 @@ class Formatter implements FormatterInterface
     /**
      * Set any value or character that should be place at start of formatted string
      *
-     * @param null|string $value
+     * @param null|string|array $value
      *
      * @return $this
      */
@@ -331,20 +375,24 @@ class Formatter implements FormatterInterface
     }
 
     /**
-     * @param string $string
-     * @param string $value
+     * @param string|null $value
+     * @param string|null $prepend
      *
      * @return string
      */
-    public function prepend($string, $value)
+    public function prepend($value, $prepend = null)
     {
-        return $string . $value;
+        if ($prepend === null) {
+            $prepend = $this->getPrepend();
+        }
+
+        return $prepend . $value;
     }
 
     /**
      * Set any value or character that should be place at end of formatted string
      *
-     * @param null|string $value
+     * @param null|string|array $value
      *
      * @return $this
      */
@@ -366,18 +414,22 @@ class Formatter implements FormatterInterface
     }
 
     /**
-     * @param string $string
-     * @param string $value
+     * @param string|null $value
+     * @param string|null $append
      *
      * @return string
      */
-    public function append($string, $value)
+    public function append($value, $append = null)
     {
-        return $value . $string;
+        if ($append === null) {
+            $append = $this->getAppend();
+        }
+
+        return $value . $append;
     }
 
     /**
-     * @param string $pattern
+     * @param string|null $pattern
      *
      * @return $this
      */
@@ -399,18 +451,22 @@ class Formatter implements FormatterInterface
     /**
      * @param string|null $field
      * @param string|null $value
-     * @param string      $pattern
+     * @param string|null $pattern
      *
      * @return string
      */
-    public function wrapValue($field, $value, $pattern)
+    public function wrapValue($field, $value, $pattern = null)
     {
+        if ($pattern === null) {
+            $pattern = $this->getValueWrapPattern();
+        }
+
         $pairs['{{FIELD}}']   = strtoupper($field);
         $pairs['{{field}}']   = strtolower($field);
         $pairs['{{value}}']   = $value;
-        $pairs['{{newline}}'] = $this->allowNewlineChar ? PHP_EOL : null;
-        $pairs['{{return}}']  = $this->allowReturnChar ? "\r" : null;
-        $pairs['{{tab}}']     = $this->allowTabChar ? "\t" : null;
+        $pairs['{{newline}}'] = $this->getAllowNewlineChar() ? PHP_EOL : null;
+        $pairs['{{return}}']  = $this->getAllowReturnChar() ? "\r" : null;
+        $pairs['{{tab}}']     = $this->getAllowTabChar() ? "\t" : null;
 
         return str_replace(array_keys($pairs), $pairs, $pattern);
     }
@@ -542,6 +598,33 @@ class Formatter implements FormatterInterface
     }
 
     /**
+     * @param string $format
+     *
+     * @return $this
+     * @throws \Magento\Framework\Exception\LocalizedException
+     */
+    public function setFormat($format)
+    {
+        $formats = ['string', 'array', 'object'];
+        if (!in_array($format, $formats)) {
+            throw new LocalizedException(
+                __('%1 is not a valid format. Acceptable values are %2.', $format, implode(', ', $formats))
+            );
+        }
+        $this->format = $format;
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getFormat()
+    {
+        return $this->format;
+    }
+
+    /**
      * @param array|\Magento\Framework\DataObject $item
      *
      * @return string|array|\Magento\Framework\DataObject
@@ -599,8 +682,8 @@ class Formatter implements FormatterInterface
                 $result = $this->append(
                     $this->getAppend(),
                     $this->prepend(
-                        $this->getPrepend(),
-                        implode($this->getGlue(), $array)
+                        implode($this->getGlue(), $array),
+                        $this->getPrepend()
                     )
                 );
         }

@@ -71,6 +71,11 @@ class Formatter implements FormatterInterface
     private $excludedFields;
 
     /**
+     * @var array
+     */
+    private $defaultValues;
+
+    /**
      * @var bool
      */
     private $allowNewlineChar;
@@ -100,6 +105,7 @@ class Formatter implements FormatterInterface
      * @param string|null                             $valueWrapPattern
      * @param array                                   $includedFields
      * @param array                                   $excludedFields
+     * @param array                                   $defaultValues
      * @param bool                                    $allowNewlineChar
      * @param bool                                    $allowReturnChar
      * @param bool                                    $allowTabChar
@@ -117,9 +123,10 @@ class Formatter implements FormatterInterface
         $valueWrapPattern = null,
         array $includedFields = [],
         array $excludedFields = [],
-        $allowNewlineChar = false,
-        $allowReturnChar = false,
-        $allowTabChar = false
+        array $defaultValues = [],
+        $allowNewlineChar = true,
+        $allowReturnChar = true,
+        $allowTabChar = true
     ) {
         $this->objectFactory     = $objectFactory;
         $this->helper            = $helper;
@@ -133,6 +140,7 @@ class Formatter implements FormatterInterface
         $this->setValueWrapPattern($valueWrapPattern);
         $this->setIncludedFields($includedFields);
         $this->setExcludedFields($excludedFields);
+        $this->setDefaultValues($defaultValues);
         $this->setAllowNewlineChar($allowNewlineChar);
         $this->setAllowReturnChar($allowReturnChar);
         $this->setAllowTabChar($allowTabChar);
@@ -598,6 +606,50 @@ class Formatter implements FormatterInterface
     }
 
     /**
+     * Array should be structure $field => $defaultValue
+     *
+     * @param array $values
+     *
+     * @return $this
+     */
+    public function setDefaultValues(array $values)
+    {
+        $this->defaultValues = $values;
+
+        return $this;
+    }
+
+    /**
+     * @return array
+     */
+    public function getDefaultValues()
+    {
+        return $this->defaultValues;
+    }
+
+    /**
+     * @param $item
+     */
+    public function applyDefaultValues(&$item)
+    {
+        if (is_array($item)) {
+            foreach ($this->getDefaultValues() as $field => $value) {
+                if (array_key_exists($field, $item)) {
+                    if ($item[$field] === null || trim($item[$field]) === '') {
+                        $item[$field] = $value;
+                    }
+                }
+            }
+        } elseif ($item instanceof \Magento\Framework\DataObject) {
+            foreach ($this->getDefaultValues() as $field => $value) {
+                if ($item->hasData($field) && ($item->getData($field) === null || trim($item->getData($field)) === '')) {
+                    $item->setData($field, $value);
+                }
+            }
+        }
+    }
+
+    /**
      * @param string $format
      *
      * @return $this
@@ -642,6 +694,7 @@ class Formatter implements FormatterInterface
 
         $this->filterByIncludedFields($item);
         $this->filterByExcludedFields($item);
+        $this->applyDefaultValues($item);
 
         if (is_array($item)) {
             $item = $this->objectFactory->create(['data' => $item]);

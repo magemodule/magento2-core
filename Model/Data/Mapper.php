@@ -51,13 +51,6 @@ class Mapper
      */
     public function validateMapping(array $mapping)
     {
-        $fieldCount          = count($mapping);
-        $oldFieldUniqueCount = count(array_unique(array_keys($mapping)));
-        $newFieldUniqueCount = count(array_unique($mapping));
-        if ($fieldCount !== $newFieldUniqueCount || $fieldCount !== $oldFieldUniqueCount) {
-            throw new LocalizedException(__('Mapped field names must be unique.'));
-        }
-
         foreach ($mapping as $field) {
             if (!is_string($field)) {
                 throw new LocalizedException(__('Mapped field names must be a string.'));
@@ -147,10 +140,11 @@ class Mapper
 
     /**
      * @param \Magento\Framework\DataObject $object
+     * @param bool                          $keepOrigFields
      *
      * @return \Magento\Framework\DataObject
      */
-    public function mapObject(\Magento\Framework\DataObject &$object)
+    public function mapObject(\Magento\Framework\DataObject &$object, $keepOrigFields = false)
     {
         /**
          * the purpose of this exercise is to be able to map data from subarrays but still keep the array
@@ -168,7 +162,7 @@ class Mapper
             $allData[$key] = $object->getData($key);
         }
 
-        $mappedData = $this->mapArray($allData);
+        $mappedData = $this->mapArray($allData, $keepOrigFields);
         foreach ($mappedData as $key => &$value) {
             if (!in_array($key, $validKeys)) {
                 unset($mappedData[$key]);
@@ -180,15 +174,19 @@ class Mapper
 
     /**
      * @param array $array
+     * @param bool  $keepOrigFields
      *
      * @return array
      */
-    public function mapArray(array &$array)
+    public function mapArray(array &$array, $keepOrigFields = false)
     {
         $mappedData = [];
         foreach ($array as $oldField => $value) {
-            $newField           = $this->getMappedField($oldField);
-            $field              = $newField === null ? $oldField : $newField;
+            $newField = $this->getMappedField($oldField);
+            $field    = $newField === null ? $oldField : $newField;
+            if ($keepOrigFields) {
+                $mappedData[$oldField] = $value;
+            }
             $mappedData[$field] = $value;
         }
 
@@ -197,15 +195,16 @@ class Mapper
 
     /**
      * @param array|\Magento\Framework\DataObject $data
+     * @param bool                                $keepOrigFields
      *
      * @return array|\Magento\Framework\DataObject
      */
-    public function map(&$data)
+    public function map(&$data, $keepOrigFields = false)
     {
         if (is_array($data)) {
-            $data = $this->mapArray($data);
+            $data = $this->mapArray($data, $keepOrigFields);
         } elseif ($data instanceof \Magento\Framework\DataObject) {
-            $data = $this->mapObject($data);
+            $data = $this->mapObject($data, $keepOrigFields);
         }
 
         return $data;

@@ -17,17 +17,18 @@ class Iterator extends \MageModule\Core\Model\Data\Formatter
      * @param \MageModule\Core\Model\Data\FormatterInterface $formatter
      * @param \MageModule\Core\Model\Data\Mapper|null        $systemFieldMapper
      * @param \MageModule\Core\Model\Data\Mapper|null        $customFieldMapper
-     * @param array                                          $iterators
-     * @param string                                         $format
-     * @param string|array|null                              $glue
-     * @param string|array|null                              $prepend
-     * @param string|array|null                              $append
-     * @param string|null                                    $valueWrapPattern
-     * @param array                                          $includedFields
-     * @param array                                          $excludedFields
-     * @param bool                                           $allowNewlineChar
-     * @param bool                                           $allowReturnChar
-     * @param bool                                           $allowTabChar
+     * @param array                                                          $iterators
+     * @param string                                                         $format
+     * @param string|array|null                                              $glue
+     * @param string|array|null                                              $prepend
+     * @param string|array|null                                              $append
+     * @param string|null                                                    $valueWrapPattern
+     * @param array                                                          $includedFields
+     * @param array                                                          $excludedFields
+     * @param array                                                          $defaultValues
+     * @param bool                                                           $allowNewlineChar
+     * @param bool                                                           $allowReturnChar
+     * @param bool                                                           $allowTabChar
      */
     public function __construct(
         \Magento\Framework\DataObjectFactory $objectFactory,
@@ -43,9 +44,10 @@ class Iterator extends \MageModule\Core\Model\Data\Formatter
         $valueWrapPattern = null,
         array $includedFields = [],
         array $excludedFields = [],
-        $allowNewlineChar = false,
-        $allowReturnChar = false,
-        $allowTabChar = false
+        array $defaultValues = [],
+        $allowNewlineChar = true,
+        $allowReturnChar = true,
+        $allowTabChar = true
     ) {
         parent::__construct(
             $objectFactory,
@@ -60,6 +62,7 @@ class Iterator extends \MageModule\Core\Model\Data\Formatter
             $valueWrapPattern,
             $includedFields,
             $excludedFields,
+            $defaultValues,
             $allowNewlineChar,
             $allowReturnChar,
             $allowTabChar

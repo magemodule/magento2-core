@@ -156,6 +156,20 @@ interface FormatterInterface
     public function getExcludedFields();
 
     /**
+     * Array should be structure $field => $defaultValue
+     *
+     * @param array $values
+     *
+     * @return $this
+     */
+    public function setDefaultValues(array $values);
+
+    /**
+     * @return array
+     */
+    public function getDefaultValues();
+
+    /**
      * @param array|\Magento\Framework\DataObject $item
      *
      * @return string|array|\Magento\Framework\DataObject

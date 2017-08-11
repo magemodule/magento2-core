@@ -131,6 +131,9 @@ class Formatter implements FormatterInterface
         $this->objectFactory     = $objectFactory;
         $this->helper            = $helper;
         $this->systemFieldMapper = $systemFieldMapper;
+        $this->setAllowNewlineChar($allowNewlineChar);
+        $this->setAllowReturnChar($allowReturnChar);
+        $this->setAllowTabChar($allowTabChar);
         $this->setCustomFieldMapper($customFieldMapper);
         $this->setIterators($iterators);
         $this->setFormat($format);
@@ -141,9 +144,6 @@ class Formatter implements FormatterInterface
         $this->setIncludedFields($includedFields);
         $this->setExcludedFields($excludedFields);
         $this->setDefaultValues($defaultValues);
-        $this->setAllowNewlineChar($allowNewlineChar);
-        $this->setAllowReturnChar($allowReturnChar);
-        $this->setAllowTabChar($allowTabChar);
     }
 
     /**
@@ -457,6 +457,25 @@ class Formatter implements FormatterInterface
     }
 
     /**
+     * @param null|string $field
+     * @param null|string $value
+     * @param null|string $pattern
+     *
+     * @return string
+     */
+    public function convertPlaceholderValues($field = null, $value = null, $pattern = null)
+    {
+        $pairs['{{FIELD}}']   = strtoupper($field);
+        $pairs['{{field}}']   = strtolower($field);
+        $pairs['{{value}}']   = $value;
+        $pairs['{{newline}}'] = $this->getAllowNewlineChar() ? PHP_EOL : null;
+        $pairs['{{return}}']  = $this->getAllowReturnChar() ? "\r" : null;
+        $pairs['{{tab}}']     = $this->getAllowTabChar() ? "\t" : null;
+
+        return str_replace(array_keys($pairs), $pairs, $pattern);
+    }
+
+    /**
      * @param string|null $field
      * @param string|null $value
      * @param string|null $pattern
@@ -469,14 +488,7 @@ class Formatter implements FormatterInterface
             $pattern = $this->getValueWrapPattern();
         }
 
-        $pairs['{{FIELD}}']   = strtoupper($field);
-        $pairs['{{field}}']   = strtolower($field);
-        $pairs['{{value}}']   = $value;
-        $pairs['{{newline}}'] = $this->getAllowNewlineChar() ? PHP_EOL : null;
-        $pairs['{{return}}']  = $this->getAllowReturnChar() ? "\r" : null;
-        $pairs['{{tab}}']     = $this->getAllowTabChar() ? "\t" : null;
-
-        return str_replace(array_keys($pairs), $pairs, $pattern);
+        return $this->convertPlaceholderValues($field, $value, $pattern);
     }
 
     /**

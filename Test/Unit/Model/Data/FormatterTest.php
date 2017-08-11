@@ -1,4 +1,19 @@
 <?php
+/**
+ * Copyright (c) 2017 MageModule: All rights reserved
+ *
+ * LICENSE: This source file is subject to our standard End User License
+ * Agreeement (EULA) that is available through the world-wide-web at the
+ * following URI: http://www.magemodule.com/magento2-ext-license.html.
+ *
+ * If you did not receive a copy of the EULA and are unable to obtain it through
+ * the web, please send a note to admin@magemodule.com so that we can mail
+ * you a copy immediately.
+ *
+ * @author        MageModule admin@magemodule.com
+ * @copyright     2017 MageModule
+ * @license       http://www.magemodule.com/magento2-ext-license.html
+ */
 
 namespace MageModule\Core\Test\Unit\Model\Data;
 
@@ -29,9 +44,9 @@ class FormatterTest extends \PHPUnit_Framework_TestCase
         $this->objectManager = new \Magento\Framework\TestFramework\Unit\Helper\ObjectManager($this);
 
         $objectFactoryMock = $this->getMockBuilder('Magento\Framework\DataObjectFactory')
-                                  ->setMethods(['create'])
-                                  ->disableOriginalConstructor()
-                                  ->getMock();
+            ->setMethods(['create'])
+            ->disableOriginalConstructor()
+            ->getMock();
         $objectFactoryMock->method('create')->willReturn(
             $this->objectManager->getObject(\Magento\Framework\DataObject::class)
         );
@@ -48,9 +63,9 @@ class FormatterTest extends \PHPUnit_Framework_TestCase
         );
 
         $iteratorFactoryMock = $this->getMockBuilder('MageModule\Core\Model\Data\Formatter\IteratorFactory')
-                                    ->setMethods(['create'])
-                                    ->disableOriginalConstructor()
-                                    ->getMock();
+            ->setMethods(['create'])
+            ->disableOriginalConstructor()
+            ->getMock();
         $iteratorFactoryMock->method('create')->willReturn(
             $this->objectManager->getObject(\MageModule\Core\Model\Data\Formatter\Iterator::class)
         );

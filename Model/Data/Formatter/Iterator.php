@@ -30,8 +30,8 @@ class Iterator extends \MageModule\Core\Model\Data\Formatter
      * @param \Magento\Framework\DataObjectFactory           $objectFactory
      * @param \MageModule\Core\Helper\Data                   $helper
      * @param \MageModule\Core\Model\Data\FormatterInterface $formatter
-     * @param \MageModule\Core\Model\Data\Mapper|null        $systemFieldMapper
-     * @param \MageModule\Core\Model\Data\Mapper|null        $customFieldMapper
+     * @param \MageModule\Core\Model\Data\Mapper             $systemFieldMapper
+     * @param \MageModule\Core\Model\Data\Mapper             $customFieldMapper
      * @param array                                          $iterators
      * @param string                                         $format
      * @param string|array|null                              $glue
@@ -49,8 +49,8 @@ class Iterator extends \MageModule\Core\Model\Data\Formatter
         \Magento\Framework\DataObjectFactory $objectFactory,
         \MageModule\Core\Helper\Data $helper,
         \MageModule\Core\Model\Data\FormatterInterface $formatter,
-        \MageModule\Core\Model\Data\Mapper $systemFieldMapper = null,
-        \MageModule\Core\Model\Data\Mapper $customFieldMapper = null,
+        \MageModule\Core\Model\Data\Mapper $systemFieldMapper,
+        \MageModule\Core\Model\Data\Mapper $customFieldMapper,
         array $iterators = [],
         $format = 'string',
         $glue = null,

@@ -108,28 +108,28 @@ class Formatter implements FormatterInterface
     /**
      * Formatter constructor.
      *
-     * @param \Magento\Framework\DataObjectFactory    $objectFactory
-     * @param \MageModule\Core\Helper\Data            $helper
-     * @param \MageModule\Core\Model\Data\Mapper|null $systemFieldMapper
-     * @param \MageModule\Core\Model\Data\Mapper|null $customFieldMapper
-     * @param array                                   $iterators
-     * @param string                                  $format
-     * @param string|array|null                       $glue
-     * @param string|array|null                       $prepend
-     * @param string|array|null                       $append
-     * @param string|null                             $valueWrapPattern
-     * @param array                                   $includedFields
-     * @param array                                   $excludedFields
-     * @param array                                   $defaultValues
-     * @param bool                                    $allowNewlineChar
-     * @param bool                                    $allowReturnChar
-     * @param bool                                    $allowTabChar
+     * @param \Magento\Framework\DataObjectFactory $objectFactory
+     * @param \MageModule\Core\Helper\Data         $helper
+     * @param \MageModule\Core\Model\Data\Mapper   $systemFieldMapper
+     * @param \MageModule\Core\Model\Data\Mapper   $customFieldMapper
+     * @param array                                $iterators
+     * @param string                               $format
+     * @param string|array|null                    $glue
+     * @param string|array|null                    $prepend
+     * @param string|array|null                    $append
+     * @param string|null                          $valueWrapPattern
+     * @param array                                $includedFields
+     * @param array                                $excludedFields
+     * @param array                                $defaultValues
+     * @param bool                                 $allowNewlineChar
+     * @param bool                                 $allowReturnChar
+     * @param bool                                 $allowTabChar
      */
     public function __construct(
         \Magento\Framework\DataObjectFactory $objectFactory,
         \MageModule\Core\Helper\Data $helper,
-        \MageModule\Core\Model\Data\Mapper $systemFieldMapper = null,
-        \MageModule\Core\Model\Data\Mapper $customFieldMapper = null,
+        \MageModule\Core\Model\Data\Mapper $systemFieldMapper,
+        \MageModule\Core\Model\Data\Mapper $customFieldMapper,
         array $iterators = [],
         $format = 'string',
         $glue = null,

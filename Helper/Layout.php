@@ -64,4 +64,16 @@ class Layout extends \Magento\Framework\App\Helper\AbstractHelper
     {
         return in_array($handle, $this->getHandles());
     }
+
+    /**
+     * @param string $handle
+     *
+     * @return $this
+     */
+    public function addHandle($handle)
+    {
+        $this->getUpdate()->addHandle($handle);
+
+        return $this;
+    }
 }

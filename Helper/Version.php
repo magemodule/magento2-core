@@ -29,6 +29,23 @@ class Version extends \Magento\Framework\App\Helper\AbstractHelper
     }
 
     /**
+     * @param string|float $version - full version number
+     * @param int          $add
+     *
+     * @return string
+     */
+    public function addMajorVersion($version, $add)
+    {
+        $major = (int)$this->getMajorVersion($version);
+        $minor = (int)$this->getMinorVersion($version);
+        $patch = (int)$this->getPatchVersion($version);
+
+        $major += $add;
+
+        return $major . '.' . $minor . '.' . $patch;
+    }
+
+    /**
      * @param string|float $value
      *
      * @return int
@@ -41,6 +58,23 @@ class Version extends \Magento\Framework\App\Helper\AbstractHelper
     }
 
     /**
+     * @param string|float $version - full version number
+     * @param int          $add
+     *
+     * @return string
+     */
+    public function addMinorVersion($version, $add)
+    {
+        $major = (int)$this->getMajorVersion($version);
+        $minor = (int)$this->getMinorVersion($version);
+        $patch = (int)$this->getPatchVersion($version);
+
+        $minor += $add;
+
+        return $major . '.' . $minor . '.' . $patch;
+    }
+
+    /**
      * @param string|float $value
      *
      * @return int
@@ -50,5 +84,22 @@ class Version extends \Magento\Framework\App\Helper\AbstractHelper
         $parts = explode('.', $value);
 
         return isset($parts[2]) ? (int)$parts[2] : 0;
+    }
+
+    /**
+     * @param string|float $version - full version number
+     * @param int          $add
+     *
+     * @return string
+     */
+    public function addPatchVersion($version, $add)
+    {
+        $major = (int)$this->getMajorVersion($version);
+        $minor = (int)$this->getMinorVersion($version);
+        $patch = (int)$this->getPatchVersion($version);
+
+        $patch += $add;
+
+        return $major . '.' . $minor . '.' . $patch;
     }
 }

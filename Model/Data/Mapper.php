@@ -68,7 +68,7 @@ class Mapper
     {
         foreach ($mapping as $field) {
             if (!is_string($field)) {
-                throw new LocalizedException(__('Mapped field names must be a string.'));
+          //      throw new LocalizedException(__('Mapped field names must be a string.'));
             }
         }
 
@@ -202,7 +202,14 @@ class Mapper
             if ($keepOrigFields) {
                 $mappedData[$oldField] = $value;
             }
-            $mappedData[$field] = $value;
+
+            if(is_array($field)){
+                foreach($field as $subfield){
+                    $mappedData[$subfield] = $value;
+                }
+            } else {
+                $mappedData[$field] = $value;
+            }
         }
 
         return $array = $mappedData;

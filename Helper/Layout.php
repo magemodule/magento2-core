@@ -52,7 +52,10 @@ class Layout extends \Magento\Framework\App\Helper\AbstractHelper
      */
     public function getHandles()
     {
-        return $this->getUpdate()->getHandles();
+        $handles = $this->getUpdate()->getHandles();
+        $handles[] = $this->getView()->getDefaultLayoutHandle();
+
+        return $handles;
     }
 
     /**

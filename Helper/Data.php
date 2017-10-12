@@ -154,4 +154,32 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
 
         return $result;
     }
+
+    /**
+     * @param string $needle
+     * @param string $haystack
+     *
+     * @return bool
+     */
+    public function startsWith($needle, $haystack)
+    {
+        return strpos($haystack, $needle) === 0;
+    }
+
+    /**
+     * @param string $needle
+     * @param string $haystack
+     *
+     * @return bool
+     */
+    public function endsWith($needle, $haystack)
+    {
+        $strlen  = strlen($haystack);
+        $testlen = strlen($needle);
+        if ($testlen > $strlen) {
+            return false;
+        }
+
+        return substr_compare($haystack, $needle, $strlen - $testlen, $testlen) === 0;
+    }
 }

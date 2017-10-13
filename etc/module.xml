@@ -13,6 +13,7 @@
   ~ @author       MageModule admin@magemodule.com
   ~ @copyright   2017 MageModule
   ~ @license       http://www.magemodule.com/magento2-ext-license.html
+  ~
   -->
 
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Module/etc/module.xsd">

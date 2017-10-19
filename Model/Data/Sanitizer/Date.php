@@ -27,10 +27,14 @@ class Date implements \MageModule\Core\Model\Data\SanitizerInterface
     public function sanitize($value)
     {
         if ($value !== null && $value !== false && $value !== '') {
-            $value = $this->dateTime->formatDate(
-                str_replace(['//', '/', '--'], '-', $value),
-                false
-            );
+            try {
+                $value = $this->dateTime->formatDate(
+                    str_replace(['//', '/', '--'], '-', $value),
+                    false
+                );
+            } catch (\Exception $e){
+                $value = null;
+            }
         }
 
         return $value;

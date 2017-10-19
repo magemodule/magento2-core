@@ -26,11 +26,13 @@ class DateTime implements \MageModule\Core\Model\Data\SanitizerInterface
      */
     public function sanitize($value)
     {
-        if ($value !== null && $value !== false && $value !== '') {
+        try {
             $value = $this->dateTime->formatDate(
                 str_replace(['//', '/', '--'], '-', $value),
                 true
             );
+        } catch (\Exception $e){
+            $value = null;
         }
 
         return $value;

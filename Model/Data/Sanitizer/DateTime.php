@@ -2,7 +2,7 @@
 
 namespace MageModule\Core\Model\Data\Sanitizer;
 
-class Date implements \MageModule\Core\Model\Data\SanitizerInterface
+class DateTime implements \MageModule\Core\Model\Data\SanitizerInterface
 {
     /**
      * @var \Magento\Framework\Stdlib\DateTime
@@ -29,7 +29,7 @@ class Date implements \MageModule\Core\Model\Data\SanitizerInterface
         if ($value !== null && $value !== false && $value !== '') {
             $value = $this->dateTime->formatDate(
                 str_replace(['//', '/', '--'], '-', $value),
-                false
+                true
             );
         }
 

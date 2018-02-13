@@ -26,6 +26,11 @@ class File extends \Magento\Framework\App\Helper\AbstractHelper
     private $directoryList;
 
     /**
+     * @var \Magento\Framework\Filesystem\Io\File
+     */
+    private $fileIo;
+
+    /**
      * File constructor.
      *
      * @param \Magento\Framework\App\Helper\Context           $context
@@ -33,10 +38,12 @@ class File extends \Magento\Framework\App\Helper\AbstractHelper
      */
     public function __construct(
         \Magento\Framework\App\Helper\Context $context,
-        \Magento\Framework\App\Filesystem\DirectoryList $directoryList
+        \Magento\Framework\App\Filesystem\DirectoryList $directoryList,
+        \Magento\Framework\Filesystem\Io\File $fileIo
     ) {
         parent::__construct($context);
         $this->directoryList = $directoryList;
+        $this->fileIo        = $fileIo;
     }
 
     /**
@@ -56,5 +63,18 @@ class File extends \Magento\Framework\App\Helper\AbstractHelper
         }
 
         return $filepath;
+    }
+
+    /**
+     * Is file exists
+     *
+     * @param string $file
+     * @param bool   $onlyFile
+     *
+     * @return bool
+     */
+    public function fileExists($file, $onlyFile = true)
+    {
+        return $this->fileIo->fileExists($file, $onlyFile);
     }
 }

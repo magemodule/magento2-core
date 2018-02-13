@@ -10,8 +10,8 @@
  * the web, please send a note to admin@magemodule.com so that we can mail
  * you a copy immediately.
  *
- * @author        MageModule admin@magemodule.com
- * @copyright     2018 MageModule
+ * @author       MageModule admin@magemodule.com
+ * @copyright   2018 MageModule
  * @license       http://www.magemodule.com/magento2-ext-license.html
  *
  */

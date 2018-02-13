@@ -16,14 +16,9 @@
  *
  */
 
-namespace MageModule\Core\Model\Data;
+namespace MageModule\Core\Helper;
 
-interface SanitizerInterface
+class File extends \Magento\Framework\App\Helper\AbstractHelper
 {
-    /**
-     * @param string $value
-     *
-     * @return string
-     */
-    public function sanitize($value);
+
 }

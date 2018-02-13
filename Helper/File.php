@@ -10,8 +10,8 @@
  * the web, please send a note to admin@magemodule.com so that we can mail
  * you a copy immediately.
  *
- * @author       MageModule admin@magemodule.com
- * @copyright   2018 MageModule
+ * @author        MageModule admin@magemodule.com
+ * @copyright     2018 MageModule
  * @license       http://www.magemodule.com/magento2-ext-license.html
  *
  */
@@ -20,5 +20,41 @@ namespace MageModule\Core\Helper;
 
 class File extends \Magento\Framework\App\Helper\AbstractHelper
 {
+    /**
+     * @var \Magento\Framework\App\Filesystem\DirectoryList
+     */
+    private $directoryList;
 
+    /**
+     * File constructor.
+     *
+     * @param \Magento\Framework\App\Helper\Context           $context
+     * @param \Magento\Framework\App\Filesystem\DirectoryList $directoryList
+     */
+    public function __construct(
+        \Magento\Framework\App\Helper\Context $context,
+        \Magento\Framework\App\Filesystem\DirectoryList $directoryList
+    ) {
+        parent::__construct($context);
+        $this->directoryList = $directoryList;
+    }
+
+    /**
+     * If the filepath begins with "/" it is considered to already be the absolute path. If it does
+     * not begin with a "/" then the Magento root path will be prepended to the filepath
+     *
+     * @param string $filepath
+     *
+     * @return string
+     */
+    public function getAbsolutePath($filepath)
+    {
+        if (strpos($filepath, DIRECTORY_SEPARATOR) !== 0) {
+            $filepath = rtrim($this->directoryList->getRoot(), DIRECTORY_SEPARATOR) .
+                        DIRECTORY_SEPARATOR .
+                        trim($filepath);
+        }
+
+        return $filepath;
+    }
 }

@@ -98,4 +98,52 @@ class File extends \Magento\Framework\App\Helper\AbstractHelper
     {
         return $this->fileIo->fileExists($file, $onlyFile);
     }
+
+    /**
+     * @param string $filepath
+     *
+     * @return string|null
+     */
+    public function getDirname($filepath)
+    {
+        $info = $this->fileIo->getPathInfo($filepath);
+
+        return isset($info['dirname']) ? $info['dirname'] : null;
+    }
+
+    /**
+     * @param string $filepath
+     *
+     * @return string|null
+     */
+    public function getBasename($filepath)
+    {
+        $info = $this->fileIo->getPathInfo($filepath);
+
+        return isset($info['basename']) ? $info['basename'] : null;
+    }
+
+    /**
+     * @param string $filepath
+     *
+     * @return string|null
+     */
+    public function getExtension($filepath)
+    {
+        $info = $this->fileIo->getPathInfo($filepath);
+
+        return isset($info['extension']) ? $info['extension'] : null;
+    }
+
+    /**
+     * @param string $filepath
+     *
+     * @return string|null
+     */
+    public function getFilename($filepath)
+    {
+        $info = $this->fileIo->getPathInfo($filepath);
+
+        return isset($info['filename']) ? $info['filename'] : null;
+    }
 }

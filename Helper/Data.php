@@ -10,8 +10,8 @@
  * the web, please send a note to admin@magemodule.com so that we can mail
  * you a copy immediately.
  *
- * @author       MageModule admin@magemodule.com
- * @copyright   2018 MageModule
+ * @author        MageModule admin@magemodule.com
+ * @copyright     2018 MageModule
  * @license       http://www.magemodule.com/magento2-ext-license.html
  *
  */
@@ -33,8 +33,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
             }
 
             return $value;
-        },
-            $array);
+        }, $array);
     }
 
     /**
@@ -159,28 +158,28 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     /**
      * @param string $needle
      * @param string $haystack
+     * @param bool   $caseSensitive
      *
      * @return bool
      */
-    public function startsWith($needle, $haystack)
+    public function startsWith($needle, $haystack, $caseSensitive = true)
     {
-        return strpos($haystack, $needle) === 0;
+        $modifier = $caseSensitive ? null : 'i';
+
+        return (bool)preg_match('/^'. preg_quote($needle) .'/' . $modifier, $haystack);
     }
 
     /**
      * @param string $needle
      * @param string $haystack
+     * @param bool   $caseSensitive
      *
      * @return bool
      */
-    public function endsWith($needle, $haystack)
+    public function endsWith($needle, $haystack, $caseSensitive = true)
     {
-        $strlen  = strlen($haystack);
-        $testlen = strlen($needle);
-        if ($testlen > $strlen) {
-            return false;
-        }
+        $modifier = $caseSensitive ? null : 'i';
 
-        return substr_compare($haystack, $needle, $strlen - $testlen, $testlen) === 0;
+        return (bool)preg_match('/'. preg_quote($needle) .'$/' . $modifier, $haystack);
     }
 }

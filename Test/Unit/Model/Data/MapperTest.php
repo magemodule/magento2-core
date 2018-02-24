@@ -18,13 +18,8 @@
 
 namespace MageModule\Core\Test\Unit\Model\Data;
 
-class MapperTest extends \PHPUnit_Framework_TestCase
+class MapperTest extends \Magento\Framework\TestFramework\Unit\BaseTestCase
 {
-    /**
-     * @var \Magento\Framework\TestFramework\Unit\Helper\ObjectManager
-     */
-    private $objectManager;
-
     /**
      * @var \MageModule\Core\Model\Data\Mapper
      */
@@ -32,7 +27,7 @@ class MapperTest extends \PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $this->objectManager = new \Magento\Framework\TestFramework\Unit\Helper\ObjectManager($this);
+        parent::setUp();
 
         $helper = $this->objectManager->getObject(\MageModule\Core\Helper\Data::class);
 

@@ -57,9 +57,30 @@ class File extends \Magento\Framework\App\Helper\AbstractHelper
     public function getAbsolutePath($filepath)
     {
         if (strpos($filepath, DIRECTORY_SEPARATOR) !== 0) {
-            $filepath = rtrim($this->directoryList->getRoot(), DIRECTORY_SEPARATOR) .
-                        DIRECTORY_SEPARATOR .
-                        trim($filepath);
+            $filepath = $this->assembleFilepath([
+                $this->directoryList->getRoot(),
+                $filepath
+            ]);
+        }
+
+        return $filepath;
+    }
+
+    /**
+     * @param array  $parts
+     * @param string $glue
+     *
+     * @return string
+     */
+    public function assembleFilepath(array $parts, $absolute = true, $glue = DIRECTORY_SEPARATOR)
+    {
+        $parts = array_map(function ($value) use ($glue) {
+            return trim($value, $glue);
+        }, $parts);
+
+        $filepath = implode($glue, $parts);
+        if ($absolute === true) {
+            $filepath = $glue . $filepath;
         }
 
         return $filepath;

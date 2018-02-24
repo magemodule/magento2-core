@@ -2,23 +2,23 @@
 /**
  * Copyright (c) 2018 MageModule: All rights reserved
  *
- * LICENSE: This source file is subject to our standard End User License 
- * Agreeement (EULA) that is available through the world-wide-web at the 
- * following URI: http://www.magemodule.com/magento2-ext-license.html.  
+ * LICENSE: This source file is subject to our standard End User License
+ * Agreeement (EULA) that is available through the world-wide-web at the
+ * following URI: http://www.magemodule.com/magento2-ext-license.html.
  *
- * If you did not receive a copy of the EULA and are unable to obtain it through 
- * the web, please send a note to admin@magemodule.com so that we can mail 
+ * If you did not receive a copy of the EULA and are unable to obtain it through
+ * the web, please send a note to admin@magemodule.com so that we can mail
  * you a copy immediately.
  *
- * @author       MageModule admin@magemodule.com 
- * @copyright   2018 MageModule
+ * @author        MageModule admin@magemodule.com
+ * @copyright     2018 MageModule
  * @license       http://www.magemodule.com/magento2-ext-license.html
  *
  */
 
 namespace MageModule\Core\Test\Unit\Helper;
 
-class DataTest extends \PHPUnit_Framework_TestCase
+class DataTest extends \Magento\Framework\TestFramework\Unit\BaseTestCase
 {
     /**
      * @var \MageModule\Core\Helper\Data
@@ -27,8 +27,8 @@ class DataTest extends \PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $objectManager = new \Magento\Framework\TestFramework\Unit\Helper\ObjectManager($this);
-        $this->helper  = $objectManager->getObject(\MageModule\Core\Helper\Data::class);
+        parent::setUp();
+        $this->helper = $this->objectManager->getObject(\MageModule\Core\Helper\Data::class);
     }
 
     /**
@@ -192,5 +192,103 @@ class DataTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('0', $result[0]);
         $this->assertEquals('0/entity_id', $result[1]);
         $this->assertEquals('0/2/some', $result[8]);
+    }
+
+    public function testStartsWithSameCaseAndIsCaseSensitive()
+    {
+        $needle   = 'something-';
+        $haystack = 'something-is-in this string';
+        $this->assertTrue($this->helper->startsWith($needle, $haystack, true));
+    }
+
+    public function testStartsWithSameCaseAndIsNotCaseSensitive()
+    {
+        $needle   = 'something-';
+        $haystack = 'something-is-in this string';
+        $this->assertTrue($this->helper->startsWith($needle, $haystack, false));
+    }
+
+    public function testStartsWithDifferentCaseAndIsCaseSensitive()
+    {
+        $needle   = 'Something';
+        $haystack = 'something is in this string';
+        $this->assertFalse($this->helper->startsWith($needle, $haystack, true));
+    }
+
+    public function testStartsWithDifferentCaseAndIsNotCaseSensitive()
+    {
+        $needle   = 'Something';
+        $haystack = 'something is in this string';
+        $this->assertTrue($this->helper->startsWith($needle, $haystack, false));
+    }
+
+    public function testDoesNotStartsWithContainsSpecialChars()
+    {
+        $needle = '^checking';
+        $haystack = '^chec$king this # \\ thing out.';
+        $this->assertFalse($this->helper->startsWith($needle, $haystack, false));
+    }
+
+    public function testStartsWithContainsSpecialCharsAndIsNotCaseSensitive()
+    {
+        $needle = '^Chec$king';
+        $haystack = '^chec$king this # \\ thing out.';
+        $this->assertTrue($this->helper->startsWith($needle, $haystack, false));
+    }
+
+    public function testStartsWithContainsSpecialCharsAndIsCaseSensitive()
+    {
+        $needle = '^Chec$king';
+        $haystack = '^chec$king this # \\ thing out.';
+        $this->assertFalse($this->helper->startsWith($needle, $haystack, true));
+    }
+
+    public function testEndsWithSameCaseAndIsCaseSensitive()
+    {
+        $needle   = 'string';
+        $haystack = 'something-is-in this string';
+        $this->assertTrue($this->helper->endsWith($needle, $haystack, true));
+    }
+
+    public function testEndsWithSameCaseAndIsNotCaseSensitive()
+    {
+        $needle   = 'string';
+        $haystack = 'something-is-in this string';
+        $this->assertTrue($this->helper->endsWith($needle, $haystack, false));
+    }
+
+    public function testEndsWithDifferentCaseAndIsCaseSensitive()
+    {
+        $needle   = 'String';
+        $haystack = 'something is in this string';
+        $this->assertFalse($this->helper->endsWith($needle, $haystack, true));
+    }
+
+    public function testEndsWithDifferentCaseButIsNotCaseSensitive()
+    {
+        $needle   = 'String';
+        $haystack = 'something is in this string';
+        $this->assertTrue($this->helper->endsWith($needle, $haystack, false));
+    }
+
+    public function testDoesNotEndWithContainsSpecialChars()
+    {
+        $needle = 'out';
+        $haystack = '^chec$king this # \\ thing out$.';
+        $this->assertFalse($this->helper->endsWith($needle, $haystack, false));
+    }
+
+    public function testEndsWithContainsSpecialCharsAndIsNotCaseSensitive()
+    {
+        $needle = 'Out$.';
+        $haystack = '^chec$king this # \\ thing out$.';
+        $this->assertTrue($this->helper->endsWith($needle, $haystack, false));
+    }
+
+    public function testEndsWithContainsSpecialCharsAndIsCaseSensitive()
+    {
+        $needle = 'Out$.';
+        $haystack = '^chec$king this # \\ thing out$.';
+        $this->assertFalse($this->helper->endsWith($needle, $haystack, true));
     }
 }

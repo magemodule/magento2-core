@@ -21,6 +21,8 @@ namespace MageModule\Core\Helper;
 class Version extends \Magento\Framework\App\Helper\AbstractHelper
 {
     /**
+     * Checks validity of a version number
+     *
      * @param string|float $value
      *
      * @return bool

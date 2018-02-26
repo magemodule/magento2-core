@@ -125,6 +125,8 @@ class Formatter implements FormatterInterface
      * @param bool                                 $allowNewlineChar
      * @param bool                                 $allowReturnChar
      * @param bool                                 $allowTabChar
+     *
+     * @throws \Magento\Framework\Exception\LocalizedException
      */
     public function __construct(
         \Magento\Framework\DataObjectFactory $objectFactory,
@@ -600,11 +602,7 @@ class Formatter implements FormatterInterface
      */
     public function filterArrayByExcludedFields(array &$array)
     {
-        foreach ($this->getExcludedFields() as $field => $null) {
-            if (isset($array[$field])) {
-                unset($array[$field]);
-            }
-        }
+        $this->helper->removeElements($array, $this->getExcludedFields());
     }
 
     /**

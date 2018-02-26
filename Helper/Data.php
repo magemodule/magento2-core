@@ -63,6 +63,19 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     }
 
     /**
+     * @param array $array
+     * @param array $keys
+     */
+    public function removeElements(array &$array, array $keys)
+    {
+        foreach ($array as $key => &$value) {
+            if (in_array($key, $keys)) {
+                unset($array[$key]);
+            }
+        }
+    }
+
+    /**
      * Takes a multidimensional array and makes sure that all subarrays have the exact same keys
      *
      * @param array $array

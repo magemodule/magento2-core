@@ -10,8 +10,8 @@
  * the web, please send a note to admin@magemodule.com so that we can mail
  * you a copy immediately.
  *
- * @author       MageModule admin@magemodule.com
- * @copyright   2018 MageModule
+ * @author        MageModule admin@magemodule.com
+ * @copyright     2018 MageModule
  * @license       http://www.magemodule.com/magento2-ext-license.html
  *
  */
@@ -30,8 +30,9 @@ class DateTime implements \MageModule\Core\Model\Data\SanitizerInterface
      *
      * @param \Magento\Framework\Stdlib\DateTime $dateTime
      */
-    public function __construct(\Magento\Framework\Stdlib\DateTime $dateTime)
-    {
+    public function __construct(
+        \Magento\Framework\Stdlib\DateTime $dateTime
+    ) {
         $this->dateTime = $dateTime;
     }
 
@@ -43,11 +44,14 @@ class DateTime implements \MageModule\Core\Model\Data\SanitizerInterface
     public function sanitize($value)
     {
         try {
-            $value = $this->dateTime->formatDate(
-                str_replace(['//', '/', '--'], '-', $value),
-                true
-            );
-        } catch (\Exception $e){
+            $value = str_replace('-', '/', $value);
+            $value = preg_replace("/[^A-Za-z0-9:\/ ]/", "", trim($value));
+            if ($value) {
+                $value = $this->dateTime->formatDate($value, true);
+            } else {
+                $value = null;
+            }
+        } catch (\Exception $e) {
             $value = null;
         }
 

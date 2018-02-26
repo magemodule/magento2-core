@@ -42,15 +42,16 @@ class Date implements \MageModule\Core\Model\Data\SanitizerInterface
      */
     public function sanitize($value)
     {
-        if ($value !== null && $value !== false && $value !== '') {
-            try {
-                $value = $this->dateTime->formatDate(
-                    str_replace(['//', '/', '--'], '-', $value),
-                    false
-                );
-            } catch (\Exception $e){
+        try {
+            $value = str_replace('-', '/', $value);
+            $value = preg_replace("/[^A-Za-z0-9:\/ ]/", "", trim($value));
+            if ($value) {
+                $value = $this->dateTime->formatDate($value, false);
+            } else {
                 $value = null;
             }
+        } catch (\Exception $e) {
+            $value = null;
         }
 
         return $value;

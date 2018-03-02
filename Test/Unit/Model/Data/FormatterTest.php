@@ -124,7 +124,12 @@ class FormatterTest extends \Magento\Framework\TestFramework\Unit\BaseTestCase
 
     public function testSetInvalidFormat()
     {
-        $this->expectException(\Magento\Framework\Exception\LocalizedException::class);
+        if (method_exists($this, 'expectException')) {
+            $this->expectException(\Magento\Framework\Exception\LocalizedException::class);
+        } else {
+            $this->setExpectedException(\Magento\Framework\Exception\LocalizedException::class);
+        }
+
         $this->formatter->setFormat('some unacceptable value');
     }
 

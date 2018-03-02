@@ -19,82 +19,68 @@ class DateTimeTest extends \Magento\Framework\TestFramework\Unit\BaseTestCase
         );
     }
 
-    public function testSanitizeV1()
+    /**
+     * @return array
+     */
+    public function dataProvider()
     {
-        $datetime = '2/24/18 17:10';
-        $expected = '2018-02-24 17:10:00';
-        $result   = $this->sanitizer->sanitize($datetime);
-        $this->assertEquals($expected, $result);
+        return [
+            [
+                '2/24/18 17:10',
+                '2018-02-24 17:10:00'
+            ],
+            [
+                '2/24/18 17:10:05',
+                '2018-02-24 17:10:05'
+            ],
+            [
+                '2/24/18 5:10PM',
+                '2018-02-24 17:10:00'
+            ],
+            [
+                '2/24/18 5:10AM',
+                '2018-02-24 05:10:00'
+            ],
+            [
+                '2-24-18 5:10PM',
+                '2018-02-24 17:10:00'
+            ],
+            [
+                '02/24/2018 17:10',
+                '2018-02-24 17:10:00'
+            ],
+            [
+                '2018/02/24 17:10',
+                '2018-02-24 17:10:00'
+            ],
+            [
+                '2018/24/02 17:10',
+                null
+            ],
+            [
+                '02/24/2018',
+                '2018-02-24 00:00:00'
+            ],
+            [
+                '2018-12-11',
+                '2018-12-11 00:00:00'
+            ]
+        ];
     }
 
-    public function testSanitizeV2()
+    /**
+     * @param string                     $value
+     * @param string|int|float|bool|null $expected
+     *
+     * @dataProvider  dataProvider
+     */
+    public function testSanitize($value, $expected)
     {
-        $datetime = '2/24/18 17:10:05';
-        $expected = '2018-02-24 17:10:05';
-        $result   = $this->sanitizer->sanitize($datetime);
-        $this->assertEquals($expected, $result);
-    }
-
-    public function testSanitizeV3()
-    {
-        $datetime = '2/24/18 5:10PM';
-        $expected = '2018-02-24 17:10:00';
-        $result   = $this->sanitizer->sanitize($datetime);
-        $this->assertEquals($expected, $result);
-    }
-
-    public function testSanitizeV4()
-    {
-        $datetime = '2/24/18 5:10AM';
-        $expected = '2018-02-24 17:10:00';
-        $result   = $this->sanitizer->sanitize($datetime);
-        $this->assertNotEquals($expected, $result);
-    }
-
-    public function testSanitizeV5()
-    {
-        $datetime = '2-24-18 5:10PM';
-        $expected = '2018-02-24 17:10:00';
-        $result   = $this->sanitizer->sanitize($datetime);
-        $this->assertEquals($expected, $result);
-    }
-
-    public function testSanitizeV6()
-    {
-        $datetime = '02/24/2018 17:10';
-        $expected = '2018-02-24 17:10:00';
-        $result   = $this->sanitizer->sanitize($datetime);
-        $this->assertEquals($expected, $result);
-    }
-
-    public function testSanitizeV7()
-    {
-        $datetime = '2018/02/24 17:10';
-        $expected = '2018-02-24 17:10:00';
-        $result   = $this->sanitizer->sanitize($datetime);
-        $this->assertEquals($expected, $result);
-    }
-
-    public function testSanitizeV8()
-    {
-        $datetime = '2018/24/02 17:10';
-        $result   = $this->sanitizer->sanitize($datetime);
-        $this->assertNull($result);
-    }
-
-    public function testSanitizeV9()
-    {
-        $datetime = '02/24/2018';
-        $expected = '2018-02-24 00:00:00';
-        $result   = $this->sanitizer->sanitize($datetime);
-        $this->assertEquals($expected, $result);
-    }
-
-    public function testSanitizeV10()
-    {
-        $datetime = '2018-12-11';
-        $expected = '2018-12-11 00:00:00';
-        $result   = $this->sanitizer->sanitize($datetime);
-        $this->assertEquals($expected, $result);
+        $result = $this->sanitizer->sanitize($value);
+        if ($expected === null) {
+            $this->assertNull($result);
+        } else {
+            $this->assertEquals($expected, $result);
+        }
     }
 }

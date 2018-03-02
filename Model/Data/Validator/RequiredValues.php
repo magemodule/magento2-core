@@ -1,15 +1,31 @@
 <?php
+/**
+ * Copyright (c) 2018 MageModule, LLC: All rights reserved
+ *
+ * LICENSE: This source file is subject to our standard End User License
+ * Agreeement (EULA) that is available through the world-wide-web at the
+ * following URI: http://www.magemodule.com/magento2-ext-license.html.
+ *
+ * If you did not receive a copy of the EULA and are unable to obtain it through
+ * the web, please send a note to admin@magemodule.com so that we can mail
+ * you a copy immediately.
+ *
+ * @author        MageModule, LLC admin@magemodule.com
+ * @copyright     2018 MageModule, LLC
+ * @license       http://www.magemodule.com/magento2-ext-license.html
+ *
+ */
 
 namespace MageModule\Core\Model\Data\Validator;
 
 /**
- * Validates that required fields are present in data. Does not validate presence of a value
+ * Validates that field(s) have values or if they are null or ''
  *
- * Class RequiredFields
+ * Class RequiredValues
  *
  * @package MageModule\Core\Model\Data\Validator
  */
-class RequiredFields implements \MageModule\Core\Model\Data\ValidatorInterface
+class RequiredValues implements \MageModule\Core\Model\Data\ValidatorInterface
 {
     /**
      * @var \MageModule\Core\Model\Data\Validator\ResultFactory
@@ -32,6 +48,26 @@ class RequiredFields implements \MageModule\Core\Model\Data\ValidatorInterface
     ) {
         $this->resultFactory  = $resultFactory;
         $this->requiredFields = $requiredFields;
+    }
+
+    /**
+     * @param array  $data
+     * @param string $field
+     *
+     * @return bool
+     */
+    private function test(array $data, $field)
+    {
+        $result = true;
+        if (!isset($data[$field])) {
+            $result = false;
+        } elseif ($data[$field] === null) {
+            $result = false;
+        } elseif (is_string($data[$field]) && trim($data[$field]) === '') {
+            $result = false;
+        }
+
+        return $result;
     }
 
     /**
@@ -63,25 +99,30 @@ class RequiredFields implements \MageModule\Core\Model\Data\ValidatorInterface
                 $presentFields    = [];
                 $notPresentFields = [];
                 foreach ($choices as $choice) {
-                    if (array_key_exists($choice, $data)) {
-                        $presentFields[] = $choice;
-                    } else {
+                    if (!$this->test($data, $choice)) {
                         $notPresentFields[] = $choice;
+                    } else {
+                        $presentFields[] = $choice;
                     }
                 }
 
-                if (count($presentFields) < $requiredCount) {
+                $presentFieldsCount = count($presentFields);
+                if ($presentFieldsCount < $requiredCount) {
                     $choiceMessage = sprintf(
-                        '%d of the following fields are required: %s.',
+                        '%d of the following fields are required to be present and contain a value: %s.',
                         $requiredCount,
                         implode(', ', $choices)
                     );
 
-                    if ($presentFields) {
+                    if ($presentFieldsCount === 1) {
                         $choiceMessage .= sprintf(
-                            ' However, only %s %s present.',
-                            implode(', ', $presentFields),
-                            count($presentFields) === 1 ? 'is' : 'are'
+                            ' However, only %s contains a value.',
+                            implode(', ', $presentFields)
+                        );
+                    } elseif ($presentFieldsCount > 1) {
+                        $choiceMessage .= sprintf(
+                            ' However, only %s contain values.',
+                            implode(', ', $presentFields)
                         );
                     }
 
@@ -93,14 +134,14 @@ class RequiredFields implements \MageModule\Core\Model\Data\ValidatorInterface
                         'missing'  => $notPresentFields
                     ];
                 }
-            } elseif (!array_key_exists($field, $data)) {
+            } elseif (!$this->test($data, $field)) {
                 $missingFields[] = $field;
             }
         }
 
         if ($missingFields) {
             $message = sprintf(
-                'The following required fields are missing: %s',
+                'The following required fields are either missing or do not contain a value: %s',
                 implode(', ', $missingFields)
             );
         }

@@ -36,7 +36,7 @@ class Validator
     }
 
     /**
-     * Returns true if valid, otherwise returns array containing messages
+     * Returns true if valid, otherwise returns array containing result objects
      *
      * @param array $data
      *
@@ -47,7 +47,10 @@ class Validator
         $result = [];
 
         foreach ($this->pool as $validator) {
-            $result[get_class($validator)][] = $validator->validate($data);
+            $validatorResult = $validator->validate($data);
+            if (!$validatorResult->isValid()) {
+                $result[] = $validatorResult;
+            }
         }
 
         return empty($result) ? true : $result;

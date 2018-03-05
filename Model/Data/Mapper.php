@@ -10,15 +10,13 @@
  * the web, please send a note to admin@magemodule.com so that we can mail
  * you a copy immediately.
  *
- * @author       MageModule admin@magemodule.com
- * @copyright   2018 MageModule
+ * @author        MageModule admin@magemodule.com
+ * @copyright     2018 MageModule
  * @license       http://www.magemodule.com/magento2-ext-license.html
  *
  */
 
 namespace MageModule\Core\Model\Data;
-
-use Magento\Framework\Exception\LocalizedException;
 
 class Mapper
 {
@@ -69,7 +67,7 @@ class Mapper
     {
         foreach ($mapping as $field) {
             if (!is_string($field)) {
-          //      throw new LocalizedException(__('Mapped field names must be a string.'));
+                //      throw new LocalizedException(__('Mapped field names must be a string.'));
             }
         }
 
@@ -83,6 +81,7 @@ class Mapper
      * @param array $mapping
      *
      * @return $this
+     * @throws \Magento\Framework\Exception\LocalizedException
      */
     public function setMapping(array $mapping)
     {
@@ -204,8 +203,8 @@ class Mapper
                 $mappedData[$oldField] = $value;
             }
 
-            if(is_array($field)){
-                foreach($field as $subfield){
+            if (is_array($field)) {
+                foreach ($field as $subfield) {
                     $mappedData[$subfield] = $value;
                 }
             } else {

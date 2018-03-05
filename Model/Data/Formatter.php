@@ -543,6 +543,7 @@ class Formatter implements FormatterInterface
             foreach ($this->getIncludedFields() as $field => $null) {
                 $newArray[$field] = isset($array[$field]) ? $array[$field] : null;
             }
+
             $array = $newArray;
         }
     }

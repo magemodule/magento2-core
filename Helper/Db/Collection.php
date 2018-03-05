@@ -10,8 +10,8 @@
  * the web, please send a note to admin@magemodule.com so that we can mail
  * you a copy immediately.
  *
- * @author       MageModule admin@magemodule.com
- * @copyright   2018 MageModule
+ * @author        MageModule admin@magemodule.com
+ * @copyright     2018 MageModule
  * @license       http://www.magemodule.com/magento2-ext-license.html
  *
  */
@@ -21,11 +21,6 @@ namespace MageModule\Core\Helper\Db;
 class Collection extends \Magento\Framework\App\Helper\AbstractHelper
 {
     /**
-     * @var \Magento\Framework\Stdlib\DateTime\DateTime
-     */
-    private $dateTime;
-
-    /**
      * @var \Magento\Framework\Stdlib\DateTime\TimezoneInterface
      */
     private $localeDate;
@@ -33,16 +28,14 @@ class Collection extends \Magento\Framework\App\Helper\AbstractHelper
     /**
      * Collection constructor.
      *
-     * @param \Magento\Framework\Stdlib\DateTime\DateTime $dateTime
-     * @param \Magento\Framework\App\Helper\Context       $context
+     * @param \Magento\Framework\Stdlib\DateTime\TimezoneInterface $localeDate
+     * @param \Magento\Framework\App\Helper\Context                $context
      */
     public function __construct(
-        \Magento\Framework\Stdlib\DateTime\DateTime $dateTime,
         \Magento\Framework\Stdlib\DateTime\TimezoneInterface $localeDate,
         \Magento\Framework\App\Helper\Context $context
     ) {
         parent::__construct($context);
-        $this->dateTime   = $dateTime;
         $this->localeDate = $localeDate;
     }
 
@@ -55,9 +48,12 @@ class Collection extends \Magento\Framework\App\Helper\AbstractHelper
      */
     public function getFromDateFilter($date)
     {
-        $timestamp = strtotime($date . ' 00:00:00') - $this->dateTime->calculateOffset($this->localeDate->getConfigTimezone());
-
-        return $this->dateTime->gmtDate(null, $timestamp);
+        /** @var \DateTime $datetime */
+        $datetime = new \DateTime($date);
+        $datetime->setTime(0, 0, 0);
+        return $datetime->format(
+            \Magento\Framework\Stdlib\DateTime::DATETIME_PHP_FORMAT
+        );
     }
 
     /**
@@ -69,8 +65,11 @@ class Collection extends \Magento\Framework\App\Helper\AbstractHelper
      */
     public function getToDateFilter($date)
     {
-        $timestamp = strtotime($date . ' 23:59:59') - $this->dateTime->calculateOffset($this->localeDate->getConfigTimezone());
-
-        return $this->dateTime->gmtDate(null, $timestamp);
+        /** @var \DateTime $datetime */
+        $datetime = new \DateTime($date);
+        $datetime->setTime(23, 59, 59);
+        return $datetime->format(
+            \Magento\Framework\Stdlib\DateTime::DATETIME_PHP_FORMAT
+        );
     }
 }

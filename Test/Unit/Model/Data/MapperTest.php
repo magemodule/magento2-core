@@ -2,16 +2,16 @@
 /**
  * Copyright (c) 2018 MageModule: All rights reserved
  *
- * LICENSE: This source file is subject to our standard End User License 
- * Agreeement (EULA) that is available through the world-wide-web at the 
- * following URI: http://www.magemodule.com/magento2-ext-license.html.  
+ * LICENSE: This source file is subject to our standard End User License
+ * Agreeement (EULA) that is available through the world-wide-web at the
+ * following URI: http://www.magemodule.com/magento2-ext-license.html.
  *
- * If you did not receive a copy of the EULA and are unable to obtain it through 
- * the web, please send a note to admin@magemodule.com so that we can mail 
+ * If you did not receive a copy of the EULA and are unable to obtain it through
+ * the web, please send a note to admin@magemodule.com so that we can mail
  * you a copy immediately.
  *
- * @author       MageModule admin@magemodule.com 
- * @copyright   2018 MageModule
+ * @author        MageModule admin@magemodule.com
+ * @copyright     2018 MageModule
  * @license       http://www.magemodule.com/magento2-ext-license.html
  *
  */
@@ -25,6 +25,11 @@ class MapperTest extends \Magento\Framework\TestFramework\Unit\BaseTestCase
      */
     private $model;
 
+    /**
+     * @var \Magento\Framework\DataObjectFactory
+     */
+    private $objectFactory;
+
     public function setUp()
     {
         parent::setUp();
@@ -35,6 +40,15 @@ class MapperTest extends \Magento\Framework\TestFramework\Unit\BaseTestCase
             \MageModule\Core\Model\Data\Mapper::class,
             ['helper' => $helper]
         );
+
+        $objectFactoryMock = $this->getMockBuilder('Magento\Framework\DataObjectFactory')
+            ->setMethods(['create'])
+            ->disableOriginalConstructor()
+            ->getMock();
+        $objectFactoryMock->method('create')->willReturn(
+            $this->objectManager->getObject(\Magento\Framework\DataObject::class)
+        );
+        $this->objectFactory = $objectFactoryMock;
     }
 
     /**
@@ -248,5 +262,58 @@ class MapperTest extends \Magento\Framework\TestFramework\Unit\BaseTestCase
         $this->model->setMapping($this->getValidMapping());
         $result = $this->model->getMappedField('some_non_field');
         $this->assertNull($result);
+    }
+
+    public function testMapObjectWithComplexField()
+    {
+        $data = [
+            'product_options' =>
+                [
+                    'options' =>
+                        [
+                            [
+                                'label'        => 'Test Text Field Option',
+                                'value'        => 'lorem ipsum',
+                                'print_value'  => 'lorem ipsum',
+                                'option_id'    => '1',
+                                'option_type'  => 'field',
+                                'option_value' => 'lorem ipsum',
+                                'custom_view'  => false,
+                            ],
+                            [
+                                'label'        => 'Test Drop Down Option',
+                                'value'        => 'Option Drop Down 2',
+                                'print_value'  => 'Option Drop Down 2',
+                                'option_id'    => '3',
+                                'option_type'  => 'drop_down',
+                                'option_value' => '2',
+                                'custom_view'  => false,
+                            ]
+                        ]
+
+                ]
+        ];
+
+        $object = $this->objectFactory->create();
+        $object->setData($data);
+
+        $this->model->setMapping(['product_options/options' => 'options']);
+        $result = $this->model->map($object, false);
+        $this->assertTrue(is_array($result->getData('product_options/options')));
+        $this->assertEquals($result->getData('product_options/options/0/label'), 'Test Text Field Option');
+        $this->assertEquals($result->getData('product_options/options/0/value'), 'lorem ipsum');
+        $this->assertEquals($result->getData('product_options/options/0/print_value'), 'lorem ipsum');
+        $this->assertEquals($result->getData('product_options/options/0/option_id'), '1');
+        $this->assertEquals($result->getData('product_options/options/0/option_type'), 'field');
+        $this->assertEquals($result->getData('product_options/options/0/option_value'), 'lorem ipsum');
+        $this->assertFalse($result->getData('product_options/options/0/custom_view'));
+
+        $this->assertEquals($result->getData('product_options/options/1/label'), 'Test Drop Down Option');
+        $this->assertEquals($result->getData('product_options/options/1/value'), 'Option Drop Down 2');
+        $this->assertEquals($result->getData('product_options/options/1/print_value'), 'Option Drop Down 2');
+        $this->assertEquals($result->getData('product_options/options/1/option_id'), '3');
+        $this->assertEquals($result->getData('product_options/options/1/option_type'), 'drop_down');
+        $this->assertEquals($result->getData('product_options/options/1/option_value'), '2');
+        $this->assertFalse($result->getData('product_options/options/1/custom_view'));
     }
 }

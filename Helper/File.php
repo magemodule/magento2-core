@@ -67,6 +67,21 @@ class File extends \Magento\Framework\App\Helper\AbstractHelper
     }
 
     /**
+     * @param string $filepath
+     *
+     * @return string
+     */
+    public function getRelativePath($filepath)
+    {
+        $root = $this->directoryList->getRoot();
+        if (strpos($filepath, $root) === 0) {
+            $filepath = ltrim(substr($filepath, strlen($root)), DIRECTORY_SEPARATOR);
+        }
+
+        return $filepath;
+    }
+
+    /**
      * @param array  $parts
      * @param string $glue
      *

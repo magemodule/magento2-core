@@ -716,7 +716,7 @@ class Formatter implements FormatterInterface
 
         $mapper = $this->getSystemFieldMapper();
         if ($mapper) {
-            $item = $this->getSystemFieldMapper()->map($item);
+            $item = $mapper->map($item);
         }
 
         $this->filterByIncludedFields($item);

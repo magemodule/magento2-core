@@ -22,4 +22,18 @@ abstract class AbstractTestCase extends \Magento\Framework\TestFramework\Unit\Ba
 
         return $method->invokeArgs($object, $parameters);
     }
+
+    /**
+     * Converts numeric and null to float
+     *
+     * @param array $data
+     */
+    public function floatify(array &$data)
+    {
+        foreach ($data as &$value) {
+            if (is_numeric($value) || $value === null) {
+                $value = (float)$value;
+            }
+        }
+    }
 }

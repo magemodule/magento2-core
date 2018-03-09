@@ -36,7 +36,9 @@ class FieldValidatorException extends \Exception
             $messages = [];
             foreach ($validators as $validator) {
                 $messages[] = sprintf(
-                    'Items contained within the %s field are missing the following fields: %s', $field, implode(', ', $validator->getInvalidData())
+                    'Items contained within the %s field are missing the following fields: %s',
+                    $field,
+                    implode(', ', $validator->getInvalidData())
                 );
             }
 

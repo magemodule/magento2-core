@@ -5,6 +5,11 @@ namespace MageModule\Core\Test\Integration;
 class AbstractTestCase extends \Magento\Framework\TestFramework\Unit\BaseTestCase
 {
     /**
+     * @var \Magento\Framework\App\ObjectManager
+     */
+    protected $objectManager;
+
+    /**
      * @var \Magento\Store\Model\StoreRepositoryFactory
      */
     private $storeRepositoryFactory;

@@ -5,6 +5,16 @@ namespace MageModule\Core\Test\Integration;
 class AbstractTestCase extends \Magento\Framework\TestFramework\Unit\BaseTestCase
 {
     /**
+     * @var \MageModule\Core\Helper\Data
+     */
+    private $coreHelper;
+
+    /**
+     * @var \MageModule\Core\Helper\File
+     */
+    private $fileHelper;
+
+    /**
      * @var \Magento\Store\Model\StoreRepositoryFactory
      */
     private $storeRepositoryFactory;
@@ -35,11 +45,6 @@ class AbstractTestCase extends \Magento\Framework\TestFramework\Unit\BaseTestCas
     private $groupFactory;
 
     /**
-     * @var \MageModule\Core\Helper\File
-     */
-    private $fileHelper;
-
-    /**
      * @var \Magento\Framework\Module\Dir\Reader
      */
     private $directoryReader;
@@ -54,13 +59,14 @@ class AbstractTestCase extends \Magento\Framework\TestFramework\Unit\BaseTestCas
         parent::setUp();
 
         $this->objectManager            = \Magento\TestFramework\ObjectManager::getInstance();
+        $this->coreHelper               = $this->objectManager->create(\MageModule\Core\Helper\Data::class);
+        $this->fileHelper               = $this->objectManager->create(\MageModule\Core\Helper\File::class);
         $this->storeRepositoryFactory   = $this->objectManager->create(\Magento\Store\Model\StoreRepositoryFactory::class);
         $this->storeManager             = $this->objectManager->create(\Magento\Store\Model\StoreManager::class);
         $this->storeFactory             = $this->objectManager->create(\Magento\Store\Model\StoreFactory::class);
         $this->websiteFactory           = $this->objectManager->create(\Magento\Store\Model\WebsiteFactory::class);
         $this->websiteRepositoryFactory = $this->objectManager->create(\Magento\Store\Model\WebsiteRepositoryFactory::class);
         $this->groupFactory             = $this->objectManager->create(\Magento\Store\Model\GroupFactory::class);
-        $this->fileHelper               = $this->objectManager->create(\MageModule\Core\Helper\File::class);
         $this->directoryReader          = $this->objectManager->create(\Magento\Framework\Module\Dir\Reader::class);
         $this->csvProcessor             = $this->objectManager->create(\MageModule\Core\Framework\File\Csv::class);
 
@@ -68,6 +74,22 @@ class AbstractTestCase extends \Magento\Framework\TestFramework\Unit\BaseTestCas
         $registry = $this->objectManager->get(\Magento\Framework\Registry::class);
         $registry->unregister('isSecureArea');
         $registry->register('isSecureArea', true);
+    }
+
+    /**
+     * @return \MageModule\Core\Helper\Data
+     */
+    protected function getCoreHelper()
+    {
+        return $this->coreHelper;
+    }
+
+    /**
+     * @return \MageModule\Core\Helper\File
+     */
+    protected function getFileHelper()
+    {
+        return $this->fileHelper;
     }
 
     /**
@@ -116,14 +138,6 @@ class AbstractTestCase extends \Magento\Framework\TestFramework\Unit\BaseTestCas
     protected function getGroupFactory()
     {
         return $this->groupFactory;
-    }
-
-    /**
-     * @return \MageModule\Core\Helper\File
-     */
-    protected function getFileHelper()
-    {
-        return $this->fileHelper;
     }
 
     /**

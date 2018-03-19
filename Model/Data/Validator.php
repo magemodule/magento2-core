@@ -30,7 +30,7 @@ class Validator
      *
      * @param \MageModule\Core\Model\Data\ValidatorInterface[] $pool
      */
-    public function __construct($pool)
+    public function __construct($pool = [])
     {
         $this->pool = $pool;
     }

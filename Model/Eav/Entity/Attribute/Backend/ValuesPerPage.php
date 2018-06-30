@@ -20,7 +20,7 @@ namespace MageModule\Core\Model\Eav\Entity\Attribute\Backend;
 class ValuesPerPage extends \Magento\Eav\Model\Entity\Attribute\Backend\AbstractBackend
 {
     /**
-     * @param \Magento\Framework\DataObject $object
+     * @param \MageModule\Core\Model\AbstractExtensibleModel $object
      *
      * @return $this
      */

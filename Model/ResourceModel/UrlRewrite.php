@@ -48,16 +48,17 @@ class UrlRewrite extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
     /**
      * Checks to see if the desired URL key is already in use by another object
      *
-     * @param int|null $objectId
-     * @param int      $storeId
-     * @param string   $desiredValue
+     * @param int|null    $objectId
+     * @param int         $storeId
+     * @param string      $desiredValue
+     * @param string|null $suffix
      *
      * @return bool
      * @throws \Magento\Framework\Exception\LocalizedException
      */
-    public function urlKeyExists($objectId, $storeId, $desiredValue)
+    public function urlKeyExists($objectId, $storeId, $desiredValue, $suffix = null)
     {
-        $value      = $this->formatUrlKey($desiredValue);
+        $value      = $this->formatUrlKey($desiredValue) . $suffix;
         $connection = $this->getConnection();
         $select     = $connection->select()->from(
             $this->getMainTable(),
@@ -77,22 +78,25 @@ class UrlRewrite extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
     /**
      * If desired URL key is already in use, appends a random 4-digit string to end of desired URL key
      *
-     * @param int|null $objectId
-     * @param int      $storeId
-     * @param string   $desiredValue
+     * @param int|null    $objectId
+     * @param int         $storeId
+     * @param string      $desiredValue
+     * @param string|null $suffix
      *
      * @return string
      * @throws \Magento\Framework\Exception\LocalizedException
      */
-    public function getUniqueUrlKey($objectId, $storeId, $desiredValue)
+    public function getUniqueUrlKey($objectId, $storeId, $desiredValue, $suffix = null)
     {
         $value     = $this->formatUrlKey($desiredValue);
         $origValue = $value;
 
-        while ($this->urlKeyExists($objectId, $storeId, $value)) {
+        $i = 1;
+        while ($this->urlKeyExists($objectId, $storeId, $value, $suffix) && $i <= 100) {
             $value = $origValue . '-' . substr(uniqid(rand(), true), 0, 4);
+            $i++;
         }
 
-        return $value;
+        return $value . $suffix;
     }
 }

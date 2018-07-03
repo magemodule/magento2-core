@@ -42,4 +42,25 @@ abstract class AbstractActions extends \Magento\Ui\Component\Listing\Columns\Col
         $this->urlBuilder    = $urlBuilder;
         $this->authorization = $authorization;
     }
+
+    /**
+     * @param string $route
+     * @param array $params
+     *
+     * @return string
+     */
+    protected function getUrl($route, array $params = [])
+    {
+        return $this->urlBuilder->getUrl($route, $params);
+    }
+
+    /**
+     * @param string $resource
+     *
+     * @return bool
+     */
+    protected function isAuthorized($resource)
+    {
+        return $this->authorization->isAllowed($resource);
+    }
 }

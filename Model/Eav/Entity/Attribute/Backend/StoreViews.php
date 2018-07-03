@@ -37,6 +37,7 @@ class StoreViews extends \Magento\Eav\Model\Entity\Attribute\Backend\ArrayBacken
         $value = array_map('trim', $value);
         $value = array_filter($value, 'strlen');
         $value = array_filter($value, 'ctype_digit');
+        $value = array_unique($value);
         asort($value);
 
         if (empty($value)) {

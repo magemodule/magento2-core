@@ -2,16 +2,16 @@
 /**
  * Copyright (c) 2018 MageModule: All rights reserved
  *
- * LICENSE: This source file is subject to our standard End User License 
- * Agreeement (EULA) that is available through the world-wide-web at the 
- * following URI: http://www.magemodule.com/magento2-ext-license.html.  
+ * LICENSE: This source file is subject to our standard End User License
+ * Agreeement (EULA) that is available through the world-wide-web at the
+ * following URI: http://www.magemodule.com/magento2-ext-license.html.
  *
- * If you did not receive a copy of the EULA and are unable to obtain it through 
- * the web, please send a note to admin@magemodule.com so that we can mail 
+ * If you did not receive a copy of the EULA and are unable to obtain it through
+ * the web, please send a note to admin@magemodule.com so that we can mail
  * you a copy immediately.
  *
- * @author       MageModule admin@magemodule.com 
- * @copyright   2018 MageModule
+ * @author        MageModule admin@magemodule.com
+ * @copyright     2018 MageModule
  * @license       http://www.magemodule.com/magento2-ext-license.html
  *
  */
@@ -22,6 +22,25 @@ use Magento\Framework\Exception\LocalizedException;
 
 class Csv extends \Magento\Framework\File\Csv
 {
+    /**
+     * @var \MageModule\Core\Framework\Io\File
+     */
+    private $ioFile;
+
+    /**
+     * Csv constructor.
+     *
+     * @param \MageModule\Core\Framework\Io\File        $ioFile
+     * @param \Magento\Framework\Filesystem\Driver\File $file
+     */
+    public function __construct(
+        \MageModule\Core\Framework\Io\File $ioFile,
+        \Magento\Framework\Filesystem\Driver\File $file
+    ) {
+        parent::__construct($file);
+        $this->ioFile = $ioFile;
+    }
+
     /**
      * @param string|null $delimiter
      *
@@ -81,5 +100,60 @@ class Csv extends \Magento\Framework\File\Csv
         }
 
         return parent::setEnclosure($enclosure);
+    }
+
+    /**
+     * @param string $file
+     *
+     * @return $this
+     */
+    public function setStream($file)
+    {
+        $this->ioFile->setStream($file);
+
+        return $this;
+    }
+
+    /**
+     * @return $this
+     */
+    public function unsetStream()
+    {
+        $this->ioFile->unsetStream();
+
+        return $this;
+    }
+
+    /**
+     * @param bool $exclusive
+     *
+     * @return $this
+     */
+    public function streamLock($exclusive = true)
+    {
+        $this->ioFile->streamLock($exclusive);
+
+        return $this;
+    }
+
+    /**
+     * @return $this
+     */
+    public function streamUnlock()
+    {
+        $this->ioFile->streamUnlock();
+
+        return $this;
+    }
+
+    /**
+     * @return false|array
+     */
+    public function streamReadCsv()
+    {
+        return $this->ioFile->streamReadCsv(
+            $this->_delimiter,
+            $this->_enclosure
+        );
     }
 }

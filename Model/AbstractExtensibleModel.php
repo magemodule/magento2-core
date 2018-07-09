@@ -19,7 +19,8 @@ namespace MageModule\Core\Model;
 
 abstract class AbstractExtensibleModel extends \Magento\Framework\Model\AbstractExtensibleModel
 {
-    const STORE_ID = 'store_id';
+    const ATTRIBUTE_SET_ID = 'attribute_set_id';
+    const STORE_ID         = 'store_id';
 
     /**
      * @return null|\Magento\Store\Model\StoreManagerInterface
@@ -27,6 +28,32 @@ abstract class AbstractExtensibleModel extends \Magento\Framework\Model\Abstract
     protected function getStoreManager()
     {
         return $this->_getData('store_manager');
+    }
+
+    /**
+     * @param int $id
+     *
+     * @return $this
+     */
+    public function setAttributeSetId($id)
+    {
+        $this->setData(self::ATTRIBUTE_SET_ID, $id);
+
+        return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getAttributeSetId()
+    {
+        if ($this->isObjectNew()) {
+            $this->setAttributeSetId(
+                $this->_resource->getEntityType()->getDefaultAttributeSetId()
+            );
+        }
+
+        return $this->getData(self::ATTRIBUTE_SET_ID);
     }
 
     /**

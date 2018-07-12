@@ -42,7 +42,7 @@ class StoreViews extends \Magento\Eav\Model\Entity\Attribute\Source\AbstractSour
     {
         if ($this->_options === null) {
             $this->_options['All Store Views']['label'] = __('All Store Views');
-            $this->_options['All Store Views']['value'] = 0;
+            $this->_options['All Store Views']['value'] = '0';
             $this->_options = array_merge(
                 $this->_options,
                 $this->storeOptions->toOptionArray()

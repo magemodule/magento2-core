@@ -40,6 +40,13 @@ class StoreViews extends \Magento\Eav\Model\Entity\Attribute\Backend\ArrayBacken
         $value = array_unique($value);
         asort($value);
 
+        /**
+         * if All Store Views is selected, as well as other stores, keep all store views only
+         */
+        if (in_array(\Magento\Store\Model\Store::DEFAULT_STORE_ID, $value)) {
+            $value = [(string)\Magento\Store\Model\Store::DEFAULT_STORE_ID];
+        }
+
         if (empty($value)) {
             $value = false;
         } else {

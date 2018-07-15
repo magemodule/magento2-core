@@ -80,6 +80,11 @@ class Eav implements \Magento\Ui\DataProvider\Modifier\ModifierInterface
     private $dataScopeKey;
 
     /**
+     * @var array|string[]
+     */
+    private $nonCollapsibleFieldsets;
+
+    /**
      * @var \Magento\Eav\Api\Data\AttributeGroupInterface[]
      */
     private $attributeGroups;
@@ -102,6 +107,7 @@ class Eav implements \Magento\Ui\DataProvider\Modifier\ModifierInterface
      * @param string                                                              $entityTypeCode
      * @param string                                                              $registryKey
      * @param string                                                              $dataScopeKey
+     * @param string[]                                                            $nonCollapsibleFieldsets
      */
     public function __construct(
         \MageModule\Core\Ui\Component\Form\Rule\Eav\Validation\RulesBuilder $rulesBuilder,
@@ -113,7 +119,8 @@ class Eav implements \Magento\Ui\DataProvider\Modifier\ModifierInterface
         \Magento\Ui\DataProvider\Mapper\FormElement $formElementMapper,
         $entityTypeCode,
         $registryKey,
-        $dataScopeKey
+        $dataScopeKey,
+        array $nonCollapsibleFieldsets = []
     ) {
         $this->rulesBuilder             = $rulesBuilder;
         $this->attributeGroupRepository = $attributeGroupRepository;
@@ -122,9 +129,10 @@ class Eav implements \Magento\Ui\DataProvider\Modifier\ModifierInterface
         $this->sortOrderBuilder         = $sortOrderBuilder;
         $this->registry                 = $registry;
         $this->formElementMapper        = $formElementMapper;
-        $this->entityTypeCode = $entityTypeCode;
+        $this->entityTypeCode           = $entityTypeCode;
         $this->registryKey              = $registryKey;
         $this->dataScopeKey             = $dataScopeKey;
+        $this->nonCollapsibleFieldsets  = $nonCollapsibleFieldsets;
     }
 
     /**
@@ -142,10 +150,13 @@ class Eav implements \Magento\Ui\DataProvider\Modifier\ModifierInterface
         foreach ($this->getAttributeGroups() as $groupCode => $group) {
             $attributes = !empty($attributesByGroup[$groupCode]) ? $attributesByGroup[$groupCode] : [];
             if ($attributes) {
+                $isStaticFieldset = in_array($groupCode, $this->nonCollapsibleFieldsets) ||
+                    array_key_exists($groupCode, $this->nonCollapsibleFieldsets);
+
                 $fieldset                  = &$meta[$groupCode]['arguments']['data']['config'];
                 $fieldset['componentType'] = \Magento\Ui\Component\Form\Fieldset::NAME;
-                $fieldset['label']         = __($group->getAttributeGroupName());
-                $fieldset['collapsible']   = true;
+                $fieldset['label']         = $isStaticFieldset ? null : __($group->getAttributeGroupName());
+                $fieldset['collapsible']   = $isStaticFieldset ? false : true;
                 $fieldset['dataScope']     = $this->dataScopeKey;
                 $fieldset['sortOrder']     = $sortOrder * self::SORT_ORDER_MULTIPLIER;
 
@@ -308,6 +319,7 @@ class Eav implements \Magento\Ui\DataProvider\Modifier\ModifierInterface
 
         $searchCriteria = $this->searchCriteriaBuilder
             ->addFilter($group::GROUP_ID, $group->getAttributeGroupId())
+            ->addFilter(\MageModule\Core\Api\Data\AttributeInterface::IS_VISIBLE, 1)
             ->addSortOrder($sortOrder)
             ->create();
 

@@ -4,7 +4,7 @@ namespace MageModule\Core\Model\Eav\Entity\Attribute\Backend;
 
 use Magento\UrlRewrite\Service\V1\Data\UrlRewrite;
 
-class UrlKey extends \Magento\Eav\Model\Entity\Attribute\Backend\AbstractBackend
+class UrlKey extends \MageModule\Core\Model\Eav\Entity\Attribute\Backend\UrlKeyFormat
 {
     /**
      * @var \MageModule\Core\Helper\Eav\Attribute
@@ -64,6 +64,7 @@ class UrlKey extends \Magento\Eav\Model\Entity\Attribute\Backend\AbstractBackend
      * @param \Magento\UrlRewrite\Model\UrlRewriteFactory        $urlRewriteFactory
      * @param \Magento\UrlRewrite\Model\StorageInterface         $storage
      * @param \Magento\Store\Model\StoreManagerInterface         $storeManager
+     * @param \Magento\Framework\Filter\FilterManager            $filterManager
      * @param \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
      * @param string                                             $entity
      * @param string                                             $targetPathBase
@@ -76,12 +77,15 @@ class UrlKey extends \Magento\Eav\Model\Entity\Attribute\Backend\AbstractBackend
         \Magento\UrlRewrite\Model\UrlRewriteFactory $urlRewriteFactory,
         \Magento\UrlRewrite\Model\StorageInterface $storage,
         \Magento\Store\Model\StoreManagerInterface $storeManager,
+        \Magento\Framework\Filter\FilterManager $filterManager,
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
         $entity,
         $targetPathBase,
         $targetPathIdKey = null,
         $requestPathSuffix = null
     ) {
+        parent::__construct($filterManager);
+
         $this->attributeHelper    = $attributeHelper;
         $this->urlRewriteResource = $urlRewriteResource;
         $this->urlRewriteFactory  = $urlRewriteFactory;

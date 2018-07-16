@@ -23,6 +23,18 @@ abstract class AbstractExtensibleModel extends \Magento\Framework\Model\Abstract
     const STORE_ID         = 'store_id';
 
     /**
+     * @return \Magento\Framework\Model\AbstractExtensibleModel
+     */
+    public function _afterLoad()
+    {
+        if ($this->getOrigData() === null) {
+            $this->setOrigData();
+        }
+
+        return parent::_afterLoad();
+    }
+
+    /**
      * @return null|\Magento\Store\Model\StoreManagerInterface
      */
     protected function getStoreManager()

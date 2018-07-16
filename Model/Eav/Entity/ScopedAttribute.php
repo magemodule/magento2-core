@@ -2,10 +2,9 @@
 
 namespace MageModule\Core\Model\Eav\Entity;
 
-use Magento\Eav\Model\Entity\Attribute\ScopedAttributeInterface;
-
 class ScopedAttribute extends \MageModule\Core\Model\Eav\Entity\Attribute implements
-    \MageModule\Core\Api\Data\ScopedAttributeInterface
+    \MageModule\Core\Api\Data\ScopedAttributeInterface,
+    \Magento\Eav\Model\Entity\Attribute\ScopedAttributeInterface
 {
     /**
      * @param string $scope
@@ -16,13 +15,13 @@ class ScopedAttribute extends \MageModule\Core\Model\Eav\Entity\Attribute implem
     {
         switch ($scope) {
             case self::SCOPE_GLOBAL_TEXT:
-                $this->setData(self::IS_GLOBAL, ScopedAttributeInterface::SCOPE_GLOBAL);
+                $this->setData(self::IS_GLOBAL, self::SCOPE_GLOBAL);
                 break;
             case self::SCOPE_WEBSITE_TEXT:
-                $this->setData(self::IS_GLOBAL, ScopedAttributeInterface::SCOPE_WEBSITE);
+                $this->setData(self::IS_GLOBAL, self::SCOPE_WEBSITE);
                 break;
             case self::SCOPE_STORE_TEXT:
-                $this->setData(self::IS_GLOBAL, ScopedAttributeInterface::SCOPE_STORE);
+                $this->setData(self::IS_GLOBAL, self::SCOPE_STORE);
                 break;
         }
 
@@ -36,13 +35,13 @@ class ScopedAttribute extends \MageModule\Core\Model\Eav\Entity\Attribute implem
     {
         $scope = $this->getData(self::IS_GLOBAL);
         switch ($scope) {
-            case ScopedAttributeInterface::SCOPE_GLOBAL:
+            case self::SCOPE_GLOBAL:
                 $result = self::SCOPE_GLOBAL_TEXT;
                 break;
-            case ScopedAttributeInterface::SCOPE_WEBSITE:
+            case self::SCOPE_WEBSITE:
                 $result = self::SCOPE_WEBSITE_TEXT;
                 break;
-            case ScopedAttributeInterface::SCOPE_STORE:
+            case self::SCOPE_STORE:
                 $result = self::SCOPE_STORE_TEXT;
                 break;
             default:

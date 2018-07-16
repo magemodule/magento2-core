@@ -73,8 +73,6 @@ interface AttributeInterface extends \Magento\Eav\Api\Data\AttributeInterface
      */
     public function getIsVisibleInGrid();
 
-    //TODO see how catalog uses this and implement
-
     /**
      * @param int|bool $isFilterableInGrid
      *

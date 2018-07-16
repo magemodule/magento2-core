@@ -146,7 +146,6 @@ class UrlKey extends \MageModule\Core\Model\Eav\Entity\Attribute\Backend\UrlKeyF
      * @param \Magento\Framework\DataObject|\MageModule\Core\Model\AbstractExtensibleModel $object
      *
      * @return null|string
-     * @throws \Magento\Framework\Exception\NoSuchEntityException
      */
     protected function getSuffix($object)
     {
@@ -164,21 +163,23 @@ class UrlKey extends \MageModule\Core\Model\Eav\Entity\Attribute\Backend\UrlKeyF
     {
         $attributeCode = $this->getAttribute()->getName();
         $value         = $object->getData($attributeCode);
+        $storeId       = (int)$object->getData($object::STORE_ID);
+
         if ($value) {
             //TODO make sure to only deal with rewrites when values have changed
             //TODO verify the behavior when value is changed at default scope, website scope, store scope
-            if ((int)$value === \Magento\Store\Model\Store::DEFAULT_STORE_ID) {
-                /**
-                 * Determine which stores we need to save URL rewrite value for
-                 */
-                $storeIds        = array_keys($this->storeManager->getStores());
-                $storesWithValue = $this->attributeHelper->getStoreIdsHavingAttributeValue(
-                    $this->getAttribute(),
-                    $object
-                );
 
-                if ($object->hasData('store_id')) {
-                    $key = array_search($object->getStoreId(), $storesWithValue);
+            /** Determine which stores we need to save URL rewrite value for */
+            if ($storeId === \Magento\Store\Model\Store::DEFAULT_STORE_ID) {
+                $storeIds        = array_keys($this->storeManager->getStores());
+                $storesWithValue = $this->attributeHelper
+                    ->getStoreIdsHavingAttributeValue(
+                        $this->getAttribute(),
+                        $object
+                    );
+
+                if ($object->hasData($object::STORE_ID)) {
+                    $key = array_search($storeId, $storesWithValue);
                     if ($key !== false) {
                         unset($storesWithValue[$key]);
                     }
@@ -186,7 +187,7 @@ class UrlKey extends \MageModule\Core\Model\Eav\Entity\Attribute\Backend\UrlKeyF
 
                 $storeIds = array_diff($storeIds, $storesWithValue);
             } elseif ($value) {
-
+                $storeIds = [$storeId];
             }
 
             foreach ($storeIds as $storeId) {
@@ -214,7 +215,7 @@ class UrlKey extends \MageModule\Core\Model\Eav\Entity\Attribute\Backend\UrlKeyF
 
             //TODO insert/update url rewrite
             //TODO if update url rewrite, create 301 redirect from old to new
-        } else {
+        } elseif ($value === false) {
             //TODO delete url rewrite for store id if value empty
         }
 

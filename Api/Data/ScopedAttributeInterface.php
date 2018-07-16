@@ -2,7 +2,7 @@
 
 namespace MageModule\Core\Api\Data;
 
-interface ScopedAttributeInterface extends \Magento\Eav\Api\Data\AttributeInterface
+interface ScopedAttributeInterface extends \MageModule\Core\Api\Data\AttributeInterface
 {
     const IS_GLOBAL          = 'is_global';
     const SCOPE_STORE_TEXT   = 'store';

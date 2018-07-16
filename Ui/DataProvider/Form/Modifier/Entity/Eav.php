@@ -17,6 +17,8 @@
 
 namespace MageModule\Core\Ui\DataProvider\Form\Modifier\Entity;
 
+use MageModule\Core\Api\Data\ScopedAttributeInterface;
+
 /**
  * A re-usable class that creates forms from attribute groups
  *
@@ -35,6 +37,11 @@ class Eav implements \Magento\Ui\DataProvider\Modifier\ModifierInterface
     private $rulesBuilder;
 
     /**
+     * @var \MageModule\Core\Model\Eav\Entity\Attribute\ScopeOverriddenValue
+     */
+    private $scopeOverriddenValue;
+
+    /**
      * @var \Magento\Eav\Api\AttributeRepositoryInterface
      */
     private $attributeRepository;
@@ -43,6 +50,11 @@ class Eav implements \Magento\Ui\DataProvider\Modifier\ModifierInterface
      * @var \Magento\Eav\Api\AttributeGroupRepositoryInterface
      */
     private $attributeGroupRepository;
+
+    /**
+     * @var \Magento\Store\Model\StoreManagerInterface
+     */
+    private $storeManager;
 
     /**
      * @var \Magento\Framework\Api\SearchCriteriaBuilder
@@ -95,11 +107,23 @@ class Eav implements \Magento\Ui\DataProvider\Modifier\ModifierInterface
     private $attributes;
 
     /**
+     * @var array
+     */
+    private $canDisplayUseDefault = [];
+
+    /**
+     * @var \Magento\Store\Api\Data\StoreInterface
+     */
+    private $store;
+
+    /**
      * Eav constructor.
      *
      * @param \MageModule\Core\Ui\Component\Form\Rule\Eav\Validation\RulesBuilder $rulesBuilder
+     * @param \MageModule\Core\Model\Eav\Entity\Attribute\ScopeOverriddenValue    $scopeOverriddenValue
      * @param \Magento\Eav\Api\AttributeRepositoryInterface                       $attributeRepository
      * @param \Magento\Eav\Api\AttributeGroupRepositoryInterface                  $attributeGroupRepository
+     * @param \Magento\Store\Model\StoreManagerInterface                          $storeManager
      * @param \Magento\Framework\Api\SearchCriteriaBuilder                        $searchCriteriaBuilder
      * @param \Magento\Framework\Api\SortOrderBuilder                             $sortOrderBuilder
      * @param \Magento\Framework\Registry                                         $registry
@@ -111,8 +135,10 @@ class Eav implements \Magento\Ui\DataProvider\Modifier\ModifierInterface
      */
     public function __construct(
         \MageModule\Core\Ui\Component\Form\Rule\Eav\Validation\RulesBuilder $rulesBuilder,
+        \MageModule\Core\Model\Eav\Entity\Attribute\ScopeOverriddenValue $scopeOverriddenValue,
         \Magento\Eav\Api\AttributeRepositoryInterface $attributeRepository,
         \Magento\Eav\Api\AttributeGroupRepositoryInterface $attributeGroupRepository,
+        \Magento\Store\Model\StoreManagerInterface $storeManager,
         \Magento\Framework\Api\SearchCriteriaBuilder $searchCriteriaBuilder,
         \Magento\Framework\Api\SortOrderBuilder $sortOrderBuilder,
         \Magento\Framework\Registry $registry,
@@ -123,8 +149,10 @@ class Eav implements \Magento\Ui\DataProvider\Modifier\ModifierInterface
         array $nonCollapsibleFieldsets = []
     ) {
         $this->rulesBuilder             = $rulesBuilder;
-        $this->attributeGroupRepository = $attributeGroupRepository;
+        $this->scopeOverriddenValue     = $scopeOverriddenValue;
         $this->attributeRepository      = $attributeRepository;
+        $this->attributeGroupRepository = $attributeGroupRepository;
+        $this->storeManager             = $storeManager;
         $this->searchCriteriaBuilder    = $searchCriteriaBuilder;
         $this->sortOrderBuilder         = $sortOrderBuilder;
         $this->registry                 = $registry;
@@ -147,11 +175,13 @@ class Eav implements \Magento\Ui\DataProvider\Modifier\ModifierInterface
         $formElementMappings = $this->formElementMapper->getMappings();
         $attributesByGroup   = $this->getAttributes();
         $sortOrder           = 0;
+        $objectId            = $this->getDataObject()->getId();
+
         foreach ($this->getAttributeGroups() as $groupCode => $group) {
             $attributes = !empty($attributesByGroup[$groupCode]) ? $attributesByGroup[$groupCode] : [];
             if ($attributes) {
                 $isStaticFieldset = in_array($groupCode, $this->nonCollapsibleFieldsets) ||
-                    array_key_exists($groupCode, $this->nonCollapsibleFieldsets);
+                                    array_key_exists($groupCode, $this->nonCollapsibleFieldsets);
 
                 $fieldset                  = &$meta[$groupCode]['arguments']['data']['config'];
                 $fieldset['componentType'] = \Magento\Ui\Component\Form\Fieldset::NAME;
@@ -175,11 +205,16 @@ class Eav implements \Magento\Ui\DataProvider\Modifier\ModifierInterface
                         $attribute->getFrontendInput();
 
                     $field = [
-                        //'scopeLabel'    => $storeViewLabel,
                         'componentType' => \Magento\Ui\Component\Form\Field::NAME,
                         'formElement'   => $formElement,
                         'label'         => __($attribute->getDefaultFrontendLabel()),
-                        'dataScope'     => $attribute->getAttributeCode()
+                        'dataType'      => $attribute->getFrontendInput(),
+                        'dataScope'     => $attribute->getAttributeCode(),
+                        'visible'       => $attribute->getIsVisible(),
+                        'code'          => $attribute->getAttributeCode(),
+                        'scopeLabel'    => $this->getScopeLabel($attribute),
+                        'default'       => !$objectId ? $attribute->getDefaultValue() : null,
+                        'source'        => $groupCode
                     ];
 
                     if ($formElement === \Magento\Ui\Component\Form\Element\Checkbox::NAME) {
@@ -216,6 +251,8 @@ class Eav implements \Magento\Ui\DataProvider\Modifier\ModifierInterface
 
                     $field['validation'] = $this->rulesBuilder->build($attribute, $field);
 
+                    $field = $this->addUseDefaultValueCheckbox($attribute, $field);
+
                     $container['children'][$attribute->getAttributeCode()]['arguments']['data']['config'] = $field;
                 }
             }
@@ -242,6 +279,30 @@ class Eav implements \Magento\Ui\DataProvider\Modifier\ModifierInterface
     private function getDataObject()
     {
         return $this->registry->registry($this->registryKey);
+    }
+
+    /**
+     * @return \Magento\Store\Api\Data\StoreInterface|null
+     */
+    private function getStore()
+    {
+        if (!$this->store) {
+            $this->store = $this->registry->registry('current_store');
+        }
+
+        return $this->store;
+    }
+
+    /**
+     * @return int
+     */
+    private function getStoreId()
+    {
+        if ($this->getStore() instanceof \Magento\Store\Api\Data\StoreInterface) {
+            return (int)$this->getStore()->getId();
+        }
+
+        return \Magento\Store\Model\Store::DEFAULT_STORE_ID;
     }
 
     /**
@@ -326,5 +387,86 @@ class Eav implements \Magento\Ui\DataProvider\Modifier\ModifierInterface
         $attributes = $this->attributeRepository->getList($this->entityTypeCode, $searchCriteria)->getItems();
 
         return $attributes;
+    }
+
+    /**
+     * @param \MageModule\Core\Api\Data\ScopedAttributeInterface $attribute
+     *
+     * @return \Magento\Framework\Phrase|string
+     */
+    private function getScopeLabel(
+        \MageModule\Core\Api\Data\ScopedAttributeInterface $attribute
+    ) {
+        if ($this->storeManager->isSingleStoreMode()
+            || $attribute->getFrontendInput() === ScopedAttributeInterface::FRONTEND_INPUT
+        ) {
+            return '';
+        }
+
+        switch ($attribute->getScope()) {
+            case ScopedAttributeInterface::SCOPE_GLOBAL_TEXT:
+                return __('[GLOBAL]');
+            case ScopedAttributeInterface::SCOPE_WEBSITE_TEXT:
+                return __('[WEBSITE]');
+            case ScopedAttributeInterface::SCOPE_STORE_TEXT:
+                return __('[STORE VIEW]');
+        }
+
+        return '';
+    }
+
+    /**
+     * @param \MageModule\Core\Api\Data\ScopedAttributeInterface $attribute
+     * @param array                                              $meta
+     *
+     * @return array
+     * @throws \Magento\Framework\Exception\LocalizedException
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     */
+    private function addUseDefaultValueCheckbox(
+        \MageModule\Core\Api\Data\ScopedAttributeInterface $attribute,
+        array $meta
+    ) {
+        $canDisplayService = $this->canDisplayUseDefault($attribute);
+        if ($canDisplayService) {
+            $meta['service'] = [
+                'template' => 'ui/form/element/helper/service',
+            ];
+
+            $meta['disabled'] = !$this->scopeOverriddenValue
+                ->containsValue(
+                    $this->entityTypeCode,
+                    $this->getDataObject(),
+                    $attribute->getAttributeCode(),
+                    $this->getStoreId()
+                );
+        }
+        return $meta;
+    }
+
+    /**
+     * @param \MageModule\Core\Api\Data\ScopedAttributeInterface $attribute
+     *
+     * @return bool
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     */
+    private function canDisplayUseDefault(
+        \MageModule\Core\Api\Data\ScopedAttributeInterface $attribute
+    ) {
+        $attributeCode = $attribute->getAttributeCode();
+
+        /** @var \MageModule\Core\Model\AbstractExtensibleModel $object */
+        $object = $this->getDataObject();
+
+        if (isset($this->canDisplayUseDefault[$attributeCode])) {
+            return $this->canDisplayUseDefault[$attributeCode];
+        }
+
+        return $this->canDisplayUseDefault[$attributeCode] = (
+            ($attribute->getScope() != ScopedAttributeInterface::SCOPE_GLOBAL_TEXT)
+            && $object
+            && $object->getId()
+            && $object->getStoreId()
+        );
     }
 }

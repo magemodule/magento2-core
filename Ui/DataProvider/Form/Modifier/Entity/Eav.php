@@ -197,7 +197,10 @@ class Eav implements \Magento\Ui\DataProvider\Modifier\ModifierInterface
 
                     $container['arguments']['data']['config'] = [
                         'formElement'   => \Magento\Ui\Component\Container::NAME,
-                        'componentType' => \Magento\Ui\Component\Container::NAME
+                        'componentType' => \Magento\Ui\Component\Container::NAME,
+                        'breakLine'     => false,
+                        'label'         => __($attribute->getDefaultFrontendLabel()),
+                        'required'      => $attribute->getIsRequired()
                     ];
 
                     $formElement = isset($formElementMappings[$attribute->getFrontendInput()]) ?
@@ -213,6 +216,7 @@ class Eav implements \Magento\Ui\DataProvider\Modifier\ModifierInterface
                         'visible'       => $attribute->getIsVisible(),
                         'code'          => $attribute->getAttributeCode(),
                         'scopeLabel'    => $this->getScopeLabel($attribute),
+                        'globalScope'   => $attribute->getScope() === ScopedAttributeInterface::SCOPE_GLOBAL_TEXT,
                         'default'       => !$objectId ? $attribute->getDefaultValue() : null,
                         'source'        => $groupCode
                     ];
@@ -237,13 +241,16 @@ class Eav implements \Magento\Ui\DataProvider\Modifier\ModifierInterface
 
                     if ($attribute instanceof \MageModule\Core\Api\Data\AttributeInterface) {
                         if ($attribute->getIsWysiwygEnabled()) {
+                            $container['arguments']['data']['config']['component'] =
+                                'Magento_Ui/js/form/components/group';
+
                             $field['formElement']       = \Magento\Ui\Component\Form\Element\Wysiwyg::NAME;
                             $field['wysiwyg']           = true;
                             $field['wysiwygConfigData'] = [
                                 'add_variables'   => true,
                                 'add_widgets'     => true,
                                 'add_directives'  => true,
-                                'use_container'   => false,
+                                'use_container'   => true,
                                 'container_class' => 'hor-scroll',
                             ];
                         }

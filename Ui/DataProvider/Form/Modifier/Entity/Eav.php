@@ -86,6 +86,8 @@ class Eav implements \Magento\Ui\DataProvider\Modifier\ModifierInterface
      */
     private $entityTypeCode;
 
+    private $entityType;
+
     /**
      * @var string
      */
@@ -129,6 +131,7 @@ class Eav implements \Magento\Ui\DataProvider\Modifier\ModifierInterface
      * @param \Magento\Framework\Registry                                         $registry
      * @param \Magento\Ui\DataProvider\Mapper\FormElement                         $formElementMapper
      * @param string                                                              $entityTypeCode
+     * @param string                                                              $entityType
      * @param string                                                              $registryKey
      * @param string                                                              $dataScopeKey
      * @param string[]                                                            $nonCollapsibleFieldsets
@@ -144,6 +147,7 @@ class Eav implements \Magento\Ui\DataProvider\Modifier\ModifierInterface
         \Magento\Framework\Registry $registry,
         \Magento\Ui\DataProvider\Mapper\FormElement $formElementMapper,
         $entityTypeCode,
+        $entityType,
         $registryKey,
         $dataScopeKey,
         array $nonCollapsibleFieldsets = []
@@ -158,6 +162,7 @@ class Eav implements \Magento\Ui\DataProvider\Modifier\ModifierInterface
         $this->registry                 = $registry;
         $this->formElementMapper        = $formElementMapper;
         $this->entityTypeCode           = $entityTypeCode;
+        $this->entityType               = $entityType;
         $this->registryKey              = $registryKey;
         $this->dataScopeKey             = $dataScopeKey;
         $this->nonCollapsibleFieldsets  = $nonCollapsibleFieldsets;
@@ -442,7 +447,7 @@ class Eav implements \Magento\Ui\DataProvider\Modifier\ModifierInterface
 
             $meta['disabled'] = !$this->scopeOverriddenValue
                 ->containsValue(
-                    $this->entityTypeCode,
+                    $this->entityType,
                     $this->getDataObject(),
                     $attribute->getAttributeCode(),
                     $this->getStoreId()

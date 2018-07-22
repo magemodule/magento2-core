@@ -20,4 +20,19 @@ interface ScopedAttributeInterface extends \MageModule\Core\Api\Data\AttributeIn
      * @return string|null
      */
     public function getScope();
+
+    /**
+     * @return bool
+     */
+    public function isScopeGlobal();
+
+    /**
+     * @return bool
+     */
+    public function isScopeWebsite();
+
+    /**
+     * @return bool
+     */
+    public function isScopeStore();
 }

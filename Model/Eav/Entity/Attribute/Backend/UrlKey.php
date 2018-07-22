@@ -106,6 +106,7 @@ class UrlKey extends \MageModule\Core\Model\Eav\Entity\Attribute\Backend\UrlKeyF
      */
     public function beforeSave($object)
     {
+        //TODO if value === false, delete
         $attributeCode = $this->getAttribute()->getName();
         $value         = $object->getData($attributeCode);
         if ($value) {
@@ -123,6 +124,8 @@ class UrlKey extends \MageModule\Core\Model\Eav\Entity\Attribute\Backend\UrlKeyF
 
             $object->setData($attributeCode, $value);
         }
+
+        $this->validate($object);
 
         return parent::beforeSave($object);
     }

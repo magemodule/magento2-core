@@ -10,16 +10,16 @@
  *  the web, please send a note to admin@magemodule.com so that we can mail
  *  you a copy immediately.
  *
- *  @author        MageModule admin@magemodule.com
- *  @copyright    2018 MageModule, LLC
- *  @license        https://www.magemodule.com/magento2-ext-license.html
+ * @author         MageModule admin@magemodule.com
+ * @copyright      2018 MageModule, LLC
+ * @license        https://www.magemodule.com/magento2-ext-license.html
  */
 
 namespace MageModule\Core\Model\Eav\Entity\Attribute\Backend;
 
 use Magento\Framework\Exception\LocalizedException;
 
-class IntegerList extends \Magento\Eav\Model\Entity\Attribute\Backend\AbstractBackend
+class IntegerList extends \MageModule\Core\Model\Eav\Entity\Attribute\Backend\AbstractBackend
 {
     /**
      * @param \Magento\Framework\DataObject $object
@@ -31,6 +31,7 @@ class IntegerList extends \Magento\Eav\Model\Entity\Attribute\Backend\AbstractBa
     {
         $attributeCode = $this->getAttribute()->getName();
         $value         = $object->getData($attributeCode);
+
         if (is_array($value)) {
             asort($value);
             $value = str_replace(' ', '', implode(',', array_unique($value)));
@@ -55,35 +56,43 @@ class IntegerList extends \Magento\Eav\Model\Entity\Attribute\Backend\AbstractBa
      */
     public function validate($object)
     {
-        $attributeCode = $this->getAttribute()->getName();
-        $value         = $object->getData($attributeCode);
-        $values = explode(',', $value);
+        parent::validate($object);
 
-        $invalidValues = [];
-        foreach ($values as $value) {
-            if (!ctype_digit($value)) {
-                $invalidValues[] = $value;
+        $attribute = $this->getAttribute();
+        $attrCode  = $attribute->getName();
+        $value     = $object->getData($attrCode);
+
+        if (!$attribute->isValueEmpty($value)) {
+            $values        = explode(',', $value);
+            $invalidValues = [];
+            foreach ($values as $value) {
+                if (!ctype_digit($value)) {
+                    $invalidValues[] = $value;
+                }
+            }
+
+            $label = $attribute->getDefaultFrontendLabel();
+            if (!empty($invalidValues)) {
+                if (count($invalidValues) === 1) {
+                    throw new LocalizedException(
+                        __(
+                            '%1 is an invalid value for %2. Only integers are allowed.',
+                            implode(', ', $invalidValues),
+                            $label
+                        )
+                    );
+                } else {
+                    throw new LocalizedException(
+                        __(
+                            '%1 are invalid values for %2. Only integers are allowed.',
+                            implode(', ', $invalidValues),
+                            $label
+                        )
+                    );
+                }
             }
         }
 
-        if (!empty($invalidValues)) {
-            if (count($invalidValues) === 1) {
-                throw new LocalizedException(
-                    __(
-                        '%1 is an invalid number list value. Only integers are allowed.',
-                        implode(', ', $invalidValues)
-                    )
-                );
-            } else {
-                throw new LocalizedException(
-                    __(
-                        '%1 are invalid number list values. Only integers are allowed.',
-                        implode(', ', $invalidValues)
-                    )
-                );
-            }
-        }
-
-        return parent::validate($object);
+        return true;
     }
 }

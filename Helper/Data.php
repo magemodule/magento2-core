@@ -37,6 +37,48 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     }
 
     /**
+     * Converts any string, number, or null to boolean
+     *
+     * @param array $array
+     */
+    public function boolify(array &$array)
+    {
+        $array = array_map(function ($value) {
+            if (!is_array($value) && !is_object($value)) {
+                $value = (bool)$value;
+            } elseif (!empty($value)) {
+                $value = true;
+            }
+
+            return $value;
+        }, $array);
+    }
+
+    /**
+     * Removes all boolean true values
+     *
+     * @param array $array
+     */
+    public function removeTrue(array &$array)
+    {
+        $array = array_filter($array, function($value) {
+            return $value !== true;
+        });
+    }
+
+    /**
+     * Removes all boolean false
+     *
+     * @param array $array
+     */
+    public function removeFalse(array &$array)
+    {
+        $array = array_filter($array, function($value) {
+            return $value !== false;
+        });
+    }
+
+    /**
      * @param array $array
      */
     public function removeObjects(array &$array)

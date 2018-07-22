@@ -17,7 +17,7 @@
 
 namespace MageModule\Core\Model\Eav\Entity\Attribute\Backend;
 
-class StoreViews extends \Magento\Eav\Model\Entity\Attribute\Backend\ArrayBackend
+class StoreViews extends \MageModule\Core\Model\Eav\Entity\Attribute\Backend\AbstractBackend
 {
     /**
      * @param \Magento\Framework\DataObject $object
@@ -61,7 +61,7 @@ class StoreViews extends \Magento\Eav\Model\Entity\Attribute\Backend\ArrayBacken
     /**
      * @param \Magento\Framework\DataObject $object
      *
-     * @return \Magento\Eav\Model\Entity\Attribute\Backend\ArrayBackend
+     * @return \MageModule\Core\Model\Eav\Entity\Attribute\Backend\AbstractBackend
      */
     public function afterLoad($object)
     {

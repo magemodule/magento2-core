@@ -50,4 +50,28 @@ class ScopedAttribute extends \MageModule\Core\Model\Eav\Entity\Attribute implem
 
         return $result;
     }
+
+    /**
+     * @return bool
+     */
+    public function isScopeGlobal()
+    {
+        return $this->getScope() === self::SCOPE_GLOBAL_TEXT;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isScopeWebsite()
+    {
+        return $this->getScope() === self::SCOPE_WEBSITE_TEXT;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isScopeStore()
+    {
+        return $this->getScope() === self::SCOPE_STORE_TEXT;
+    }
 }

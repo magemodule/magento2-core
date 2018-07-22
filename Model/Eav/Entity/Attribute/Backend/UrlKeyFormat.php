@@ -10,7 +10,7 @@ namespace MageModule\Core\Model\Eav\Entity\Attribute\Backend;
  *
  * @package MageModule\Core\Model\Eav\Entity\Attribute\Backend
  */
-class UrlKeyFormat extends \Magento\Eav\Model\Entity\Attribute\Backend\AbstractBackend
+class UrlKeyFormat extends \MageModule\Core\Model\Eav\Entity\Attribute\Backend\AbstractBackend
 {
     /**
      * @var \Magento\Framework\Filter\FilterManager
@@ -31,7 +31,8 @@ class UrlKeyFormat extends \Magento\Eav\Model\Entity\Attribute\Backend\AbstractB
     /**
      * @param \Magento\Framework\DataObject $object
      *
-     * @return \Magento\Eav\Model\Entity\Attribute\Backend\AbstractBackend|void
+     * @return \MageModule\Core\Model\Eav\Entity\Attribute\Backend\AbstractBackend
+     * @throws \Magento\Framework\Exception\LocalizedException
      */
     public function beforeSave($object)
     {
@@ -45,6 +46,8 @@ class UrlKeyFormat extends \Magento\Eav\Model\Entity\Attribute\Backend\AbstractB
             );
         }
 
-        parent::beforeSave($object);
+        $this->validate($object);
+
+        return parent::beforeSave($object);
     }
 }

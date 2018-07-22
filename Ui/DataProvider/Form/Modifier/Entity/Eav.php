@@ -86,6 +86,9 @@ class Eav implements \Magento\Ui\DataProvider\Modifier\ModifierInterface
      */
     private $entityTypeCode;
 
+    /**
+     * @var string
+     */
     private $entityType;
 
     /**
@@ -442,7 +445,7 @@ class Eav implements \Magento\Ui\DataProvider\Modifier\ModifierInterface
         $canDisplayService = $this->canDisplayUseDefault($attribute);
         if ($canDisplayService) {
             $meta['service'] = [
-                'template' => 'ui/form/element/helper/service',
+                'template' => 'ui/form/element/helper/service'
             ];
 
             $meta['disabled'] = !$this->scopeOverriddenValue

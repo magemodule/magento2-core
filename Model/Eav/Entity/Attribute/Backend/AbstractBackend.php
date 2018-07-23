@@ -23,22 +23,6 @@ use Magento\Framework\Exception\LocalizedException;
 abstract class AbstractBackend extends \Magento\Eav\Model\Entity\Attribute\Backend\AbstractBackend
 {
     /**
-     * @var \Magento\Framework\DB\Adapter\AdapterInterface
-     */
-    private $connection;
-
-    /**
-     * AbstractBackend constructor.
-     *
-     * @param \Magento\Framework\App\ResourceConnection $resource
-     */
-    public function __construct(
-        \Magento\Framework\App\ResourceConnection $resource
-    ) {
-        $this->connection = $resource->getConnection();
-    }
-
-    /**
      * @param \Magento\Framework\DataObject $object
      *
      * @return bool
@@ -62,48 +46,5 @@ abstract class AbstractBackend extends \Magento\Eav\Model\Entity\Attribute\Backe
         }
 
         return true;
-    }
-
-    /**
-     * @param \Magento\Framework\DataObject $object
-     *
-     * @return string
-     * @throws \Magento\Framework\Exception\NoSuchEntityException
-     */
-    public function getAttributeValueId($object)
-    {
-        $attribute = $this->getAttribute();
-
-        $select = $this->connection->select()
-            ->from($attribute->getBackendTable(), 'value_id');
-        $select->where('entity_id =?', $object->getId());
-        $select->where('attribute_id =?', $attribute->getAttributeId());
-
-        if ($object instanceof AbstractExtensibleModel) {
-            $select->where('store_id =?', $object->getStoreId());
-        }
-
-        return $this->connection->fetchOne($select);
-    }
-
-    /**
-     * @param \Magento\Framework\DataObject $object
-     *
-     * @return bool
-     * @throws \Magento\Framework\Exception\NoSuchEntityException
-     */
-    protected function deleteAttributeValue($object)
-    {
-        $result = false;
-
-        $valueId = $this->getAttributeValueId($object);
-        if ($valueId) {
-            $result = (bool)$this->connection->delete(
-                $this->getAttribute()->getBackendTable(),
-                ['value_id =?' => $valueId]
-            );
-        }
-
-        return $result;
     }
 }

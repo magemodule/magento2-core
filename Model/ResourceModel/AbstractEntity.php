@@ -3,7 +3,11 @@
 namespace MageModule\Core\Model\ResourceModel;
 
 use MageModule\Core\Model\AbstractExtensibleModel;
+use MageModule\Core\Api\Data\ScopedAttributeInterface;
 use Magento\Store\Model\Store;
+use Magento\Eav\Model\Entity\Attribute\AbstractAttribute;
+use Magento\Framework\DataObject;
+use Magento\Framework\Model\AbstractModel;
 
 abstract class AbstractEntity extends \Magento\Eav\Model\Entity\AbstractEntity
 {
@@ -18,31 +22,39 @@ abstract class AbstractEntity extends \Magento\Eav\Model\Entity\AbstractEntity
     private $entityManager;
 
     /**
+     * @var \Magento\Store\Model\StoreManagerInterface
+     */
+    private $storeManager;
+
+    /**
      * AbstractEntity constructor.
      *
      * @param \MageModule\Core\Helper\Data                   $helper
-     * @param \Magento\Framework\EntityManager\EntityManager $entityManager
      * @param \Magento\Eav\Model\Entity\Context              $context
+     * @param \Magento\Framework\EntityManager\EntityManager $entityManager
+     * @param \Magento\Store\Model\StoreManagerInterface     $storeManager
      * @param array                                          $data
      */
     public function __construct(
         \MageModule\Core\Helper\Data $helper,
-        \Magento\Framework\EntityManager\EntityManager $entityManager,
         \Magento\Eav\Model\Entity\Context $context,
+        \Magento\Framework\EntityManager\EntityManager $entityManager,
+        \Magento\Store\Model\StoreManagerInterface $storeManager,
         array $data = []
     ) {
         parent::__construct($context, $data);
         $this->helper        = $helper;
         $this->entityManager = $entityManager;
+        $this->storeManager  = $storeManager;
     }
 
     /**
-     * @param \Magento\Framework\DataObject|\MageModule\Core\Model\AbstractExtensibleModel $object
+     * @param DataObject|AbstractModel|AbstractExtensibleModel $object
      *
      * @return \Magento\Eav\Model\Entity\AbstractEntity
      * @throws \Magento\Framework\Exception\LocalizedException
      */
-    protected function _beforeSave(\Magento\Framework\DataObject $object)
+    protected function _beforeSave(DataObject $object)
     {
         if ($object->isObjectNew() &&
             !$object->getData(AbstractExtensibleModel::ATTRIBUTE_SET_ID)
@@ -60,27 +72,18 @@ abstract class AbstractEntity extends \Magento\Eav\Model\Entity\AbstractEntity
             );
         }
 
-        $useDefaults = $object->getData('use_defaults');
-        if (is_array($useDefaults)) {
-            $this->helper->boolify($useDefaults);
-            $this->helper->removeFalse($useDefaults);
-            if (!empty($useDefaults)) {
-                $useDefaults = array_fill_keys(array_keys($useDefaults), false);
-            }
-
-            $object->addData($useDefaults);
-        }
+        $this->prepareUseDefaults($object);
 
         return parent::_beforeSave($object);
     }
 
     /**
-     * @param \Magento\Framework\Model\AbstractModel|\MageModule\Core\Model\AbstractExtensibleModel $object
+     * @param AbstractModel|AbstractExtensibleModel $object
      *
-     * @return $this|\MageModule\Core\Model\ResourceModel\AbstractEntity|\Magento\Eav\Model\Entity\AbstractEntity
+     * @return $this
      * @throws \Exception
      */
-    public function save(\Magento\Framework\Model\AbstractModel $object)
+    public function save(AbstractModel $object)
     {
         $this->entityManager->save($object);
 
@@ -88,9 +91,226 @@ abstract class AbstractEntity extends \Magento\Eav\Model\Entity\AbstractEntity
     }
 
     /**
-     * @param \Magento\Framework\Model\AbstractModel|\MageModule\Core\Model\AbstractExtensibleModel $object
-     * @param integer                                                                               $entityId
-     * @param array|null                                                                            $attributes
+     * @param DataObject|AbstractModel|AbstractExtensibleModel $object
+     *
+     * @return \Magento\Eav\Model\Entity\AbstractEntity
+     * @throws \Exception
+     */
+    protected function _afterSave(DataObject $object)
+    {
+        $this->saveWebsiteValues($object);
+        $this->processUseDefaults($object);
+
+        return parent::_afterSave($object);
+    }
+
+    /**
+     * @param AbstractModel|AbstractExtensibleModel $object
+     *
+     * @return $this
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     */
+    protected function prepareUseDefaults(AbstractModel $object)
+    {
+        if ($object->getStoreId()) {
+            $useDefaults = $object->getData('use_defaults');
+            if (!is_array($useDefaults)) {
+                $useDefaults = [];
+            }
+
+            foreach ($object->getData() as $key => $value) {
+                if ($value === false) {
+                    $useDefaults[$key] = 1;
+                }
+            }
+
+            $eligibleAttributes = [];
+
+            $attributes = $this->getAttributesByCode();
+
+            /** @var ScopedAttributeInterface|AbstractAttribute $attribute */
+            foreach ($attributes as $attributeCode => $attribute) {
+                if (!$attribute->isStatic() && !$attribute->isScopeGlobal()) {
+                    $eligibleAttributes[$attributeCode] = $attribute;
+                }
+            }
+
+            $this->helper->boolify($useDefaults);
+            $this->helper->removeFalse($useDefaults);
+            $eligibleAttributes = array_intersect_key($eligibleAttributes, $useDefaults);
+
+            if (!empty($eligibleAttributes)) {
+                $useDefaults = array_fill_keys(array_keys($eligibleAttributes), false);
+            }
+
+            $object->addData($useDefaults);
+            $object->addData(['use_defaults' => $eligibleAttributes]);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param AbstractModel|AbstractExtensibleModel $object
+     *
+     * @return $this
+     * @throws \Exception
+     */
+    protected function processUseDefaults(AbstractModel $object)
+    {
+        if ($object->getStoreId()) {
+            $websiteStoreIds = $this->storeManager
+                ->getStore($object->getStoreId())
+                ->getWebsite()
+                ->getStoreIds(true);
+
+            if (!$websiteStoreIds) {
+                return $this;
+            }
+
+            $useDefaults = $object->getData('use_defaults');
+            if (is_array($useDefaults)) {
+                $connection = $this->getConnection();
+
+                /** @var ScopedAttributeInterface|AbstractAttribute $attribute */
+                foreach ($useDefaults as $attribute) {
+                    $entityIdField = $attribute->getEntityIdField();
+                    $connection->beginTransaction();
+                    try {
+                        if ($attribute->isScopeWebsite()) {
+                            $connection->delete(
+                                $attribute->getBackendTable(),
+                                [
+                                    $entityIdField . ' =?' => $object->getId(),
+                                    'attribute_id =?'      => $attribute->getAttributeId(),
+                                    'store_id IN(?)'       => $websiteStoreIds
+                                ]
+                            );
+                        } else {
+                            $connection->delete(
+                                $attribute->getBackendTable(),
+                                [
+                                    $entityIdField . ' =?' => $object->getId(),
+                                    'attribute_id =?'      => $attribute->getAttributeId(),
+                                    'store_id =?'          => $object->getStoreId()
+                                ]
+                            );
+                        }
+                        $connection->commit();
+                    } catch (\Exception $e) {
+                        $connection->rollBack();
+                        throw $e;
+                    }
+                }
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param AbstractModel|AbstractExtensibleModel $object
+     *
+     * @return $this
+     * @throws \Exception
+     */
+    protected function saveWebsiteValues(AbstractModel $object)
+    {
+        if ($object->getStoreId()) {
+            $websiteStoreIds = $this->storeManager
+                ->getStore($object->getStoreId())
+                ->getWebsite()
+                ->getStoreIds(true);
+
+            $key = array_search($object->getStoreId(), $websiteStoreIds);
+            if ($key !== false) {
+                unset($websiteStoreIds[$key]);
+            }
+
+            if (!$websiteStoreIds) {
+                return $this;
+            }
+
+            $attributes = $this->getAttributesByCode();
+            $connection = $this->getConnection();
+
+            foreach ($object->getData() as $key => $value) {
+                if (isset($attributes[$key])) {
+                    /** @var ScopedAttributeInterface|AbstractAttribute $attribute */
+                    $attribute = $attributes[$key];
+                    if ($attribute->isScopeWebsite()) {
+                        $value = $this->getAttributeRawValue($object, $attribute);
+
+                        $connection->beginTransaction();
+
+                        try {
+                            foreach ($websiteStoreIds as $storeId) {
+                                $connection->insertOnDuplicate(
+                                    $attribute->getBackendTable(),
+                                    [
+                                        $attribute->getEntityIdField() => $object->getId(),
+                                        'attribute_id'                 => $attribute->getAttributeId(),
+                                        'store_id'                     => $storeId,
+                                        'value'                        => $value
+                                    ],
+                                    ['value']
+                                );
+                            }
+                            $connection->commit();
+                        } catch (\Exception $e) {
+                            $connection->rollBack();
+                            throw $e;
+                        }
+                    }
+                }
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param AbstractModel|AbstractExtensibleModel      $object
+     * @param ScopedAttributeInterface|AbstractAttribute $attribute
+     * @param int|null                                   $storeId
+     *
+     * @return string|bool|int|float|null
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     */
+    protected function getAttributeRawValue(
+        AbstractModel $object,
+        AbstractAttribute $attribute,
+        $storeId = null
+    ) {
+        if ($storeId === null) {
+            $storeId = $object->getStoreId();
+        }
+
+        if (!$attribute->isStatic()) {
+            $select = $this->getConnection()->select()->from(
+                $attribute->getBackendTable(),
+                'value'
+            );
+
+            $select->where($attribute->getEntityIdField() . ' =?', $object->getId());
+            $select->where('attribute_id =?', $attribute->getAttributeId());
+            $select->where('store_id =?', $storeId);
+        } else {
+            $select = $this->getConnection()->select()->from(
+                $attribute->getBackendTable(),
+                $attribute->getAttributeCode()
+            );
+
+            $select->where($attribute->getEntityIdField() . ' =?', $object->getId());
+        }
+
+        return $this->getConnection()->fetchOne($select);
+    }
+
+    /**
+     * @param AbstractModel|AbstractExtensibleModel $object
+     * @param int                                   $entityId
+     * @param array|null                            $attributes
      *
      * @return $this
      */
@@ -107,6 +327,7 @@ abstract class AbstractEntity extends \Magento\Eav\Model\Entity\AbstractEntity
 
         $this->loadAttributesForObject($attributes, $object);
         $this->entityManager->load($object, $entityId);
+
         return $this;
     }
 }

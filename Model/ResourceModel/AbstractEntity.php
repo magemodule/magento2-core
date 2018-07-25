@@ -181,18 +181,18 @@ abstract class AbstractEntity extends \Magento\Eav\Model\Entity\AbstractEntity
                             $connection->delete(
                                 $attribute->getBackendTable(),
                                 [
-                                    $entityIdField . ' =?' => $object->getId(),
-                                    'attribute_id =?'      => $attribute->getAttributeId(),
-                                    'store_id IN(?)'       => $websiteStoreIds
+                                    $entityIdField . ' =?'                         => $object->getId(),
+                                    ScopedAttributeInterface::ATTRIBUTE_ID . ' =?' => $attribute->getAttributeId(),
+                                    ScopedAttributeInterface::STORE_ID . ' IN(?)'  => $websiteStoreIds
                                 ]
                             );
                         } else {
                             $connection->delete(
                                 $attribute->getBackendTable(),
                                 [
-                                    $entityIdField . ' =?' => $object->getId(),
-                                    'attribute_id =?'      => $attribute->getAttributeId(),
-                                    'store_id =?'          => $object->getStoreId()
+                                    $entityIdField . ' =?'                         => $object->getId(),
+                                    ScopedAttributeInterface::ATTRIBUTE_ID . ' =?' => $attribute->getAttributeId(),
+                                    ScopedAttributeInterface::STORE_ID . ' =?'     => $object->getStoreId()
                                 ]
                             );
                         }
@@ -248,12 +248,12 @@ abstract class AbstractEntity extends \Magento\Eav\Model\Entity\AbstractEntity
                                 $connection->insertOnDuplicate(
                                     $attribute->getBackendTable(),
                                     [
-                                        $attribute->getEntityIdField() => $object->getId(),
-                                        'attribute_id'                 => $attribute->getAttributeId(),
-                                        'store_id'                     => $storeId,
-                                        'value'                        => $value
+                                        $attribute->getEntityIdField()         => $object->getId(),
+                                        ScopedAttributeInterface::ATTRIBUTE_ID => $attribute->getAttributeId(),
+                                        ScopedAttributeInterface::STORE_ID     => $storeId,
+                                        ScopedAttributeInterface::VALUE        => $value
                                     ],
-                                    ['value']
+                                    [ScopedAttributeInterface::VALUE]
                                 );
                             }
                             $connection->commit();
@@ -289,12 +289,12 @@ abstract class AbstractEntity extends \Magento\Eav\Model\Entity\AbstractEntity
         if (!$attribute->isStatic()) {
             $select = $this->getConnection()->select()->from(
                 $attribute->getBackendTable(),
-                'value'
+                ScopedAttributeInterface::VALUE
             );
 
             $select->where($attribute->getEntityIdField() . ' =?', $object->getId());
-            $select->where('attribute_id =?', $attribute->getAttributeId());
-            $select->where('store_id =?', $storeId);
+            $select->where(ScopedAttributeInterface::ATTRIBUTE_ID . ' =?', $attribute->getAttributeId());
+            $select->where(ScopedAttributeInterface::STORE_ID . ' =?', $storeId);
         } else {
             $select = $this->getConnection()->select()->from(
                 $attribute->getBackendTable(),

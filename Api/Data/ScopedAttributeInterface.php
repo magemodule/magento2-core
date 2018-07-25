@@ -4,6 +4,7 @@ namespace MageModule\Core\Api\Data;
 
 interface ScopedAttributeInterface extends \MageModule\Core\Api\Data\AttributeInterface
 {
+    const STORE_ID           = 'store_id';
     const IS_GLOBAL          = 'is_global';
     const SCOPE_STORE_TEXT   = 'store';
     const SCOPE_GLOBAL_TEXT  = 'global';

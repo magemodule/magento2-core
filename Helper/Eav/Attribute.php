@@ -17,6 +17,8 @@
 
 namespace MageModule\Core\Helper\Eav;
 
+use Magento\Eav\Api\Data\AttributeInterface;
+
 class Attribute extends \Magento\Framework\App\Helper\AbstractHelper
 {
     /**
@@ -52,17 +54,15 @@ class Attribute extends \Magento\Framework\App\Helper\AbstractHelper
         \Magento\Eav\Model\Entity\Attribute\AbstractAttribute $attribute,
         \Magento\Framework\Model\AbstractModel $object
     ) {
-        //TODO return to this function and make sure it works properly
         $result = [];
-
         if ($object->getId() && !$attribute->isStatic()) {
-            $table = $attribute->getBackendTable();
-            $connection = $this->resource->getConnection('core_read');
+            $table       = $attribute->getBackendTable();
+            $connection  = $this->resource->getConnection('core_read');
             $description = $connection->describeTable($table);
             if (isset($description['store_id'])) {
                 $select = $connection->select()->from($table, 'store_id');
-                $select->where('attribute_id = ?', $attribute->getAttributeId());
-                $select->where('entity_id = ?', $object->getId());
+                $select->where(AttributeInterface::ATTRIBUTE_ID . ' = ?', $attribute->getAttributeId());
+                $select->where($attribute->getEntityIdField() . ' = ?', $object->getId());
                 $result = $connection->fetchCol($select);
             }
         }

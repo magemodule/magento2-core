@@ -20,11 +20,14 @@ class UrlKeyFormat extends \MageModule\Core\Model\Eav\Entity\Attribute\Backend\A
     /**
      * UrlKeyFormat constructor.
      *
-     * @param \Magento\Framework\Filter\FilterManager $filterManager
+     * @param \Magento\Framework\App\ResourceConnection $resource
+     * @param \Magento\Framework\Filter\FilterManager   $filterManager
      */
     public function __construct(
+        \Magento\Framework\App\ResourceConnection $resource,
         \Magento\Framework\Filter\FilterManager $filterManager
     ) {
+        parent::__construct($resource);
         $this->filterManager = $filterManager;
     }
 
@@ -36,12 +39,12 @@ class UrlKeyFormat extends \MageModule\Core\Model\Eav\Entity\Attribute\Backend\A
      */
     public function beforeSave($object)
     {
-        $attributeCode = $this->getAttribute()->getName();
-        if ($object->getData($attributeCode)) {
+        $attrCode = $this->getAttribute()->getName();
+        if ($object->getData($attrCode)) {
             $object->setData(
-                $attributeCode,
+                $attrCode,
                 $this->filterManager->translitUrl(
-                    $object->getData($attributeCode)
+                    $object->getData($attrCode)
                 )
             );
         }

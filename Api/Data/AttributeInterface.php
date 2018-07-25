@@ -19,6 +19,8 @@ namespace MageModule\Core\Api\Data;
 
 interface AttributeInterface extends \Magento\Eav\Api\Data\AttributeInterface
 {
+    const VALUE                 = 'value';
+    const VALUE_ID              = 'value_id';
     const IS_VISIBLE            = 'is_visible';
     const IS_WYSIWYG_ENABLED    = 'is_wysiwyg_enabled';
     const IS_USED_IN_GRID       = 'is_used_in_grid';

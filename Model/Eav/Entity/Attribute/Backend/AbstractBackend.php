@@ -18,10 +18,85 @@
 namespace MageModule\Core\Model\Eav\Entity\Attribute\Backend;
 
 use MageModule\Core\Model\AbstractExtensibleModel;
+use MageModule\Core\Api\Data\ScopedAttributeInterface;
+use Magento\Framework\Model\AbstractModel;
 use Magento\Framework\Exception\LocalizedException;
+use MageModule\Core\Api\Data\AttributeInterface;
 
 abstract class AbstractBackend extends \Magento\Eav\Model\Entity\Attribute\Backend\AbstractBackend
 {
+    /**
+     * @var \Magento\Framework\App\ResourceConnection
+     */
+    protected $resource;
+
+    /**
+     * AbstractBackend constructor.
+     *
+     * @param \Magento\Framework\App\ResourceConnection $resource
+     */
+    public function __construct(
+        \Magento\Framework\App\ResourceConnection $resource
+    ) {
+        $this->resource = $resource;
+    }
+
+    /**
+     * @param \Magento\Framework\DataObject $object
+     *
+     * @return int|null
+     */
+    public function getObjectId($object)
+    {
+        $objectId = $object->getData('id');
+        if ($object instanceof AbstractExtensibleModel) {
+            $objectId = $object->getEntityId();
+        } elseif ($object instanceof AbstractModel) {
+            $objectId = $object->getId();
+        }
+
+        return $objectId;
+    }
+
+    /**
+     * @param DataObject|AbstractModel $object
+     *
+     * @return array
+     */
+    protected function getStoreIdValuePairs($object)
+    {
+        $attribute  = $this->getAttribute();
+        $connection = $this->resource->getConnection();
+        $objectId   = $this->getObjectId($object);
+
+        $select = $connection->select();
+        if ($attribute instanceof ScopedAttributeInterface) {
+            $select->from(
+                $this->getTable(),
+                [ScopedAttributeInterface::STORE_ID, ScopedAttributeInterface::VALUE]
+            )->where(
+                $this->getEntityIdField() . ' =?',
+                $objectId
+            )->where(
+                ScopedAttributeInterface::ATTRIBUTE_ID . ' =?',
+                $attribute->getAttributeId()
+            );
+        } else {
+            $select->from(
+                $this->getTable(),
+                [new \Zend_Db_Expr(Store::DEFAULT_STORE_ID), AttributeInterface::VALUE]
+            )->where(
+                AttributeInterface::ATTRIBUTE_ID . ' =?',
+                $attribute->getAttributeId()
+            )->where(
+                $this->getEntityIdField() . ' =?',
+                $objectId
+            );
+        }
+
+        return $connection->fetchPairs($select);
+    }
+
     /**
      * @param \Magento\Framework\DataObject $object
      *
@@ -36,6 +111,7 @@ abstract class AbstractBackend extends \Magento\Eav\Model\Entity\Attribute\Backe
         $attrCode  = $attribute->getAttributeCode();
         $value     = $object->getData($attrCode);
 
+        //TODO check this method over
         if (!$object->getData(AbstractExtensibleModel::STORE_ID) &&
             $attribute->getIsVisible() &&
             $attribute->getIsRequired() &&

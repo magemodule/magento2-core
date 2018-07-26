@@ -27,6 +27,11 @@ abstract class AbstractEntity extends \Magento\Eav\Model\Entity\AbstractEntity
     private $storeManager;
 
     /**
+     * @var array
+     */
+    private $websiteStoreIds = [];
+
+    /**
      * AbstractEntity constructor.
      *
      * @param \MageModule\Core\Helper\Data                   $helper
@@ -79,15 +84,120 @@ abstract class AbstractEntity extends \Magento\Eav\Model\Entity\AbstractEntity
 
     /**
      * @param AbstractModel|AbstractExtensibleModel $object
+     * @param AbstractAttribute                     $attribute
+     * @param mixed                                 $value
      *
-     * @return $this
-     * @throws \Exception
+     * @return \Magento\Eav\Model\Entity\AbstractEntity
+     * @throws \Magento\Framework\Exception\LocalizedException
      */
-    public function save(AbstractModel $object)
+    protected function _saveAttribute($object, $attribute, $value)
     {
-        $this->entityManager->save($object);
+        if ($attribute instanceof ScopedAttributeInterface) {
+            $table = $attribute->getBackend()->getTable();
+            if (!isset($this->_attributeValuesToSave[$table])) {
+                $this->_attributeValuesToSave[$table] = [];
+            }
 
-        return $this;
+            $entityIdField = $attribute->getBackend()->getEntityIdField();
+
+            $storeId = $object->getStoreId();
+            if ($attribute->isScopeWebsite()) {
+                $storeIds = $this->_getStoreIdsForWebsite($storeId);
+            } elseif ($attribute->isScopeStore()) {
+                $storeIds = [$storeId];
+            } else {
+                $storeIds = [Store::DEFAULT_STORE_ID];
+            }
+
+            foreach ($storeIds as $storeId) {
+                $data = [
+                    $entityIdField                         => $object->getId(),
+                    ScopedAttributeInterface::ATTRIBUTE_ID => $attribute->getId(),
+                    ScopedAttributeInterface::STORE_ID     => $storeId,
+                    ScopedAttributeInterface::VALUE        => $this->_prepareValueForSave($value, $attribute)
+                ];
+
+                if (!$this->getEntityTable() ||
+                    $this->getEntityTable() == \Magento\Eav\Model\Entity::DEFAULT_ENTITY_TABLE
+                ) {
+                    $data['entity_type_id'] = $object->getEntityTypeId();
+                }
+
+                $this->_attributeValuesToSave[$table][] = $data;
+            }
+
+            return $this;
+        }
+
+        return parent::_saveAttribute($object, $attribute, $value);
+    }
+
+    /**
+     * @param AbstractModel|AbstractExtensibleModel $object
+     * @param string                                $table
+     * @param array                                 $info
+     *
+     * @return $this|\Magento\Framework\DataObject
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     */
+    protected function _deleteAttributes($object, $table, $info)
+    {
+        if ($object instanceof AbstractExtensibleModel) {
+            $connection = $this->getConnection();
+            $valueIds   = [];
+            foreach ($info as $itemData) {
+                /** @var ScopedAttributeInterface $attribute */
+                $attribute = $this->getAttribute($itemData['attribute_id']);
+                $storeId   = $object->getStoreId();
+                if ($attribute->isScopeWebsite()) {
+                    $storeIds = $this->_getStoreIdsForWebsite($storeId);
+                } elseif ($attribute->isScopeStore()) {
+                    $storeIds = [$storeId];
+                } else {
+                    $storeIds = [Store::DEFAULT_STORE_ID];
+                }
+
+                $select = $connection->select()->from($table, ScopedAttributeInterface::VALUE_ID);
+                $select->where($attribute->getEntityIdField() . ' =?', $object->getEntityId());
+                $select->where(ScopedAttributeInterface::ATTRIBUTE_ID . ' =?', $itemData['attribute_id']);
+                $select->where(ScopedAttributeInterface::STORE_ID . ' IN(?)', $storeIds);
+
+                $valueIds = array_merge($valueIds, $connection->fetchCol($select));
+            }
+
+            if (empty($valueIds)) {
+                return $this;
+            }
+
+            if (isset($this->_attributeValuesToDelete[$table])) {
+                $this->_attributeValuesToDelete[$table] =
+                    array_merge($this->_attributeValuesToDelete[$table], $valueIds);
+            } else {
+                $this->_attributeValuesToDelete[$table] = $valueIds;
+            }
+
+            return $this;
+        }
+
+        return parent::_deleteAttributes($object, $table, $info);
+    }
+
+    /**
+     * @param int $storeId
+     *
+     * @return int[]
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     */
+    protected function _getStoreIdsForWebsite($storeId)
+    {
+        if (!isset($this->websiteStoreIds[$storeId])) {
+            $this->websiteStoreIds[$storeId] = $this->storeManager
+                ->getStore($storeId)
+                ->getWebsite()
+                ->getStoreIds();
+        }
+
+        return $this->websiteStoreIds[$storeId];
     }
 
     /**
@@ -98,7 +208,6 @@ abstract class AbstractEntity extends \Magento\Eav\Model\Entity\AbstractEntity
      */
     protected function _afterSave(DataObject $object)
     {
-        $this->saveWebsiteValues($object);
         $this->processUseDefaults($object);
 
         return parent::_afterSave($object);
@@ -158,12 +267,9 @@ abstract class AbstractEntity extends \Magento\Eav\Model\Entity\AbstractEntity
      */
     protected function processUseDefaults(AbstractModel $object)
     {
-        if ($object->getStoreId()) {
-            $websiteStoreIds = $this->storeManager
-                ->getStore($object->getStoreId())
-                ->getWebsite()
-                ->getStoreIds(true);
-
+        $storeId = $object->getStoreId();
+        if ($storeId) {
+            $websiteStoreIds = $this->_getStoreIdsForWebsite($object->getStoreId());
             if (!$websiteStoreIds) {
                 return $this;
             }
@@ -174,137 +280,27 @@ abstract class AbstractEntity extends \Magento\Eav\Model\Entity\AbstractEntity
 
                 /** @var ScopedAttributeInterface|AbstractAttribute $attribute */
                 foreach ($useDefaults as $attribute) {
-                    $entityIdField = $attribute->getEntityIdField();
-                    $connection->beginTransaction();
-                    try {
-                        if ($attribute->isScopeWebsite()) {
-                            $connection->delete(
-                                $attribute->getBackendTable(),
-                                [
-                                    $entityIdField . ' =?'                         => $object->getId(),
-                                    ScopedAttributeInterface::ATTRIBUTE_ID . ' =?' => $attribute->getAttributeId(),
-                                    ScopedAttributeInterface::STORE_ID . ' IN(?)'  => $websiteStoreIds
-                                ]
-                            );
-                        } else {
-                            $connection->delete(
-                                $attribute->getBackendTable(),
-                                [
-                                    $entityIdField . ' =?'                         => $object->getId(),
-                                    ScopedAttributeInterface::ATTRIBUTE_ID . ' =?' => $attribute->getAttributeId(),
-                                    ScopedAttributeInterface::STORE_ID . ' =?'     => $object->getStoreId()
-                                ]
-                            );
-                        }
-                        $connection->commit();
-                    } catch (\Exception $e) {
-                        $connection->rollBack();
-                        throw $e;
-                    }
-                }
-            }
-        }
-
-        return $this;
-    }
-
-    /**
-     * @param AbstractModel|AbstractExtensibleModel $object
-     *
-     * @return $this
-     * @throws \Exception
-     */
-    protected function saveWebsiteValues(AbstractModel $object)
-    {
-        if ($object->getStoreId()) {
-            $websiteStoreIds = $this->storeManager
-                ->getStore($object->getStoreId())
-                ->getWebsite()
-                ->getStoreIds(true);
-
-            $key = array_search($object->getStoreId(), $websiteStoreIds);
-            if ($key !== false) {
-                unset($websiteStoreIds[$key]);
-            }
-
-            if (!$websiteStoreIds) {
-                return $this;
-            }
-
-            $attributes = $this->getAttributesByCode();
-            $connection = $this->getConnection();
-
-            foreach ($object->getData() as $key => $value) {
-                if (isset($attributes[$key])) {
-                    /** @var ScopedAttributeInterface|AbstractAttribute $attribute */
-                    $attribute = $attributes[$key];
                     if ($attribute->isScopeWebsite()) {
-                        $value = $this->getAttributeRawValue($object, $attribute);
-
-                        $connection->beginTransaction();
-
-                        try {
-                            foreach ($websiteStoreIds as $storeId) {
-                                $connection->insertOnDuplicate(
-                                    $attribute->getBackendTable(),
-                                    [
-                                        $attribute->getEntityIdField()         => $object->getId(),
-                                        ScopedAttributeInterface::ATTRIBUTE_ID => $attribute->getAttributeId(),
-                                        ScopedAttributeInterface::STORE_ID     => $storeId,
-                                        ScopedAttributeInterface::VALUE        => $value
-                                    ],
-                                    [ScopedAttributeInterface::VALUE]
-                                );
-                            }
-                            $connection->commit();
-                        } catch (\Exception $e) {
-                            $connection->rollBack();
-                            throw $e;
-                        }
+                        $storeIds = $this->_getStoreIdsForWebsite($storeId);
+                    } elseif ($attribute->isScopeStore()) {
+                        $storeIds = [$storeId];
+                    } else {
+                        $storeIds = [Store::DEFAULT_STORE_ID];
                     }
+
+                    $connection->delete(
+                        $attribute->getBackendTable(),
+                        [
+                            $attribute->getEntityIdField() . ' =?'         => $object->getId(),
+                            ScopedAttributeInterface::ATTRIBUTE_ID . ' =?' => $attribute->getAttributeId(),
+                            ScopedAttributeInterface::STORE_ID . ' IN(?)'  => $storeIds
+                        ]
+                    );
                 }
             }
         }
 
         return $this;
-    }
-
-    /**
-     * @param AbstractModel|AbstractExtensibleModel      $object
-     * @param ScopedAttributeInterface|AbstractAttribute $attribute
-     * @param int|null                                   $storeId
-     *
-     * @return string|bool|int|float|null
-     * @throws \Magento\Framework\Exception\NoSuchEntityException
-     */
-    protected function getAttributeRawValue(
-        AbstractModel $object,
-        AbstractAttribute $attribute,
-        $storeId = null
-    ) {
-        if ($storeId === null) {
-            $storeId = $object->getStoreId();
-        }
-
-        if (!$attribute->isStatic()) {
-            $select = $this->getConnection()->select()->from(
-                $attribute->getBackendTable(),
-                ScopedAttributeInterface::VALUE
-            );
-
-            $select->where($attribute->getEntityIdField() . ' =?', $object->getId());
-            $select->where(ScopedAttributeInterface::ATTRIBUTE_ID . ' =?', $attribute->getAttributeId());
-            $select->where(ScopedAttributeInterface::STORE_ID . ' =?', $storeId);
-        } else {
-            $select = $this->getConnection()->select()->from(
-                $attribute->getBackendTable(),
-                $attribute->getAttributeCode()
-            );
-
-            $select->where($attribute->getEntityIdField() . ' =?', $object->getId());
-        }
-
-        return $this->getConnection()->fetchOne($select);
     }
 
     /**

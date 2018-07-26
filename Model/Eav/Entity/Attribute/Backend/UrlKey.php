@@ -3,6 +3,7 @@
 namespace MageModule\Core\Model\Eav\Entity\Attribute\Backend;
 
 //TODO test in single store mode
+//TODO test in store scope and website scope
 //TODO test deletion of store
 //TODO test changing of suffix
 use MageModule\Core\Model\AbstractExtensibleModel;
@@ -364,7 +365,7 @@ class UrlKey extends \MageModule\Core\Model\Eav\Entity\Attribute\Backend\UrlKeyF
             $rewrite->setStoreId($storeId);
             $save = [$rewrite];
 
-            //TODO create flag the declares whether or not we should create 301
+            //TODO create flag that declares whether or not we should create 301
             if ($dataHasChanged) {
                 $existingRedirects = $this->storage->findAllByData(
                     [
@@ -460,9 +461,20 @@ class UrlKey extends \MageModule\Core\Model\Eav\Entity\Attribute\Backend\UrlKeyF
         return $urlKey ? $urlKey . $suffix : null;
     }
 
+    /**
+     * @param DataObject|AbstractModel $object
+     *
+     * @return \MageModule\Core\Model\Eav\Entity\Attribute\Backend\UrlKeyFormat
+     */
     public function afterDelete($object)
     {
-        //TODO delete URL rewrite
+        $this->storage->deleteByData(
+            [
+                UrlRewrite::ENTITY_TYPE => $this->entity,
+                UrlRewrite::ENTITY_ID => $this->getObjectId($object)
+            ]
+        );
+
         return parent::afterDelete($object);
     }
 }

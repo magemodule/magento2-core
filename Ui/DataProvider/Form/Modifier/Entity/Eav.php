@@ -198,6 +198,9 @@ class Eav implements \Magento\Ui\DataProvider\Modifier\ModifierInterface
                 $fieldset['dataScope']     = $this->dataScopeKey;
                 $fieldset['sortOrder']     = $sortOrder * self::SORT_ORDER_MULTIPLIER;
 
+                /** note to self: this line is important */
+                $fieldset['initializeFieldsetDataByDefault'] = true;
+
                 /** @var \MageModule\Core\Api\Data\ScopedAttributeInterface $attribute */
                 foreach ($attributes as $attribute) {
                     $container = &$meta[$groupCode]['children']

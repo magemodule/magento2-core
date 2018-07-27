@@ -365,7 +365,6 @@ class UrlKey extends \MageModule\Core\Model\Eav\Entity\Attribute\Backend\UrlKeyF
             $rewrite->setStoreId($storeId);
             $save = [$rewrite];
 
-            //TODO create flag that declares whether or not we should create 301
             if ($dataHasChanged) {
                 $existingRedirects = $this->storage->findAllByData(
                     [

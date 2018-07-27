@@ -4,6 +4,7 @@ namespace MageModule\Core\Model\ResourceModel;
 
 use MageModule\Core\Model\AbstractExtensibleModel;
 use MageModule\Core\Api\Data\ScopedAttributeInterface;
+use Magento\Framework\Stdlib\ArrayManager;
 use Magento\Store\Model\Store;
 use Magento\Eav\Model\Entity\Attribute\AbstractAttribute;
 use Magento\Framework\DataObject;
@@ -27,6 +28,11 @@ abstract class AbstractEntity extends \Magento\Eav\Model\Entity\AbstractEntity
     private $storeManager;
 
     /**
+     * @var \Magento\Framework\Stdlib\ArrayManager
+     */
+    private $arrayManager;
+
+    /**
      * @var array
      */
     private $websiteStoreIds = [];
@@ -37,6 +43,7 @@ abstract class AbstractEntity extends \Magento\Eav\Model\Entity\AbstractEntity
      * @param \MageModule\Core\Helper\Data                   $helper
      * @param \Magento\Eav\Model\Entity\Context              $context
      * @param \Magento\Framework\EntityManager\EntityManager $entityManager
+     * @param \Magento\Framework\Stdlib\ArrayManager         $arrayManager
      * @param \Magento\Store\Model\StoreManagerInterface     $storeManager
      * @param array                                          $data
      */
@@ -44,12 +51,14 @@ abstract class AbstractEntity extends \Magento\Eav\Model\Entity\AbstractEntity
         \MageModule\Core\Helper\Data $helper,
         \Magento\Eav\Model\Entity\Context $context,
         \Magento\Framework\EntityManager\EntityManager $entityManager,
+        \Magento\Framework\Stdlib\ArrayManager $arrayManager,
         \Magento\Store\Model\StoreManagerInterface $storeManager,
         array $data = []
     ) {
         parent::__construct($context, $data);
         $this->helper        = $helper;
         $this->entityManager = $entityManager;
+        $this->arrayManager  = $arrayManager;
         $this->storeManager  = $storeManager;
     }
 
@@ -80,6 +89,120 @@ abstract class AbstractEntity extends \Magento\Eav\Model\Entity\AbstractEntity
         $this->prepareUseDefaults($object);
 
         return parent::_beforeSave($object);
+    }
+
+    /**
+     * @param array                     &$delete
+     * @param AbstractAttribute         $attribute
+     * @param AbstractEntity|DataObject $object
+     *
+     * @return void
+     *
+     * @throws \Magento\Framework\Exception\LocalizedException
+     */
+    private function _aggregateDeleteData(&$delete, $attribute, $object)
+    {
+        foreach ($attribute->getBackend()->getAffectedFields($object) as $tableName => $valuesData) {
+            if (!isset($delete[$tableName])) {
+                $delete[$tableName] = [];
+            }
+            $delete[$tableName] = array_merge((array)$delete[$tableName], $valuesData);
+        }
+    }
+
+    /**
+     * @param AbstractModel|AbstractExtensibleModel $newObject
+     *
+     * @return array
+     * @throws \Magento\Framework\Exception\LocalizedException
+     */
+    protected function _collectSaveData($newObject)
+    {
+        if (!$newObject instanceof AbstractExtensibleModel) {
+            return parent::_collectSaveData($newObject);
+        }
+
+        $newData  = $newObject->getData();
+        $entityId = $newObject->getData($this->getEntityIdField());
+
+        $entityRow = [];
+        $insert    = [];
+        $update    = [];
+        $delete    = [];
+
+        if (!empty($entityId)) {
+            $origData = $newObject->getOrigData();
+            if (empty($origData)) {
+                $origData = $this->_getOrigObject($newObject)->getOrigData();
+            }
+
+            if ($origData === null) {
+                $origData = [];
+            }
+
+            foreach ($origData as $k => $v) {
+                if (!array_key_exists($k, $newData)) {
+                    unset($origData[$k]);
+                }
+            }
+        } else {
+            $origData = [];
+        }
+
+        $staticFields   = $this->getConnection()->describeTable($this->getEntityTable());
+        $staticFields   = array_keys($staticFields);
+        $attributeCodes = array_keys($this->_attributesByCode);
+
+        $useDefault = $newObject->getData('use_default');
+        if (!is_array($useDefault)) {
+            $useDefault = [];
+        }
+
+        foreach ($newData as $k => $v) {
+            if (!in_array($k, $staticFields) && !in_array($k, $attributeCodes)) {
+                continue;
+            }
+
+            $attribute = $this->getAttribute($k);
+            if (empty($attribute)) {
+                continue;
+            }
+
+            if ((!$attribute->isInSet($newObject->getAttributeSetId()) && !in_array($k, $staticFields)) ||
+                (array_key_exists($attribute->getAttributeCode(), $useDefault) && $newObject->getStoreId())
+            ) {
+                $this->_aggregateDeleteData($delete, $attribute, $newObject);
+                continue;
+            }
+
+            $attrId = $attribute->getAttributeId();
+
+            if (!$attribute->getBackend()->isScalar()) {
+                continue;
+            }
+
+            if ($this->isAttributeStatic($k)) {
+                $entityRow[$k] = $this->_prepareStaticValue($k, $v);
+                continue;
+            }
+
+            if ($this->_canUpdateAttribute($attribute, $v, $origData)) {
+                if ($this->_isAttributeValueEmpty($attribute, $v)) {
+                    $this->_aggregateDeleteData($delete, $attribute, $newObject);
+                } else {
+                    $update[$attrId] = [
+                        'value_id' => $attribute->getBackend()->getEntityValueId($newObject),
+                        'value'    => is_array($v) ? array_shift($v) : $v
+                    ];
+                }
+            } elseif (!$this->_isAttributeValueEmpty($attribute, $v)) {
+                $insert[$attrId] = is_array($v) ? array_shift($v) : $v;
+            }
+        }
+
+        $result = compact('newObject', 'entityRow', 'insert', 'update', 'delete');
+
+        return $result;
     }
 
     /**
@@ -222,7 +345,7 @@ abstract class AbstractEntity extends \Magento\Eav\Model\Entity\AbstractEntity
     protected function prepareUseDefaults(AbstractModel $object)
     {
         if ($object->getStoreId()) {
-            $useDefaults = $object->getData('use_defaults');
+            $useDefaults = $object->getData('use_default');
             if (!is_array($useDefaults)) {
                 $useDefaults = [];
             }
@@ -253,7 +376,7 @@ abstract class AbstractEntity extends \Magento\Eav\Model\Entity\AbstractEntity
             }
 
             $object->addData($useDefaults);
-            $object->addData(['use_defaults' => $eligibleAttributes]);
+            $object->addData(['use_default' => $eligibleAttributes]);
         }
 
         return $this;
@@ -274,7 +397,7 @@ abstract class AbstractEntity extends \Magento\Eav\Model\Entity\AbstractEntity
                 return $this;
             }
 
-            $useDefaults = $object->getData('use_defaults');
+            $useDefaults = $object->getData('use_default');
             if (is_array($useDefaults)) {
                 $connection = $this->getConnection();
 
@@ -323,6 +446,9 @@ abstract class AbstractEntity extends \Magento\Eav\Model\Entity\AbstractEntity
 
         $this->loadAttributesForObject($attributes, $object);
         $this->entityManager->load($object, $entityId);
+        foreach ($object->getData() as $key => $value) {
+            $object->setOrigData($key, $value);
+        }
 
         return $this;
     }

@@ -6,6 +6,7 @@ use MageModule\Core\Model\AbstractExtensibleModel;
 use MageModule\Core\Api\Data\AttributeInterface;
 use MageModule\Core\Api\Data\ScopedAttributeInterface;
 use Magento\Eav\Model\Entity\Attribute\AbstractAttribute;
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Model\AbstractModel;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\App\ResourceConnection;
@@ -319,6 +320,7 @@ class UrlRewriteGenerator
      *
      * @return array
      * @throws UrlAlreadyExistsException
+     * @throws LocalizedException
      */
     public function generate(AbstractModel $object, $save = true)
     {
@@ -327,6 +329,12 @@ class UrlRewriteGenerator
         $urlKeys    = $this->getFinalUrlKeys($object);
         $entityType = $this->getEntityType();
         $objectId   = $object->getId();
+
+        if (!$objectId) {
+            throw new LocalizedException(
+                __('Object must be saved to the database before generating URL Rewrites.')
+            );
+        }
 
         $allRewrites = $this->storage->findAllByData(
             [

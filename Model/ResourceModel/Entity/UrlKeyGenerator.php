@@ -3,10 +3,8 @@
 namespace MageModule\Core\Model\ResourceModel\Entity;
 
 use MageModule\Core\Model\AbstractExtensibleModel;
-use MageModule\Core\Api\Data\AttributeInterface;
 use MageModule\Core\Api\Data\ScopedAttributeInterface;
 use Magento\Eav\Model\Entity\Attribute\AbstractAttribute;
-use Magento\Framework\DataObject;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Model\AbstractModel;
 use Magento\Framework\Exception\LocalizedException;
@@ -134,7 +132,7 @@ class UrlKeyGenerator
      */
     private function getProjectedUrlKeys(AbstractModel $object, $value, array $storeIds)
     {
-        $objectId = $object->getId();
+        $objectId   = $object->getId();
         $entityType = $this->attribute->getEntityType()->getEntityTypeCode();
 
         $urlKeys = [];
@@ -183,7 +181,7 @@ class UrlKeyGenerator
         $rewrites = $this->storage->findAllByData(
             [
                 UrlRewrite::REQUEST_PATH => $requestPaths,
-                UrlRewrite::STORE_ID => $storeIds
+                UrlRewrite::STORE_ID     => $storeIds
             ]
         );
 
@@ -208,6 +206,11 @@ class UrlKeyGenerator
     }
 
     /**
+     * Generates URL key for the given object based on the attribute passed in.
+     * Attribute scope is taken into account. If the url key is not available,
+     * will return the url key plus a string will be appended to the end of the
+     * url key to make it unique
+     *
      * @param AbstractModel|AbstractExtensibleModel $object
      *
      * @return string

@@ -171,13 +171,18 @@ class UrlRewriteGenerator
         $connection = $this->resource->getConnection();
         $objectId   = $object->getId();
 
+        $entityIdField = 'entity_id';
+        if ($attribute->getEntityIdField()) {
+            $entityIdField = $attribute->getEntityIdField();
+        }
+
         $select = $connection->select();
         if ($attribute instanceof ScopedAttributeInterface) {
             $select->from(
                 $attribute->getBackendTable(),
                 [ScopedAttributeInterface::STORE_ID, ScopedAttributeInterface::VALUE]
             )->where(
-                $attribute->getEntityIdField() . ' =?',
+                $entityIdField . ' =?',
                 $objectId
             )->where(
                 ScopedAttributeInterface::ATTRIBUTE_ID . ' =?',
@@ -191,7 +196,7 @@ class UrlRewriteGenerator
                 AttributeInterface::ATTRIBUTE_ID . ' =?',
                 $attribute->getAttributeId()
             )->where(
-                $attribute->getEntityIdField() . ' =?',
+                $entityIdField . ' =?',
                 $objectId
             );
         }

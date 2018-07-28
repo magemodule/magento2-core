@@ -5,7 +5,6 @@ namespace MageModule\Core\Model\Eav\Entity\Attribute\Backend;
 //TODO test in single store mode
 //TODO test deletion of store
 //TODO test adding store
-//TODO test changing of suffix
 use Magento\Framework\DataObject;
 use Magento\Framework\Model\AbstractModel;
 use Magento\UrlRewrite\Service\V1\Data\UrlRewrite;

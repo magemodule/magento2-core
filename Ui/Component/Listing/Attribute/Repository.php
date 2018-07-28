@@ -56,6 +56,7 @@ class Repository implements \MageModule\Core\Ui\Component\Listing\Attribute\Repo
      */
     public function getList()
     {
+        //TODO can i replace with non-generic attribute repository, such as one of my virtual types?
         $searchCriteria = $this->searchCriteriaBuilder
             ->addFilter(\MageModule\Core\Api\Data\AttributeInterface::IS_USED_IN_GRID, 1)
             ->create();

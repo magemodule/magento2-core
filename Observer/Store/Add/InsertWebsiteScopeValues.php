@@ -15,7 +15,7 @@
  * @license        https://www.magemodule.com/magento2-ext-license.html
  */
 
-namespace MageModule\Core\Observer\Store\View;
+namespace MageModule\Core\Observer\Store\Add;
 
 use MageModule\Core\Api\AttributeRepositoryInterface;
 use MageModule\Core\Api\Data\ScopedAttributeInterface;
@@ -25,7 +25,7 @@ use Magento\Framework\Api\SearchCriteriaInterfaceFactory;
 use Magento\Framework\Event\Observer;
 use Magento\Store\Api\Data\StoreInterface;
 
-class Add implements \Magento\Framework\Event\ObserverInterface
+class InsertWebsiteScopeValues implements \Magento\Framework\Event\ObserverInterface
 {
     /**
      * @var \Magento\Framework\App\ResourceConnection
@@ -67,6 +67,8 @@ class Add implements \Magento\Framework\Event\ObserverInterface
      */
     public function execute(Observer $observer)
     {
+        //TODO: END OF DEV: make sure that store locator group model website scope attributes get properly inserted
+        //TODO: END OF DEV: make sure that store locator store model website scope attributes get properly inserted
         /** @var StoreInterface $store */
         $store    = $observer->getEvent()->getStore();
         $website  = $store->getWebsite();
@@ -90,6 +92,7 @@ class Add implements \Magento\Framework\Event\ObserverInterface
 
                     $table = $attribute->getBackendTable();
 
+                    //TODO find a way to move this to the AbstractEntity class
                     $select = $connection->select()->from($table);
                     $select->where(ScopedAttributeInterface::ATTRIBUTE_ID . ' =?', $attribute->getAttributeId());
                     $select->where(ScopedAttributeInterface::STORE_ID . ' IN(?)', $storeIds);

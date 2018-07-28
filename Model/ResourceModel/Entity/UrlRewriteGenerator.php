@@ -111,7 +111,7 @@ class UrlRewriteGenerator
     }
 
     /**
-     * @param AbstractAttribute $attribute
+     * @param AbstractAttribute|AttributeInterface $attribute
      *
      * @return $this
      */

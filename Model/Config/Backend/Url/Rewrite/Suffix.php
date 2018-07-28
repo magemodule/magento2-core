@@ -2,35 +2,45 @@
 
 namespace MageModule\Core\Model\Config\Backend\Url\Rewrite;
 
+use MageModule\Core\Api\AttributeRepositoryInterface;
+use MageModule\Core\Model\ResourceModel\Entity\UrlRewriteGenerator;
+use Magento\Eav\Model\Entity\Collection\AbstractCollection;
+use Magento\UrlRewrite\Helper\UrlRewrite as UrlRewriteHelper;
+use Magento\UrlRewrite\Model\Exception\UrlAlreadyExistsException;
+use Magento\Framework\Model\Context;
+use Magento\Framework\Registry;
+use Magento\Framework\App\Config as AppConfig;
+use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\App\Cache\TypeListInterface;
+use Magento\Framework\Model\ResourceModel\AbstractResource;
+use Magento\Framework\Data\Collection\AbstractDb;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Exception\NoSuchEntityException;
+
 class Suffix extends \Magento\Framework\App\Config\Value
 {
-    /**
-     * @var string
-     */
-    private $entityTypeCode;
-
     /**
      * @var string
      */
     private $urlKeyAttributeCode;
 
     /**
-     * @var \MageModule\Core\Model\ResourceModel\Entity\UrlRewriteGenerator
+     * @var UrlRewriteGenerator
      */
     private $urlRewriteGenerator;
 
     /**
-     * @var \Magento\Eav\Model\Entity\Collection\AbstractCollection
+     * @var AbstractCollection
      */
     private $collection;
 
     /**
-     * @var \Magento\Eav\Api\AttributeRepositoryInterface
+     * @var AttributeRepositoryInterface
      */
-    private $eavAttributeRepository;
+    private $attributeRepository;
 
     /**
-     * @var \Magento\UrlRewrite\Helper\UrlRewrite
+     * @var UrlRewriteHelper
      */
     private $urlRewriteHelper;
 
@@ -42,35 +52,33 @@ class Suffix extends \Magento\Framework\App\Config\Value
     /**
      * Suffix constructor.
      *
-     * @param string                                                          $entityTypeCode
-     * @param string                                                          $urlKeyAttributeCode
-     * @param \MageModule\Core\Model\ResourceModel\Entity\UrlRewriteGenerator $urlRewriteGenerator
-     * @param \Magento\Eav\Model\Entity\Collection\AbstractCollection         $collection
-     * @param \Magento\UrlRewrite\Helper\UrlRewrite                           $urlRewriteHelper
-     * @param \Magento\Eav\Api\AttributeRepositoryInterface                   $eavAttributeRepository
-     * @param \Magento\Framework\Model\Context                                $context
-     * @param \Magento\Framework\Registry                                     $registry
-     * @param \Magento\Framework\App\Config                                   $appConfig
-     * @param \Magento\Framework\App\Config\ScopeConfigInterface              $config
-     * @param \Magento\Framework\App\Cache\TypeListInterface                  $cacheTypeList
-     * @param \Magento\Framework\Model\ResourceModel\AbstractResource|null    $resource
-     * @param \Magento\Framework\Data\Collection\AbstractDb|null              $resourceCollection
-     * @param array                                                           $data
+     * @param AbstractCollection           $collection
+     * @param AttributeRepositoryInterface $attributeRepository
+     * @param UrlRewriteGenerator          $urlRewriteGenerator
+     * @param string                       $urlKeyAttributeCode
+     * @param UrlRewriteHelper             $urlRewriteHelper
+     * @param Context                      $context
+     * @param Registry                     $registry
+     * @param AppConfig                    $appConfig
+     * @param ScopeConfigInterface         $config
+     * @param TypeListInterface            $cacheTypeList
+     * @param AbstractResource|null        $resource
+     * @param AbstractDb|null              $resourceCollection
+     * @param array                        $data
      */
     public function __construct(
-        $entityTypeCode,
+        AbstractCollection $collection,
+        AttributeRepositoryInterface $attributeRepository,
+        UrlRewriteGenerator $urlRewriteGenerator,
         $urlKeyAttributeCode,
-        \MageModule\Core\Model\ResourceModel\Entity\UrlRewriteGenerator $urlRewriteGenerator,
-        \Magento\Eav\Model\Entity\Collection\AbstractCollection $collection,
-        \Magento\UrlRewrite\Helper\UrlRewrite $urlRewriteHelper,
-        \Magento\Eav\Api\AttributeRepositoryInterface $eavAttributeRepository,
-        \Magento\Framework\Model\Context $context,
-        \Magento\Framework\Registry $registry,
-        \Magento\Framework\App\Config $appConfig,
-        \Magento\Framework\App\Config\ScopeConfigInterface $config,
-        \Magento\Framework\App\Cache\TypeListInterface $cacheTypeList,
-        \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
-        \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
+        UrlRewriteHelper $urlRewriteHelper,
+        Context $context,
+        Registry $registry,
+        AppConfig $appConfig,
+        ScopeConfigInterface $config,
+        TypeListInterface $cacheTypeList,
+        AbstractResource $resource = null,
+        AbstractDb $resourceCollection = null,
         array $data = []
     ) {
         parent::__construct(
@@ -83,18 +91,17 @@ class Suffix extends \Magento\Framework\App\Config\Value
             $data
         );
 
-        $this->entityTypeCode         = $entityTypeCode;
-        $this->urlKeyAttributeCode    = $urlKeyAttributeCode;
-        $this->urlRewriteGenerator    = $urlRewriteGenerator;
-        $this->urlRewriteHelper       = $urlRewriteHelper;
-        $this->eavAttributeRepository = $eavAttributeRepository;
-        $this->collection             = $collection;
-        $this->appConfig              = $appConfig;
+        $this->urlKeyAttributeCode = $urlKeyAttributeCode;
+        $this->urlRewriteGenerator = $urlRewriteGenerator;
+        $this->urlRewriteHelper    = $urlRewriteHelper;
+        $this->attributeRepository = $attributeRepository;
+        $this->collection          = $collection;
+        $this->appConfig           = $appConfig;
     }
 
     /**
-     * @return $this
-     * @throws \Magento\Framework\Exception\LocalizedException
+     * @return $this|AppConfig\Value
+     * @throws LocalizedException
      */
     public function beforeSave()
     {
@@ -104,10 +111,10 @@ class Suffix extends \Magento\Framework\App\Config\Value
     }
 
     /**
-     * @return \Magento\Framework\App\Config\Value
-     * @throws \Magento\Framework\Exception\LocalizedException
-     * @throws \Magento\Framework\Exception\NoSuchEntityException
-     * @throws \Magento\UrlRewrite\Model\Exception\UrlAlreadyExistsException
+     * @return AppConfig\Value
+     * @throws LocalizedException
+     * @throws NoSuchEntityException
+     * @throws UrlAlreadyExistsException
      */
     public function afterSave()
     {
@@ -119,10 +126,10 @@ class Suffix extends \Magento\Framework\App\Config\Value
     }
 
     /**
-     * @return \Magento\Framework\App\Config\Value
-     * @throws \Magento\Framework\Exception\LocalizedException
-     * @throws \Magento\Framework\Exception\NoSuchEntityException
-     * @throws \Magento\UrlRewrite\Model\Exception\UrlAlreadyExistsException
+     * @return AppConfig\Value
+     * @throws LocalizedException
+     * @throws NoSuchEntityException
+     * @throws UrlAlreadyExistsException
      */
     public function afterDeleteCommit()
     {
@@ -132,27 +139,38 @@ class Suffix extends \Magento\Framework\App\Config\Value
     }
 
     /**
-     * Updates url keys for all objects in the collection
+     * Regenerates url_rewrite table entries for the collection
      *
      * @return $this
-     * @throws \Magento\Framework\Exception\LocalizedException
-     * @throws \Magento\Framework\Exception\NoSuchEntityException
-     * @throws \Magento\UrlRewrite\Model\Exception\UrlAlreadyExistsException
+     * @throws LocalizedException
+     * @throws NoSuchEntityException
+     * @throws UrlAlreadyExistsException
      */
     private function updateUrlRewrites()
     {
-        $attribute = $this->eavAttributeRepository->get(
-            $this->entityTypeCode,
-            $this->urlKeyAttributeCode
-        );
-
+        //TODO: END OF DEV: make sure that store locator group url_rewrites are being properly generated and 301 redirected
         $this->appConfig->clean();
-        $this->urlRewriteGenerator->setAttribute($attribute);
-        $this->collection->addAttributeToSelect($attribute->getAttributeCode());
 
-        /** @var \Magento\Framework\Model\AbstractModel $item */
-        foreach ($this->collection as $item) {
-            $this->urlRewriteGenerator->generate($item, true);
+        $attribute = $this->attributeRepository->get($this->urlKeyAttributeCode);
+
+        $attributeEntityTypeId  = (int)$attribute->getEntityTypeId();
+        $collectionEntityTypeId = (int)$this->collection->getEntity()
+            ->getEntityType()
+            ->getEntityTypeId();
+
+        if ($attributeEntityTypeId !== $collectionEntityTypeId) {
+            throw new LocalizedException(
+                __(
+                    'Cannot generate URL rewrites for collection. The attribute\'s 
+                entity type ID does not match the collection\'s entity type ID.'
+                )
+            );
+        }
+
+        $this->urlRewriteGenerator->setAttribute($attribute);
+
+        foreach ($this->collection as $object) {
+            $this->urlRewriteGenerator->generate($object, true);
         }
 
         return $this;

@@ -2,45 +2,50 @@
 
 namespace MageModule\Core\Model\Eav\Entity\Attribute\Backend;
 
-//TODO test in single store mode
-//TODO test deletion of store
-//TODO test adding store
+//TODO test once more with url_key as global, website, and store view, just for sanity
+use MageModule\Core\Model\ResourceModel\Entity\UrlKeyGenerator;
+use MageModule\Core\Model\ResourceModel\Entity\UrlRewriteGenerator;
+use Magento\Framework\App\ResourceConnection;
 use Magento\Framework\DataObject;
 use Magento\Framework\Model\AbstractModel;
+use Magento\Framework\Filter\FilterManager;
+use Magento\Framework\Exception\LocalizedException;
 use Magento\UrlRewrite\Service\V1\Data\UrlRewrite;
+use Magento\UrlRewrite\Model\StorageInterface;
+use Magento\UrlRewrite\Model\Exception\UrlAlreadyExistsException;
 
 class UrlKey extends \MageModule\Core\Model\Eav\Entity\Attribute\Backend\UrlKeyFormat
 {
     /**
-     * @var \MageModule\Core\Model\ResourceModel\Entity\UrlKeyGenerator
+     * @var UrlKeyGenerator
      */
     private $urlKeyGenerator;
 
     /**
-     * @var \MageModule\Core\Model\ResourceModel\Entity\UrlRewriteGenerator
+     * @var UrlRewriteGenerator
      */
     private $urlRewriteGenerator;
 
     /**
-     * @var \Magento\UrlRewrite\Model\StorageInterface
+     * @var StorageInterface
      */
     private $storage;
 
     /**
      * UrlKey constructor.
      *
-     * @param \MageModule\Core\Model\ResourceModel\Entity\UrlKeyGenerator     $urlKeyGenerator
-     * @param \MageModule\Core\Model\ResourceModel\Entity\UrlRewriteGenerator $urlRewriteGenerator
-     * @param \Magento\UrlRewrite\Model\StorageInterface                      $storage
-     * @param \Magento\Framework\App\ResourceConnection                       $resource
-     * @param \Magento\Framework\Filter\FilterManager                         $filterManager
+     * @param UrlKeyGenerator     $urlKeyGenerator
+     * @param UrlRewriteGenerator $urlRewriteGenerator
+     * @param StorageInterface    $storage
+     * @param ResourceConnection  $resource
+     * @param FilterManager       $filterManager
      */
     public function __construct(
-        \MageModule\Core\Model\ResourceModel\Entity\UrlKeyGenerator $urlKeyGenerator,
-        \MageModule\Core\Model\ResourceModel\Entity\UrlRewriteGenerator $urlRewriteGenerator,
-        \Magento\UrlRewrite\Model\StorageInterface $storage,
-        \Magento\Framework\App\ResourceConnection $resource,
-        \Magento\Framework\Filter\FilterManager $filterManager
+        UrlKeyGenerator $urlKeyGenerator,
+        UrlRewriteGenerator $urlRewriteGenerator,
+        StorageInterface $storage,
+        ResourceConnection $resource,
+        FilterManager $filterManager
     ) {
         parent::__construct($resource, $filterManager);
 
@@ -53,7 +58,7 @@ class UrlKey extends \MageModule\Core\Model\Eav\Entity\Attribute\Backend\UrlKeyF
      * @param DataObject|AbstractModel $object
      *
      * @return $this
-     * @throws \Magento\Framework\Exception\LocalizedException
+     * @throws LocalizedException
      */
     public function beforeSave($object)
     {
@@ -80,8 +85,8 @@ class UrlKey extends \MageModule\Core\Model\Eav\Entity\Attribute\Backend\UrlKeyF
      * @param DataObject|AbstractModel $object
      *
      * @return $this
-     * @throws \Magento\Framework\Exception\LocalizedException
-     * @throws \Magento\UrlRewrite\Model\Exception\UrlAlreadyExistsException
+     * @throws LocalizedException
+     * @throws UrlAlreadyExistsException
      */
     public function afterSave($object)
     {

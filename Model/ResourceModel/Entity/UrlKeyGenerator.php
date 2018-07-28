@@ -51,6 +51,15 @@ class UrlKeyGenerator
      */
     private $attribute;
 
+    /**
+     * UrlKeyGenerator constructor.
+     *
+     * @param \Magento\UrlRewrite\Model\StorageInterface         $storage
+     * @param \Magento\Store\Model\StoreManagerInterface         $storeManager
+     * @param \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
+     * @param null|string                                        $defaultSuffix
+     * @param null|string                                        $xmlPathSuffix
+     */
     public function __construct(
         StorageInterface $storage,
         StoreManagerInterface $storeManager,

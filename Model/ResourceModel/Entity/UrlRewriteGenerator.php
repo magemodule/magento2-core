@@ -421,6 +421,7 @@ class UrlRewriteGenerator
 
             if (!$rewrite instanceof UrlRewrite) {
                 $rewrite = $this->urlRewriteFactory->create();
+                $rewrite->setUrlRewriteId(null);
             }
 
             $oldPath = $rewrite->getRequestPath();

@@ -4,7 +4,6 @@ namespace MageModule\Core\Model\ResourceModel;
 
 use MageModule\Core\Model\AbstractExtensibleModel;
 use MageModule\Core\Api\Data\ScopedAttributeInterface;
-use Magento\Framework\Stdlib\ArrayManager;
 use Magento\Store\Model\Store;
 use Magento\Eav\Model\Entity\Attribute\AbstractAttribute;
 use Magento\Framework\DataObject;
@@ -28,11 +27,6 @@ abstract class AbstractEntity extends \Magento\Eav\Model\Entity\AbstractEntity
     private $storeManager;
 
     /**
-     * @var \Magento\Framework\Stdlib\ArrayManager
-     */
-    private $arrayManager;
-
-    /**
      * @var array
      */
     private $websiteStoreIds = [];
@@ -43,7 +37,6 @@ abstract class AbstractEntity extends \Magento\Eav\Model\Entity\AbstractEntity
      * @param \MageModule\Core\Helper\Data                   $helper
      * @param \Magento\Eav\Model\Entity\Context              $context
      * @param \Magento\Framework\EntityManager\EntityManager $entityManager
-     * @param \Magento\Framework\Stdlib\ArrayManager         $arrayManager
      * @param \Magento\Store\Model\StoreManagerInterface     $storeManager
      * @param array                                          $data
      */
@@ -51,14 +44,12 @@ abstract class AbstractEntity extends \Magento\Eav\Model\Entity\AbstractEntity
         \MageModule\Core\Helper\Data $helper,
         \Magento\Eav\Model\Entity\Context $context,
         \Magento\Framework\EntityManager\EntityManager $entityManager,
-        \Magento\Framework\Stdlib\ArrayManager $arrayManager,
         \Magento\Store\Model\StoreManagerInterface $storeManager,
         array $data = []
     ) {
         parent::__construct($context, $data);
         $this->helper        = $helper;
         $this->entityManager = $entityManager;
-        $this->arrayManager  = $arrayManager;
         $this->storeManager  = $storeManager;
     }
 

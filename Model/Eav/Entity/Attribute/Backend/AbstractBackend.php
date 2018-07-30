@@ -17,32 +17,34 @@
 
 namespace MageModule\Core\Model\Eav\Entity\Attribute\Backend;
 
+use MageModule\Core\Api\Data\AttributeInterface;
 use MageModule\Core\Model\AbstractExtensibleModel;
 use MageModule\Core\Api\Data\ScopedAttributeInterface;
+use Magento\Framework\App\ResourceConnection;
+use Magento\Framework\DataObject;
 use Magento\Framework\Model\AbstractModel;
 use Magento\Framework\Exception\LocalizedException;
-use MageModule\Core\Api\Data\AttributeInterface;
 
 abstract class AbstractBackend extends \Magento\Eav\Model\Entity\Attribute\Backend\AbstractBackend
 {
     /**
-     * @var \Magento\Framework\App\ResourceConnection
+     * @var ResourceConnection
      */
     protected $resource;
 
     /**
      * AbstractBackend constructor.
      *
-     * @param \Magento\Framework\App\ResourceConnection $resource
+     * @param ResourceConnection $resource
      */
     public function __construct(
-        \Magento\Framework\App\ResourceConnection $resource
+        ResourceConnection $resource
     ) {
         $this->resource = $resource;
     }
 
     /**
-     * @param \Magento\Framework\DataObject $object
+     * @param DataObject $object
      *
      * @return int|null
      */
@@ -98,10 +100,10 @@ abstract class AbstractBackend extends \Magento\Eav\Model\Entity\Attribute\Backe
     }
 
     /**
-     * @param \Magento\Framework\DataObject $object
+     * @param DataObject $object
      *
      * @return bool
-     * @throws \Magento\Framework\Exception\LocalizedException
+     * @throws LocalizedException
      */
     public function validate($object)
     {
@@ -111,7 +113,6 @@ abstract class AbstractBackend extends \Magento\Eav\Model\Entity\Attribute\Backe
         $attrCode  = $attribute->getAttributeCode();
         $value     = $object->getData($attrCode);
 
-        //TODO check this method over
         if (!$object->getData(AbstractExtensibleModel::STORE_ID) &&
             $attribute->getIsVisible() &&
             $attribute->getIsRequired() &&

@@ -17,15 +17,20 @@
 
 namespace MageModule\Core\Ui\Component\Listing\Attribute;
 
+use MageModule\Core\Api\Data\AttributeInterface;
+use Magento\Eav\Api\Data\AttributeSearchResultsInterface;
+use Magento\Eav\Api\AttributeRepositoryInterface;
+use Magento\Framework\Api\SearchCriteriaBuilder;
+
 class Repository implements \MageModule\Core\Ui\Component\Listing\Attribute\RepositoryInterface
 {
     /**
-     * @var \Magento\Eav\Api\AttributeRepositoryInterface
+     * @var AttributeRepositoryInterface
      */
     private $attributeRepository;
 
     /**
-     * @var \Magento\Framework\Api\SearchCriteriaBuilder
+     * @var SearchCriteriaBuilder
      */
     protected $searchCriteriaBuilder;
 
@@ -37,13 +42,13 @@ class Repository implements \MageModule\Core\Ui\Component\Listing\Attribute\Repo
     /**
      * Repository constructor.
      *
-     * @param \Magento\Eav\Api\AttributeRepositoryInterface $attributeRepository
-     * @param \Magento\Framework\Api\SearchCriteriaBuilder  $searchCriteriaBuilder
-     * @param string                                        $entityTypeCode
+     * @param AttributeRepositoryInterface $attributeRepository
+     * @param SearchCriteriaBuilder        $searchCriteriaBuilder
+     * @param string                       $entityTypeCode
      */
     public function __construct(
-        \Magento\Eav\Api\AttributeRepositoryInterface $attributeRepository,
-        \Magento\Framework\Api\SearchCriteriaBuilder $searchCriteriaBuilder,
+        AttributeRepositoryInterface $attributeRepository,
+        SearchCriteriaBuilder $searchCriteriaBuilder,
         $entityTypeCode
     ) {
         $this->attributeRepository   = $attributeRepository;
@@ -52,13 +57,12 @@ class Repository implements \MageModule\Core\Ui\Component\Listing\Attribute\Repo
     }
 
     /**
-     * @return \Magento\Eav\Api\Data\AttributeSearchResultsInterface
+     * @return AttributeSearchResultsInterface
      */
     public function getList()
     {
-        //TODO can i replace with non-generic attribute repository, such as one of my virtual types?
         $searchCriteria = $this->searchCriteriaBuilder
-            ->addFilter(\MageModule\Core\Api\Data\AttributeInterface::IS_USED_IN_GRID, 1)
+            ->addFilter(AttributeInterface::IS_USED_IN_GRID, 1)
             ->create();
 
         return $this->attributeRepository->getList($this->entityTypeCode, $searchCriteria);

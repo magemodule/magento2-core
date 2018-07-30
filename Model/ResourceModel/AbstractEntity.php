@@ -8,6 +8,7 @@ use Magento\Store\Model\Store;
 use Magento\Eav\Model\Entity\Attribute\AbstractAttribute;
 use Magento\Framework\DataObject;
 use Magento\Framework\Model\AbstractModel;
+use Magento\Framework\Exception\NoSuchEntityException;
 
 abstract class AbstractEntity extends \Magento\Eav\Model\Entity\AbstractEntity
 {
@@ -411,6 +412,74 @@ abstract class AbstractEntity extends \Magento\Eav\Model\Entity\AbstractEntity
                         ]
                     );
                 }
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param AbstractAttribute|int|string $attribute
+     * @param null|int|int[]               $objectId
+     * @param null|int                     $storeId
+     *
+     * @return $this
+     * @throws NoSuchEntityException
+     */
+    public function fillWebsiteValuesForAttribute($attribute, $objectId = null, $storeId = null)
+    {
+        if (is_numeric($attribute) || is_string($attribute)) {
+            $attribute = $this->getAttribute($attribute);
+        }
+
+        if (!$attribute instanceof ScopedAttributeInterface || !$attribute->isScopeWebsite()) {
+            return $this;
+        }
+
+        $objectIds = [];
+        if (is_numeric($objectId)) {
+            $objectIds = [$objectId];
+        } elseif (is_array($objectId)) {
+            $objectIds = $objectId;
+        }
+
+        $connection    = $this->getConnection();
+        $entityIdField = $attribute->getEntityIdField();
+        $table         = $attribute->getBackendTable();
+        $attributeId   = $attribute->getAttributeId();
+
+        $insertUpdate = [];
+
+        $websites = $this->storeManager->getWebsites();
+        if ($storeId) {
+            $websites = [$this->storeManager->getStore($storeId)->getWebsite()];
+        }
+
+        foreach ($websites as $website) {
+            $storeIds = $website->getStoreIds();
+
+            $select = $connection->select()->from($table);
+            if ($objectIds) {
+                $select->where($entityIdField . ' IN(?)', $objectIds);
+            }
+            $select->where(ScopedAttributeInterface::ATTRIBUTE_ID . ' =?', $attributeId);
+            $select->where(ScopedAttributeInterface::STORE_ID . ' IN(?)', $storeIds);
+            $select->where(ScopedAttributeInterface::STORE_ID . ' NOT IN(?)', Store::DEFAULT_STORE_ID);
+            $select->group($entityIdField);
+            $result = $connection->fetchAll($select);
+
+            foreach ($result as &$row) {
+                unset($row[ScopedAttributeInterface::VALUE_ID]);
+                foreach ($storeIds as $storeId) {
+                    $row[ScopedAttributeInterface::STORE_ID] = $storeId;
+                    $insertUpdate[]                          = $row;
+                }
+            }
+        }
+
+        if ($insertUpdate) {
+            foreach ($insertUpdate as $data) {
+                $connection->insertOnDuplicate($table, $data);
             }
         }
 

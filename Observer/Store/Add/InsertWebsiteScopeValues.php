@@ -18,17 +18,16 @@
 namespace MageModule\Core\Observer\Store\Add;
 
 use MageModule\Core\Api\AttributeRepositoryInterface;
-use MageModule\Core\Api\Data\ScopedAttributeInterface;
-use Magento\Framework\App\ResourceConnection;
+use MageModule\Core\Model\ResourceModel\AbstractEntity;
 use Magento\Framework\Api\SearchCriteriaInterface;
 use Magento\Framework\Api\SearchCriteriaInterfaceFactory;
 use Magento\Framework\Event\Observer;
-use Magento\Store\Api\Data\StoreInterface;
+use Magento\Framework\Exception\NoSuchEntityException;
 
 class InsertWebsiteScopeValues implements \Magento\Framework\Event\ObserverInterface
 {
     /**
-     * @var \Magento\Framework\App\ResourceConnection
+     * @var AbstractEntity
      */
     private $resource;
 
@@ -38,19 +37,19 @@ class InsertWebsiteScopeValues implements \Magento\Framework\Event\ObserverInter
     private $searchCriteriaFactory;
 
     /**
-     * @var \MageModule\Core\Api\AttributeRepositoryInterface
+     * @var AttributeRepositoryInterface
      */
     private $attributeRepository;
 
     /**
-     * Add constructor.
+     * InsertWebsiteScopeValues constructor.
      *
-     * @param \Magento\Framework\App\ResourceConnection             $resource
-     * @param \Magento\Framework\Api\SearchCriteriaInterfaceFactory $searchCriteriaFactory
-     * @param \MageModule\Core\Api\AttributeRepositoryInterface     $attributeRepository
+     * @param AbstractEntity                 $resource
+     * @param SearchCriteriaInterfaceFactory $searchCriteriaFactory
+     * @param AttributeRepositoryInterface   $attributeRepository
      */
     public function __construct(
-        ResourceConnection $resource,
+        AbstractEntity $resource,
         SearchCriteriaInterfaceFactory $searchCriteriaFactory,
         AttributeRepositoryInterface $attributeRepository
     ) {
@@ -63,50 +62,26 @@ class InsertWebsiteScopeValues implements \Magento\Framework\Event\ObserverInter
      * After new store view is added, this observer inserts attribute value row
      * for any attributes that have website scope
      *
-     * @param \Magento\Framework\Event\Observer $observer
+     * @param Observer $observer
+     *
+     * @throws NoSuchEntityException
      */
     public function execute(Observer $observer)
     {
         //TODO: END OF DEV: make sure that store locator group model website scope attributes get properly inserted
         //TODO: END OF DEV: make sure that store locator store model website scope attributes get properly inserted
-        /** @var StoreInterface $store */
-        $store    = $observer->getEvent()->getStore();
-        $website  = $store->getWebsite();
-        $storeIds = $website->getStoreIds();
-        $storeId  = $store->getStoreId();
-
+        $storeId = $observer->getEvent()->getStore()->getStoreId();
         if ($storeId) {
-            $connection = $this->resource->getConnection();
-
             /** @var SearchCriteriaInterface $searchCriteria */
             $searchCriteria = $this->searchCriteriaFactory->create();
             $attributes     = $this->attributeRepository->getList($searchCriteria);
 
-            /** @var \Magento\Eav\Model\Entity\Attribute\AbstractAttribute $attribute */
             foreach ($attributes->getItems() as $attribute) {
-                if ($attribute instanceof ScopedAttributeInterface && $attribute->isScopeWebsite()) {
-                    $entityIdField = 'entity_id';
-                    if ($attribute->getEntityIdField()) {
-                        $entityIdField = $attribute->getEntityIdField();
-                    }
-
-                    $table = $attribute->getBackendTable();
-
-                    //TODO find a way to move this to the AbstractEntity class
-                    $select = $connection->select()->from($table);
-                    $select->where(ScopedAttributeInterface::ATTRIBUTE_ID . ' =?', $attribute->getAttributeId());
-                    $select->where(ScopedAttributeInterface::STORE_ID . ' IN(?)', $storeIds);
-                    $select->group($entityIdField);
-                    $result = $connection->fetchAll($select);
-
-                    if (is_array($result)) {
-                        foreach ($result as $row) {
-                            unset($row[ScopedAttributeInterface::VALUE_ID]);
-                            $row[ScopedAttributeInterface::STORE_ID] = $storeId;
-                            $connection->insertOnDuplicate($table, $row);
-                        }
-                    }
-                }
+                $this->resource->fillWebsiteValuesForAttribute(
+                    $attribute->getAttributeCode(),
+                    null,
+                    $storeId
+                );
             }
         }
     }

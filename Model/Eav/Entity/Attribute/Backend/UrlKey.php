@@ -2,7 +2,6 @@
 
 namespace MageModule\Core\Model\Eav\Entity\Attribute\Backend;
 
-//TODO test once more with url_key as global, website, and store view, just for sanity
 use MageModule\Core\Model\ResourceModel\Entity\UrlKeyGenerator;
 use MageModule\Core\Model\ResourceModel\Entity\UrlRewriteGenerator;
 use Magento\Framework\App\ResourceConnection;

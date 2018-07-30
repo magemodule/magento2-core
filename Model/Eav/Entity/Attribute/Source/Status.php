@@ -5,7 +5,7 @@ namespace MageModule\Core\Model\Eav\Entity\Attribute\Source;
 class Status extends \Magento\Eav\Model\Entity\Attribute\Source\AbstractSource
 {
     const ENABLED  = 1;
-    const DISABLED = 2;
+    const DISABLED = 0;
 
     /**
      * @return array

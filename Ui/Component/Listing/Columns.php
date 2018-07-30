@@ -40,6 +40,7 @@ class Columns extends \Magento\Ui\Component\Listing\Columns
         'boolean'     => 'select',
         'multiselect' => 'select',
         'date'        => 'dateRange',
+        'checkbox'    => 'select'
     ];
 
     /**

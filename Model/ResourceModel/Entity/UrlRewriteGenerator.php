@@ -33,7 +33,7 @@ class UrlRewriteGenerator
     /**
      * @var ScopeConfigInterface
      */
-    private $scopeConfig;
+    protected $scopeConfig;
 
     /**
      * @var ResourceConnection
@@ -63,12 +63,27 @@ class UrlRewriteGenerator
     /**
      * @var string|null
      */
+    private $xmlPathCreateRedirect;
+
+    /**
+     * @var string|null
+     */
     private $targetPathBase;
 
     /**
      * @var string|null
      */
     private $targetPathIdKey;
+
+    /**
+     * @var bool
+     */
+    protected $createRedirectDefaultValue = true;
+
+    /**
+     * @var array
+     */
+    private $createRedirectConfig = [];
 
     /**
      * @var array
@@ -85,6 +100,7 @@ class UrlRewriteGenerator
      * @param \Magento\UrlRewrite\Service\V1\Data\UrlRewriteFactory $urlRewriteFactory
      * @param string|null                                           $defaultSuffix
      * @param string|null                                           $xmlPathSuffix
+     * @param string|null                                           $xmlPathCreateRedirect
      * @param string|null                                           $targetPathBase
      * @param string|null                                           $targetPathIdKey
      */
@@ -96,18 +112,20 @@ class UrlRewriteGenerator
         UrlRewriteFactory $urlRewriteFactory,
         $defaultSuffix = null,
         $xmlPathSuffix = null,
+        $xmlPathCreateRedirect = null,
         $targetPathBase = null,
         $targetPathIdKey = null
     ) {
-        $this->storage           = $storage;
-        $this->storeManager      = $storeManager;
-        $this->scopeConfig       = $scopeConfig;
-        $this->resource          = $resource;
-        $this->urlRewriteFactory = $urlRewriteFactory;
-        $this->defaultSuffix     = $defaultSuffix;
-        $this->xmlPathSuffix     = $xmlPathSuffix;
-        $this->targetPathBase    = $targetPathBase;
-        $this->targetPathIdKey   = $targetPathIdKey;
+        $this->storage               = $storage;
+        $this->storeManager          = $storeManager;
+        $this->scopeConfig           = $scopeConfig;
+        $this->resource              = $resource;
+        $this->urlRewriteFactory     = $urlRewriteFactory;
+        $this->defaultSuffix         = $defaultSuffix;
+        $this->xmlPathSuffix         = $xmlPathSuffix;
+        $this->xmlPathCreateRedirect = $xmlPathCreateRedirect;
+        $this->targetPathBase        = $targetPathBase;
+        $this->targetPathIdKey       = $targetPathIdKey;
     }
 
     /**
@@ -317,6 +335,28 @@ class UrlRewriteGenerator
     }
 
     /**
+     * @param int $storeId
+     *
+     * @return bool
+     */
+    protected function createRedirect($storeId)
+    {
+        if ($this->xmlPathCreateRedirect) {
+            if (!isset($this->createRedirectConfig[$storeId])) {
+                $this->createRedirectConfig[$storeId] = (bool)$this->scopeConfig->getValue(
+                    $this->xmlPathCreateRedirect,
+                    ScopeInterface::SCOPE_STORES,
+                    $storeId
+                );
+            }
+        } else {
+            $this->createRedirectConfig[$storeId] = $this->createRedirectDefaultValue;
+        }
+
+        return $this->createRedirectConfig[$storeId];
+    }
+
+    /**
      * Generates ALL rewrites for a given object. Also generates 301 redirects
      * for the old url in the case that a url key was changed
      *
@@ -343,8 +383,8 @@ class UrlRewriteGenerator
 
         $allRewrites = $this->storage->findAllByData(
             [
-                UrlRewrite::ENTITY_ID     => $objectId,
-                UrlRewrite::ENTITY_TYPE   => $entityType
+                UrlRewrite::ENTITY_ID   => $objectId,
+                UrlRewrite::ENTITY_TYPE => $entityType
             ]
         );
 
@@ -424,6 +464,11 @@ class UrlRewriteGenerator
                 $rewrite->setUrlRewriteId(null);
             }
 
+            $oldKey = null;
+            if ($rewrite->getUrlRewriteId()) {
+                $oldKey = $this->getArrayKey($rewrite);
+            }
+
             $oldPath = $rewrite->getRequestPath();
             $newPath = $requestPath;
 
@@ -454,15 +499,21 @@ class UrlRewriteGenerator
                     }
                 }
 
-                $redirect = $this->urlRewriteFactory->create();
-                $redirect->setUrlRewriteId(null);
-                $redirect->setEntityType($entityType);
-                $redirect->setEntityId($objectId);
-                $redirect->setRequestPath($oldPath);
-                $redirect->setTargetPath($newPath);
-                $redirect->setRedirectType(301);
-                $redirect->setStoreId($storeId);
-                $urlRewrites[$this->getArrayKey($redirect)] = $redirect;
+                if ($this->createRedirect($storeId)) {
+                    $redirect = $this->urlRewriteFactory->create();
+                    $redirect->setUrlRewriteId(null);
+                    $redirect->setEntityType($entityType);
+                    $redirect->setEntityId($objectId);
+                    $redirect->setRequestPath($oldPath);
+                    $redirect->setTargetPath($newPath);
+                    $redirect->setRedirectType(301);
+                    $redirect->setStoreId($storeId);
+                    $urlRewrites[$this->getArrayKey($redirect)] = $redirect;
+                } elseif ($oldKey) {
+                    if (isset($urlRewrites[$oldKey])) {
+                        unset($urlRewrites[$oldKey]);
+                    }
+                }
             }
         }
 

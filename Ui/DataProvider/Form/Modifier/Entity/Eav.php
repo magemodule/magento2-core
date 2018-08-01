@@ -201,7 +201,7 @@ class Eav implements \Magento\Ui\DataProvider\Modifier\ModifierInterface
                 /** note to self: this line is important */
                 $fieldset['initializeFieldsetDataByDefault'] = true;
 
-                /** @var \MageModule\Core\Api\Data\ScopedAttributeInterface $attribute */
+                /** @var \MageModule\Core\Api\Data\ScopedAttributeInterface|\Magento\Framework\DataObject $attribute */
                 foreach ($attributes as $attribute) {
                     $container = &$meta[$groupCode]['children']
                     [self::CONTAINER_PREFIX . $attribute->getAttributeCode()];
@@ -232,12 +232,22 @@ class Eav implements \Magento\Ui\DataProvider\Modifier\ModifierInterface
                         'source'        => $groupCode
                     ];
 
-                    if ($formElement === \Magento\Ui\Component\Form\Element\Checkbox::NAME) {
-                        $field['prefer']   = 'toggle';
-                        $field['valueMap'] = [
-                            'true'  => '1',
-                            'false' => '0',
-                        ];
+                    switch ($formElement) {
+                        case \Magento\Ui\Component\Form\Element\Checkbox::NAME:
+                            $field['prefer']   = 'toggle';
+                            $field['valueMap'] = [
+                                'true'  => '1',
+                                'false' => '0',
+                            ];
+                            break;
+                        case \Magento\Ui\Component\Form\Element\Multiline::NAME:
+                            $field['size'] = $attribute->hasData('multiline_count') ?
+                                (int)$attribute->getData('multiline_count') :
+                                2;
+
+                            $field['isMageModuleForm'] = true;
+
+                            break;
                     }
 
                     if ($attribute->getNote()) {

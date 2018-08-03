@@ -505,10 +505,13 @@ abstract class AbstractEntity extends \Magento\Eav\Model\Entity\AbstractEntity
         }
 
         $this->loadAttributesForObject($attributes, $object);
+        //TODO get rid of entity manager
         $this->entityManager->load($object, $entityId);
         foreach ($object->getData() as $key => $value) {
             $object->setOrigData($key, $value);
         }
+
+        $this->_afterLoad($object);
 
         return $this;
     }

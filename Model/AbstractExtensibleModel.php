@@ -69,6 +69,19 @@ abstract class AbstractExtensibleModel extends \Magento\Framework\Model\Abstract
     }
 
     /**
+     * @param string $attributeCode
+     *
+     * @return string|array|null
+     */
+    public function getAttributeText($attributeCode)
+    {
+        //TODO make this function work
+        return $this->_resource->getAttribute($attributeCode)->getSource()->getOptionText(
+            $this->getData($attributeCode)
+        );
+    }
+
+    /**
      * @param int $id
      *
      * @return $this

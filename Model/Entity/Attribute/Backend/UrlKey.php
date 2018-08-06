@@ -1,6 +1,6 @@
 <?php
 
-namespace MageModule\Core\Model\Eav\Entity\Attribute\Backend;
+namespace MageModule\Core\Model\Entity\Attribute\Backend;
 
 use MageModule\Core\Model\ResourceModel\Entity\UrlKeyGenerator;
 use MageModule\Core\Model\ResourceModel\Entity\UrlRewriteGenerator;
@@ -13,7 +13,7 @@ use Magento\UrlRewrite\Service\V1\Data\UrlRewrite;
 use Magento\UrlRewrite\Model\StorageInterface;
 use Magento\UrlRewrite\Model\Exception\UrlAlreadyExistsException;
 
-class UrlKey extends \MageModule\Core\Model\Eav\Entity\Attribute\Backend\UrlKeyFormat
+class UrlKey extends \MageModule\Core\Model\Entity\Attribute\Backend\UrlKeyFormat
 {
     /**
      * @var UrlKeyGenerator

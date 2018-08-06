@@ -37,7 +37,7 @@ class Eav implements \Magento\Ui\DataProvider\Modifier\ModifierInterface
     private $rulesBuilder;
 
     /**
-     * @var \MageModule\Core\Model\Eav\Entity\Attribute\ScopeOverriddenValue
+     * @var \MageModule\Core\Model\Entity\Attribute\ScopeOverriddenValue
      */
     private $scopeOverriddenValue;
 
@@ -125,7 +125,7 @@ class Eav implements \Magento\Ui\DataProvider\Modifier\ModifierInterface
      * Eav constructor.
      *
      * @param \MageModule\Core\Ui\Component\Form\Rule\Eav\Validation\RulesBuilder $rulesBuilder
-     * @param \MageModule\Core\Model\Eav\Entity\Attribute\ScopeOverriddenValue    $scopeOverriddenValue
+     * @param \MageModule\Core\Model\Entity\Attribute\ScopeOverriddenValue    $scopeOverriddenValue
      * @param \Magento\Eav\Api\AttributeRepositoryInterface                       $attributeRepository
      * @param \Magento\Eav\Api\AttributeGroupRepositoryInterface                  $attributeGroupRepository
      * @param \Magento\Store\Model\StoreManagerInterface                          $storeManager
@@ -141,7 +141,7 @@ class Eav implements \Magento\Ui\DataProvider\Modifier\ModifierInterface
      */
     public function __construct(
         \MageModule\Core\Ui\Component\Form\Rule\Eav\Validation\RulesBuilder $rulesBuilder,
-        \MageModule\Core\Model\Eav\Entity\Attribute\ScopeOverriddenValue $scopeOverriddenValue,
+        \MageModule\Core\Model\Entity\Attribute\ScopeOverriddenValue $scopeOverriddenValue,
         \Magento\Eav\Api\AttributeRepositoryInterface $attributeRepository,
         \Magento\Eav\Api\AttributeGroupRepositoryInterface $attributeGroupRepository,
         \Magento\Store\Model\StoreManagerInterface $storeManager,

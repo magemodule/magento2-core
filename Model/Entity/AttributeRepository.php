@@ -15,7 +15,7 @@
  * @license        https://www.magemodule.com/magento2-ext-license.html
  */
 
-namespace MageModule\Core\Model\Eav\Entity;
+namespace MageModule\Core\Model\Entity;
 
 class AttributeRepository implements \MageModule\Core\Api\AttributeRepositoryInterface
 {

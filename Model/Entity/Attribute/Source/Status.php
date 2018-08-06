@@ -1,6 +1,6 @@
 <?php
 
-namespace MageModule\Core\Model\Eav\Entity\Attribute\Source;
+namespace MageModule\Core\Model\Entity\Attribute\Source;
 
 class Status extends \Magento\Eav\Model\Entity\Attribute\Source\AbstractSource
 {

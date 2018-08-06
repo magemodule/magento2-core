@@ -15,7 +15,7 @@
  * @license        https://www.magemodule.com/magento2-ext-license.html
  */
 
-namespace MageModule\Core\Model\Eav\Entity\Attribute;
+namespace MageModule\Core\Model\Entity\Attribute;
 
 use Magento\Eav\Model\Entity\Attribute\ScopedAttributeInterface;
 use Magento\Store\Model\Store;

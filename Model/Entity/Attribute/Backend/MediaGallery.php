@@ -15,9 +15,9 @@
  *  @license        https://www.magemodule.com/magento2-ext-license.html
  */
 
-namespace MageModule\Core\Model\Eav\Entity\Attribute\Backend;
+namespace MageModule\Core\Model\Entity\Attribute\Backend;
 
-class MediaGallery extends \MageModule\Core\Model\Eav\Entity\Attribute\Backend\AbstractBackend
+class MediaGallery extends \MageModule\Core\Model\Entity\Attribute\Backend\AbstractBackend
 {
 
 }

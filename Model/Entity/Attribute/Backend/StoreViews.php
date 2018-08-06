@@ -15,9 +15,9 @@
  * @license        https://www.magemodule.com/magento2-ext-license.html
  */
 
-namespace MageModule\Core\Model\Eav\Entity\Attribute\Backend;
+namespace MageModule\Core\Model\Entity\Attribute\Backend;
 
-class StoreViews extends \MageModule\Core\Model\Eav\Entity\Attribute\Backend\AbstractBackend
+class StoreViews extends \MageModule\Core\Model\Entity\Attribute\Backend\AbstractBackend
 {
     /**
      * @param \Magento\Framework\DataObject $object
@@ -61,7 +61,7 @@ class StoreViews extends \MageModule\Core\Model\Eav\Entity\Attribute\Backend\Abs
     /**
      * @param \Magento\Framework\DataObject $object
      *
-     * @return \MageModule\Core\Model\Eav\Entity\Attribute\Backend\AbstractBackend
+     * @return \MageModule\Core\Model\Entity\Attribute\Backend\AbstractBackend
      */
     public function afterLoad($object)
     {

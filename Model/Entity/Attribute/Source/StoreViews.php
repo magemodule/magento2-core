@@ -15,7 +15,7 @@
  * @license        https://www.magemodule.com/magento2-ext-license.html
  */
 
-namespace MageModule\Core\Model\Eav\Entity\Attribute\Source;
+namespace MageModule\Core\Model\Entity\Attribute\Source;
 
 class StoreViews extends \Magento\Eav\Model\Entity\Attribute\Source\AbstractSource
 {

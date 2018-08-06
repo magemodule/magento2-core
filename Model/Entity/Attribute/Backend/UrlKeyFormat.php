@@ -1,6 +1,6 @@
 <?php
 
-namespace MageModule\Core\Model\Eav\Entity\Attribute\Backend;
+namespace MageModule\Core\Model\Entity\Attribute\Backend;
 
 /**
  * This class only formats a string like a url key. It does not
@@ -8,9 +8,9 @@ namespace MageModule\Core\Model\Eav\Entity\Attribute\Backend;
  *
  * Class UrlKeyFormat
  *
- * @package MageModule\Core\Model\Eav\Entity\Attribute\Backend
+ * @package MageModule\Core\Model\Entity\Attribute\Backend
  */
-class UrlKeyFormat extends \MageModule\Core\Model\Eav\Entity\Attribute\Backend\AbstractBackend
+class UrlKeyFormat extends \MageModule\Core\Model\Entity\Attribute\Backend\AbstractBackend
 {
     /**
      * @var \Magento\Framework\Filter\FilterManager
@@ -34,7 +34,7 @@ class UrlKeyFormat extends \MageModule\Core\Model\Eav\Entity\Attribute\Backend\A
     /**
      * @param \Magento\Framework\DataObject $object
      *
-     * @return \MageModule\Core\Model\Eav\Entity\Attribute\Backend\AbstractBackend
+     * @return \MageModule\Core\Model\Entity\Attribute\Backend\AbstractBackend
      * @throws \Magento\Framework\Exception\LocalizedException
      */
     public function beforeSave($object)

@@ -15,11 +15,11 @@
  * @license        https://www.magemodule.com/magento2-ext-license.html
  */
 
-namespace MageModule\Core\Model\Eav\Entity\Attribute\Backend;
+namespace MageModule\Core\Model\Entity\Attribute\Backend;
 
 use Magento\Framework\Exception\LocalizedException;
 
-class IntegerList extends \MageModule\Core\Model\Eav\Entity\Attribute\Backend\AbstractBackend
+class IntegerList extends \MageModule\Core\Model\Entity\Attribute\Backend\AbstractBackend
 {
     /**
      * @param \Magento\Framework\DataObject $object

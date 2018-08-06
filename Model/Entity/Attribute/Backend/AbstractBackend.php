@@ -15,7 +15,7 @@
  * @license        https://www.magemodule.com/magento2-ext-license.html
  */
 
-namespace MageModule\Core\Model\Eav\Entity\Attribute\Backend;
+namespace MageModule\Core\Model\Entity\Attribute\Backend;
 
 use MageModule\Core\Api\Data\AttributeInterface;
 use MageModule\Core\Model\AbstractExtensibleModel;

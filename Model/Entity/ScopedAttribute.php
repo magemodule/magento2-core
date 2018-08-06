@@ -1,8 +1,8 @@
 <?php
 
-namespace MageModule\Core\Model\Eav\Entity;
+namespace MageModule\Core\Model\Entity;
 
-class ScopedAttribute extends \MageModule\Core\Model\Eav\Entity\Attribute implements
+class ScopedAttribute extends \MageModule\Core\Model\Entity\Attribute implements
     \MageModule\Core\Api\Data\ScopedAttributeInterface,
     \Magento\Eav\Model\Entity\Attribute\ScopedAttributeInterface
 {

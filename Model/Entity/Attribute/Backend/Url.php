@@ -15,13 +15,13 @@
  * @license        https://www.magemodule.com/magento2-ext-license.html
  */
 
-namespace MageModule\Core\Model\Eav\Entity\Attribute\Backend;
+namespace MageModule\Core\Model\Entity\Attribute\Backend;
 
 use Magento\Framework\DataObject;
 use Magento\Framework\Model\AbstractModel;
 use Magento\Framework\Exception\LocalizedException;
 
-class Url extends \MageModule\Core\Model\Eav\Entity\Attribute\Backend\AbstractBackend
+class Url extends \MageModule\Core\Model\Entity\Attribute\Backend\AbstractBackend
 {
     /**
      * @param DataObject|AbstractModel $object

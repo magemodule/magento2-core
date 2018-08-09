@@ -10,16 +10,21 @@
  *  the web, please send a note to admin@magemodule.com so that we can mail
  *  you a copy immediately.
  *
- * @author         MageModule admin@magemodule.com
- * @copyright      2018 MageModule, LLC
- * @license        https://www.magemodule.com/magento2-ext-license.html
+ *  @author        MageModule admin@magemodule.com
+ *  @copyright    2018 MageModule, LLC
+ *  @license        https://www.magemodule.com/magento2-ext-license.html
  */
 
-namespace MageModule\Core\Model\Entity;
+namespace MageModule\Core\Model;
 
 class MediaGallery extends \Magento\Framework\Model\AbstractModel implements
     \MageModule\Core\Api\Data\MediaGalleryInterface
 {
+    /**
+     * @var string
+     */
+    protected $_idFieldName = self::VALUE_ID;
+
     /**
      * @param int $id
      *

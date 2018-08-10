@@ -66,11 +66,12 @@ class Content extends \Magento\Backend\Block\Widget
         $this->addChild('uploader', Uploader::class);
 
         $this->getUploader()->getConfig()->setUrl(
-            $this->_urlBuilder->addSessionParam()->getUrl('catalog/product_gallery/upload')
+            $this->_urlBuilder->addSessionParam()->getUrl('storelocator/store/upload')
         )->setFileField(
             'image'
         )->setFilters(
             [
+                //TODO use config allowed types
                 'images' => [
                     'label' => __('Images (.gif, .jpg, .png)'),
                     'files' => ['*.gif', '*.jpg', '*.jpeg', '*.png'],

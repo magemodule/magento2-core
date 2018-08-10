@@ -39,7 +39,7 @@ abstract class AbstractExtensibleModel extends \Magento\Framework\Model\Abstract
      */
     protected function getStoreManager()
     {
-        return $this->_getData('store_manager');
+        return $this->_getData('storeManager');
     }
 
     /**

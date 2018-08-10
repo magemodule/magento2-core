@@ -17,10 +17,10 @@
 
 namespace MageModule\Core\Model\ResourceModel;
 
-use MageModule\Core\Api\Data\MediaGalleryInterface;
+use MageModule\Core\Api\Data\MediaGalleryValueInterface;
 use Magento\Framework\Model\ResourceModel\Db\Context;
 
-class MediaGallery extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
+class MediaGalleryValue extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
 {
     /**
      * @var string
@@ -39,8 +39,9 @@ class MediaGallery extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
         $mainTable,
         $connectionName = null
     ) {
-        $this->mainTable = $mainTable;
         parent::__construct($context, $connectionName);
+
+        $this->mainTable  = $mainTable;
     }
 
     /**
@@ -48,6 +49,6 @@ class MediaGallery extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
      */
     protected function _construct()
     {
-        $this->_init($this->mainTable, MediaGalleryInterface::VALUE_ID);
+        $this->_init($this->mainTable, MediaGalleryValueInterface::VALUE_ID);
     }
 }

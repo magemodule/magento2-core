@@ -19,7 +19,7 @@
     <type name="MageModule\Core\Model\AbstractExtensibleModel">
         <arguments>
             <argument name="data" xsi:type="array">
-                <item name="store_manager" xsi:type="object">Magento\Store\Model\StoreManagerInterface</item>
+                <item name="storeManager" xsi:type="object">Magento\Store\Model\StoreManagerInterface</item>
             </argument>
         </arguments>
     </type>

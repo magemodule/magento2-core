@@ -65,11 +65,9 @@ class Gallery extends \Magento\Framework\View\Element\AbstractBlock
     private $formName;
 
     /**
-     * Gallery name
-     *
      * @var string
      */
-    private $name;
+    private $fieldName;
 
     /**
      * @var string
@@ -87,13 +85,6 @@ class Gallery extends \Magento\Framework\View\Element\AbstractBlock
     private $htmlId;
 
     /**
-     * Html id for data scope
-     *
-     * @var string
-     */
-    private $image = 'image';
-
-    /**
      * @var int
      */
     private $defaultStoreId = Store::DEFAULT_STORE_ID;
@@ -101,28 +92,28 @@ class Gallery extends \Magento\Framework\View\Element\AbstractBlock
     /**
      * Gallery constructor.
      *
-     * @param MediaGalleryConfigPoolInterface $configPool
      * @param Context                         $context
+     * @param MediaGalleryConfigPoolInterface $configPool
      * @param StoreManagerInterface           $storeManager
      * @param Registry                        $registry
      * @param Form                            $form
-     * @param string                          $formName
-     * @param string                          $name
+     * @param string|null                     $formName
      * @param string                          $registryKey
      * @param string                          $attributeCode
+     * @param string|null                     $fieldName
      * @param string|null                     $fieldNameSuffix
      * @param array                           $data
      */
     public function __construct(
-        MediaGalleryConfigPoolInterface $configPool,
         Context $context,
+        MediaGalleryConfigPoolInterface $configPool,
         StoreManagerInterface $storeManager,
         Registry $registry,
         Form $form,
         $formName,
         $registryKey,
         $attributeCode,
-        $name,
+        $fieldName = null,
         $fieldNameSuffix = null,
         $data = []
     ) {
@@ -133,7 +124,7 @@ class Gallery extends \Magento\Framework\View\Element\AbstractBlock
         $this->registry        = $registry;
         $this->form            = $form;
         $this->formName        = $formName;
-        $this->name            = $name;
+        $this->fieldName       = $fieldName;
         $this->registryKey     = $registryKey;
         $this->htmlId          = $attributeCode;
         $this->attributeCode   = $attributeCode;
@@ -150,7 +141,7 @@ class Gallery extends \Magento\Framework\View\Element\AbstractBlock
         $block->setDataObject($this->getDataObject());
         $block->setConfig($this->getConfig());
         $block->setUploadUrl($this->getUploadUrl());
-        $block->setFieldName($this->attributeCode);
+        $block->setFieldName($this->getFieldName());
 
         return parent::_prepareLayout();
     }
@@ -184,9 +175,26 @@ class Gallery extends \Magento\Framework\View\Element\AbstractBlock
     /**
      * @return string
      */
-    public function getName()
+    public function getAttributeCode()
     {
-        return $this->name;
+        return $this->attributeCode;
+    }
+
+    /**
+     * @return string
+     */
+    public function getFieldName()
+    {
+        $fieldname = $this->fieldName;
+        if (!$fieldname) {
+            $fieldname = $this->getAttributeCode();
+        }
+
+        if ($this->fieldNameSuffix) {
+            $fieldname = $this->form->addSuffixToName($fieldname, $this->fieldNameSuffix);
+        }
+
+        return $fieldname;
     }
 
     /**
@@ -195,15 +203,6 @@ class Gallery extends \Magento\Framework\View\Element\AbstractBlock
     public function getFieldNameSuffix()
     {
         return $this->fieldNameSuffix;
-    }
-
-    /**
-     * @return string
-     */
-    public function getDataScopeHtmlId()
-    {
-        //TODO should i refactor to make configurable?
-        return $this->image;
     }
 
     /**
@@ -219,7 +218,7 @@ class Gallery extends \Magento\Framework\View\Element\AbstractBlock
      */
     private function getConfig()
     {
-        return $this->configPool->getConfig($this->attributeCode);
+        return $this->configPool->getConfig($this->getAttributeCode());
     }
 
     /**
@@ -232,8 +231,8 @@ class Gallery extends \Magento\Framework\View\Element\AbstractBlock
             ->getUrl(
                 $this->getConfig()->getUploadControllerRoute(),
                 [
-                    'attribute_code' => $this->attributeCode,
-                    'field_name'     => $this->attributeCode
+                    'attribute_code' => $this->getAttributeCode(),
+                    'field_name'     => $this->getFieldName()
                 ]
             );
     }
@@ -243,7 +242,7 @@ class Gallery extends \Magento\Framework\View\Element\AbstractBlock
      */
     public function getImages()
     {
-        return $this->getDataObject()->getData($this->attributeCode) ?: [];
+        return $this->getDataObject()->getData($this->getAttributeCode()) ?: [];
     }
 
     /**

@@ -16,7 +16,7 @@
  */
 
 /** @var \MageModule\Core\Block\Adminhtml\Media\Gallery\Content $block */
-$elementName = $block->getElement()->getName() . '[images]';
+$elementName = $block->getElement()->getFieldName() . '[images]';
 $formName    = $block->getFormName();
 ?>
 <div id="<?php echo $block->getHtmlId() ?>"

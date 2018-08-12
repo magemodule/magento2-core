@@ -340,7 +340,6 @@ class Content extends \Magento\Backend\Block\Widget
      */
     public function getMediaAttributes()
     {
-        //TODO not sure if this is currently needed OR even configured properly
         $result = $this->getElement()->getDataObject()->getMediaAttributes();
         if (!$result) {
             $result = [];
@@ -369,47 +368,5 @@ class Content extends \Magento\Backend\Block\Widget
             ];
         }
         return $imageTypes;
-    }
-
-    /**
-     * @return string
-     */
-    public function getImagesValuesJson()
-    {
-        $values = [];
-        /** @var AttributeInterface|ScopedAttributeInterface $attribute */
-        foreach ($this->getMediaAttributes() as $attribute) {
-            $values[$attribute->getAttributeCode()] = $this->getElement()
-                ->getDataObject()
-                ->getData($attribute->getAttributeCode());
-        }
-        return $this->jsonEncoder->encode($values);
-    }
-
-    /**
-     * Retrieve default state allowance
-     *
-     * @return bool
-     */
-    public function hasUseDefault()
-    {
-        //TODO make sure this function works
-        foreach ($this->getMediaAttributes() as $attribute) {
-            if ($this->getElement()->canDisplayUseDefault($attribute)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    /**
-     * Retrieve JSON data
-     *
-     * @return string
-     */
-    public function getImageTypesJson()
-    {
-        return $this->jsonEncoder->serialize($this->getImageTypes());
     }
 }

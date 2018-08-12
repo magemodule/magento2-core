@@ -17,87 +17,104 @@
 
 namespace MageModule\Core\Block\Adminhtml\Media;
 
+use MageModule\Core\Api\Data\MediaGalleryInterface;
 use MageModule\Core\Api\Data\ScopedAttributeInterface;
 use MageModule\Core\Model\AbstractExtensibleModel;
+use MageModule\Core\Model\MediaGalleryConfigInterface;
+use MageModule\Core\Model\MediaGalleryConfigPoolInterface;
 use Magento\Eav\Api\Data\AttributeInterface;
 use Magento\Framework\Registry;
 use Magento\Framework\Data\Form;
 use Magento\Framework\Model\AbstractModel;
 use Magento\Framework\View\Element\Context;
+use Magento\Framework\View\Element\AbstractBlock;
 use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Store\Model\Store;
 use Magento\Store\Model\StoreManagerInterface;
 
 class Gallery extends \Magento\Framework\View\Element\AbstractBlock
 {
     /**
+     * @var MediaGalleryConfigInterface
+     */
+    private $configPool;
+
+    /**
      * @var StoreManagerInterface
      */
-    protected $storeManager;
+    private $storeManager;
 
     /**
      * @var Registry
      */
-    protected $registry;
+    private $registry;
 
     /**
      * @var string
      */
-    protected $registryKey;
+    private $registryKey;
 
     /**
      * @var Form
      */
-    protected $form;
+    private $form;
 
     /**
      * @var string
      */
-    protected $formName;
+    private $formName;
 
     /**
      * Gallery name
      *
      * @var string
      */
-    protected $name;
+    private $name;
 
     /**
      * @var string
      */
-    protected $attributeCode;
+    private $attributeCode;
 
     /**
      * @var string|null
      */
-    protected $fieldNameSuffix;
+    private $fieldNameSuffix;
 
     /**
      * @var string
      */
-    protected $htmlId;
+    private $htmlId;
 
     /**
      * Html id for data scope
      *
      * @var string
      */
-    protected $image = 'image';
+    private $image = 'image';
+
+    /**
+     * @var int
+     */
+    private $defaultStoreId = Store::DEFAULT_STORE_ID;
 
     /**
      * Gallery constructor.
      *
-     * @param Context               $context
-     * @param StoreManagerInterface $storeManager
-     * @param Registry              $registry
-     * @param Form                  $form
-     * @param string                $formName
-     * @param string                $name
-     * @param string                $registryKey
-     * @param string                $attributeCode
-     * @param string|null           $fieldNameSuffix
-     * @param array                 $data
+     * @param MediaGalleryConfigPoolInterface $configPool
+     * @param Context                         $context
+     * @param StoreManagerInterface           $storeManager
+     * @param Registry                        $registry
+     * @param Form                            $form
+     * @param string                          $formName
+     * @param string                          $name
+     * @param string                          $registryKey
+     * @param string                          $attributeCode
+     * @param string|null                     $fieldNameSuffix
+     * @param array                           $data
      */
     public function __construct(
+        MediaGalleryConfigPoolInterface $configPool,
         Context $context,
         StoreManagerInterface $storeManager,
         Registry $registry,
@@ -111,6 +128,7 @@ class Gallery extends \Magento\Framework\View\Element\AbstractBlock
     ) {
         parent::__construct($context, $data);
 
+        $this->configPool      = $configPool;
         $this->storeManager    = $storeManager;
         $this->registry        = $registry;
         $this->form            = $form;
@@ -120,6 +138,29 @@ class Gallery extends \Magento\Framework\View\Element\AbstractBlock
         $this->htmlId          = $attributeCode;
         $this->attributeCode   = $attributeCode;
         $this->fieldNameSuffix = $fieldNameSuffix;
+    }
+
+    /**
+     * @return AbstractBlock
+     */
+    protected function _prepareLayout()
+    {
+        $block = $this->getContentBlock();
+        $block->setElement($this);
+        $block->setDataObject($this->getDataObject());
+        $block->setConfig($this->getConfig());
+        $block->setUploadUrl($this->getUploadUrl());
+        $block->setFieldName($this->attributeCode);
+
+        return parent::_prepareLayout();
+    }
+
+    /**
+     * @return string
+     */
+    public function toHtml()
+    {
+        return $this->getElementHtml();
     }
 
     /**
@@ -133,33 +174,9 @@ class Gallery extends \Magento\Framework\View\Element\AbstractBlock
     }
 
     /**
-     * @return array|null
-     */
-    public function getImages()
-    {
-        return $this->registry->registry($this->registryKey)->getData($this->attributeCode) ?: null;
-    }
-
-    /**
-     * Prepares content block
-     *
      * @return string
      */
-    public function getContentHtml()
-    {
-        /** @var $content Gallery\Content */
-        $content = $this->getChildBlock('content');
-        $content->setId($this->getHtmlId() . '_content')->setElement($this);
-        $content->setFormName($this->formName);
-        $galleryJs = $content->getJsObjectName();
-        $content->getUploader()->getConfig()->setMediaGallery($galleryJs);
-        return $content->toHtml();
-    }
-
-    /**
-     * @return string
-     */
-    protected function getHtmlId()
+    public function getHtmlId()
     {
         return $this->htmlId;
     }
@@ -185,7 +202,71 @@ class Gallery extends \Magento\Framework\View\Element\AbstractBlock
      */
     public function getDataScopeHtmlId()
     {
+        //TODO should i refactor to make configurable?
         return $this->image;
+    }
+
+    /**
+     * @return AbstractExtensibleModel|AbstractModel
+     */
+    public function getDataObject()
+    {
+        return $this->registry->registry($this->registryKey);
+    }
+
+    /**
+     * @return bool|MediaGalleryConfigInterface
+     */
+    private function getConfig()
+    {
+        return $this->configPool->getConfig($this->attributeCode);
+    }
+
+    /**
+     * @return string
+     */
+    public function getUploadUrl()
+    {
+        return $this->_urlBuilder
+            ->addSessionParam()
+            ->getUrl(
+                $this->getConfig()->getUploadControllerRoute(),
+                [
+                    'attribute_code' => $this->attributeCode,
+                    'field_name'     => $this->attributeCode
+                ]
+            );
+    }
+
+    /**
+     * @return MediaGalleryInterface[]
+     */
+    public function getImages()
+    {
+        return $this->getDataObject()->getData($this->attributeCode) ?: [];
+    }
+
+    /**
+     * @return bool|AbstractBlock|Gallery\Content
+     */
+    public function getContentBlock()
+    {
+        return $this->getChildBlock('content');
+    }
+
+    /**
+     * @return string
+     */
+    public function getContentHtml()
+    {
+        $block = $this->getContentBlock();
+        $block->setId($this->getHtmlId() . '_content');
+        $block->setFormName($this->formName);
+
+        $galleryJs = $block->getJsObjectName();
+        $block->getUploader()->getConfig()->setMediaGallery($galleryJs);
+
+        return $block->toHtml();
     }
 
     /**
@@ -196,10 +277,11 @@ class Gallery extends \Magento\Framework\View\Element\AbstractBlock
      */
     public function canDisplayUseDefault($attribute)
     {
-        if ($attribute instanceof ScopedAttributeInterface) {
-            if (!$attribute->isScopeGlobal() && $this->getDataObject()->getStoreId()) {
-                return true;
-            }
+        if ($attribute instanceof ScopedAttributeInterface &&
+            !$attribute->isScopeGlobal() &&
+            $this->getDataObject()->getStoreId()
+        ) {
+            return true;
         }
 
         return false;
@@ -220,7 +302,7 @@ class Gallery extends \Magento\Framework\View\Element\AbstractBlock
         if (!$this->getDataObject()->getExistsStoreValueFlag($attributeCode)) {
             return true;
         } elseif ($this->getValue() == $defaultValue &&
-                  $this->getDataObject()->getStoreId() != $this->getDefaultStoreId()
+                  $this->getDataObject()->getStoreId() != $this->defaultStoreId
         ) {
             return false;
         }
@@ -253,16 +335,6 @@ class Gallery extends \Magento\Framework\View\Element\AbstractBlock
     }
 
     /**
-     * Retrieve data object related with form
-     *
-     * @return AbstractExtensibleModel|AbstractModel
-     */
-    public function getDataObject()
-    {
-        return $this->registry->registry($this->registryKey);
-    }
-
-    /**
      * @param AttributeInterface|ScopedAttributeInterface $attribute
      *
      * @return string
@@ -273,24 +345,7 @@ class Gallery extends \Magento\Framework\View\Element\AbstractBlock
         if ($suffix = $this->getFieldNameSuffix()) {
             $name = $this->form->addSuffixToName($name, $suffix);
         }
+
         return $name;
-    }
-
-    /**
-     * @return string
-     */
-    public function toHtml()
-    {
-        return $this->getElementHtml();
-    }
-
-    /**
-     * Default sore ID getter
-     *
-     * @return integer
-     */
-    protected function getDefaultStoreId()
-    {
-        return \Magento\Store\Model\Store::DEFAULT_STORE_ID;
     }
 }

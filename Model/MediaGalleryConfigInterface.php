@@ -22,14 +22,40 @@ use Magento\Framework\Exception\NoSuchEntityException;
 interface MediaGalleryConfigInterface
 {
     /**
+     * @return array|string[]
+     */
+    public function getAllowedExtensions();
+
+    /**
      * @return string
      */
-    public function getBaseMediaPath();
+    public function getUploadControllerRoute();
+
+    /**
+     * @return string
+     * @throws NoSuchEntityException
+     */
+    public function getBaseTmpMediaUrl();
+
+    /**
+     * @param string $file
+     *
+     * @return string
+     * @throws NoSuchEntityException
+     */
+    public function getTmpMediaUrl($file);
 
     /**
      * @return string
      */
     public function getBaseTmpMediaPath();
+
+    /**
+     * @param string $file
+     *
+     * @return string
+     */
+    public function getTmpMediaPath($file);
 
     /**
      * @return string
@@ -47,17 +73,8 @@ interface MediaGalleryConfigInterface
 
     /**
      * @return string
-     * @throws NoSuchEntityException
      */
-    public function getBaseTmpMediaUrl();
-
-    /**
-     * @param string $file
-     *
-     * @return string
-     * @throws NoSuchEntityException
-     */
-    public function getTmpMediaUrl($file);
+    public function getBaseMediaPath();
 
     /**
      * @param string $file
@@ -65,4 +82,11 @@ interface MediaGalleryConfigInterface
      * @return string
      */
     public function getMediaPath($file);
+
+    /**
+     * @param string $file
+     *
+     * @return string
+     */
+    public function getMediaDir($file);
 }

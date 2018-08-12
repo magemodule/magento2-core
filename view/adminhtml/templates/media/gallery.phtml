@@ -22,7 +22,7 @@ $formName    = $block->getFormName();
 <div id="<?php echo $block->getHtmlId() ?>"
      class="gallery"
      data-mage-init='{"productGallery":{"template":"#<?php echo $block->getHtmlId() ?>-template"}}'
-     data-parent-component="<?php echo $block->escapeHtml($block->getData('config/parentComponent')) ?>"
+     data-parent-component="<?php echo $block->escapeHtml($block->getParentComponent()) ?>"
      data-images="<?php echo $block->escapeHtml($block->getImagesJson()) ?>"
      data-types="<?php echo $block->escapeHtml(
          $this->helper(\Magento\Framework\Json\Helper\Data::class)->jsonEncode($block->getImageTypes())
@@ -95,15 +95,12 @@ $formName    = $block->getFormName();
                 </div>
                 <div class="image-fade"><span><?php echo __('Hidden') ?></span></div>
             </div>
-            
-            
             <div class="item-description">
                 <div class="item-title" data-role="img-title"><%- data.label %></div>
                 <div class="item-size">
                     <span data-role="image-dimens"></span>, <span data-role="image-size"><%- data.sizeLabel %></span>
                 </div>
             </div>
-            
             <ul class="item-roles" data-role="roles-labels">
                 <?php foreach ($block->getImageTypes() as $typeData) : ?>
                     <li data-role-code="<?php echo $block->escapeHtml($typeData['code']) ?>"

@@ -34,25 +34,69 @@ class MediaGalleryConfig implements MediaGalleryConfigInterface
     private $baseMediaPath;
 
     /**
+     * @var string
+     */
+    private $uploadControllerRoute;
+
+    /**
+     * @var array
+     */
+    private $allowedExtensions;
+
+    /**
      * MediaGalleryConfig constructor.
      *
      * @param StoreManagerInterface $storeManager
      * @param string                $baseMediaPath
+     * @param string                $uploadControllerRoute
+     * @param string[]              $allowedExtensions
      */
     public function __construct(
         StoreManagerInterface $storeManager,
-        $baseMediaPath
+        $baseMediaPath,
+        $uploadControllerRoute,
+        array $allowedExtensions = []
     ) {
-        $this->storeManager  = $storeManager;
-        $this->baseMediaPath = $baseMediaPath;
+        $this->storeManager          = $storeManager;
+        $this->baseMediaPath         = $baseMediaPath;
+        $this->uploadControllerRoute = $uploadControllerRoute;
+        $this->allowedExtensions     = $allowedExtensions;
+    }
+
+    /**
+     * @return array|string[]
+     */
+    public function getAllowedExtensions()
+    {
+        return $this->allowedExtensions;
     }
 
     /**
      * @return string
      */
-    public function getBaseMediaPath()
+    public function getUploadControllerRoute()
     {
-        return trim($this->baseMediaPath, DIRECTORY_SEPARATOR);
+        return $this->uploadControllerRoute;
+    }
+
+    /**
+     * @return string
+     * @throws NoSuchEntityException
+     */
+    public function getBaseTmpMediaUrl()
+    {
+        return $this->storeManager->getStore()->getBaseUrl(UrlInterface::URL_TYPE_MEDIA) . 'tmp/' . $this->getBaseMediaPath();
+    }
+
+    /**
+     * @param string $file
+     *
+     * @return string
+     * @throws NoSuchEntityException
+     */
+    public function getTmpMediaUrl($file)
+    {
+        return $this->getBaseTmpMediaUrl() . '/' . $this->prepareFilename($file);
     }
 
     /**
@@ -61,6 +105,16 @@ class MediaGalleryConfig implements MediaGalleryConfigInterface
     public function getBaseTmpMediaPath()
     {
         return 'tmp/' . $this->getBaseMediaPath();
+    }
+
+    /**
+     * @param string $file
+     *
+     * @return string
+     */
+    public function getTmpMediaPath($file)
+    {
+        return $this->getBaseTmpMediaPath() . DIRECTORY_SEPARATOR . $this->prepareFilename($file);
     }
 
     /**
@@ -91,22 +145,10 @@ class MediaGalleryConfig implements MediaGalleryConfigInterface
 
     /**
      * @return string
-     * @throws NoSuchEntityException
      */
-    public function getBaseTmpMediaUrl()
+    public function getBaseMediaPath()
     {
-        return $this->storeManager->getStore()->getBaseUrl(UrlInterface::URL_TYPE_MEDIA) . 'tmp/' . $this->getBaseMediaPath();
-    }
-
-    /**
-     * @param string $file
-     *
-     * @return string
-     * @throws NoSuchEntityException
-     */
-    public function getTmpMediaUrl($file)
-    {
-        return $this->getBaseTmpMediaUrl() . '/' . $this->prepareFilename($file);
+        return trim($this->baseMediaPath, DIRECTORY_SEPARATOR);
     }
 
     /**
@@ -117,6 +159,20 @@ class MediaGalleryConfig implements MediaGalleryConfigInterface
     public function getMediaPath($file)
     {
         return $this->getBaseMediaPath() . DIRECTORY_SEPARATOR . $this->prepareFilename($file);
+    }
+
+    /**
+     * @param string $file
+     *
+     * @return string
+     */
+    public function getMediaDir($file)
+    {
+        $path  = $this->getMediaPath($file);
+        $parts = explode(DIRECTORY_SEPARATOR, $path);
+        array_pop($parts);
+
+        return implode(DIRECTORY_SEPARATOR, $parts);
     }
 
     /**

@@ -3,10 +3,10 @@
 namespace MageModule\Core\Controller\Adminhtml\Media\Gallery;
 
 use MageModule\Core\Model\MediaGalleryConfigInterface;
+use MageModule\Core\Model\MediaGalleryConfigPoolInterface;
 use Magento\Backend\App\Action\Context;
 use Magento\MediaStorage\Model\File\Uploader as FileUploader;
 use Magento\MediaStorage\Model\File\UploaderFactory as FileUploaderFactory;
-use Magento\Framework\Image\AdapterFactory as ImageAdapterFactory;
 use Magento\Framework\Controller\Result\Raw as RawResult;
 use Magento\Framework\Controller\Result\RawFactory as RawResultFactory;
 use Magento\Framework\App\Filesystem\DirectoryList;
@@ -16,51 +16,46 @@ use Magento\Framework\Filesystem\Directory\Read;
 class Upload extends \Magento\Backend\App\Action
 {
     /**
-     * @var MediaGalleryConfigInterface
+     * @var MediaGalleryConfigPoolInterface
      */
-    protected $mediaGalleryConfig;
+    private $configPool;
 
     /**
      * @var FileUploaderFactory
      */
-    protected $uploaderFactory;
-
-    /**
-     * @var ImageAdapterFactory
-     */
-    protected $adapterFactory;
+    private $uploaderFactory;
 
     /**
      * @var RawResultFactory
      */
-    protected $resultRawFactory;
+    private $resultRawFactory;
 
     /**
      * @var Filesystem
      */
-    protected $fileSystem;
+    private $fileSystem;
 
     /**
-     * @var array
+     * Upload constructor.
+     *
+     * @param Context                         $context
+     * @param MediaGalleryConfigPoolInterface $configPool
+     * @param FileUploaderFactory             $uploaderFactory
+     * @param RawResultFactory                $resultRawFactory
+     * @param Filesystem                      $fileSystem
      */
-    protected $allowedExtensions;
-
     public function __construct(
         Context $context,
-        MediaGalleryConfigInterface $mediaGalleryConfig,
+        MediaGalleryConfigPoolInterface $configPool,
         FileUploaderFactory $uploaderFactory,
-        ImageAdapterFactory $adapterFactory,
         RawResultFactory $resultRawFactory,
-        Filesystem $fileSystem,
-        array $allowedExtensions = ['jpg', 'jpeg', 'gif', 'png']
+        Filesystem $fileSystem
     ) {
         parent::__construct($context);
-        $this->mediaGalleryConfig = $mediaGalleryConfig;
-        $this->uploaderFactory    = $uploaderFactory;
-        $this->adapterFactory     = $adapterFactory;
-        $this->resultRawFactory   = $resultRawFactory;
-        $this->fileSystem         = $fileSystem;
-        $this->allowedExtensions  = $allowedExtensions;
+        $this->configPool       = $configPool;
+        $this->uploaderFactory  = $uploaderFactory;
+        $this->resultRawFactory = $resultRawFactory;
+        $this->fileSystem       = $fileSystem;
     }
 
     /**
@@ -69,30 +64,29 @@ class Upload extends \Magento\Backend\App\Action
     public function execute()
     {
         try {
-            /** @var FileUploader $uploader */
-            $uploader = $this->uploaderFactory->create(['fileId' => 'image']);
-            $uploader->setAllowedExtensions($this->allowedExtensions);
+            $attributeCode = $this->getRequest()->getParam('attribute_code');
+            $fileField     = $this->getRequest()->getParam('field_name');
 
-            /** @var \Magento\Framework\Image\Adapter\AdapterInterface $imageAdapter */
-            $imageAdapter = $this->adapterFactory->create();
-            //TODO add validation callback
-            $uploader->addValidateCallback('catalog_product_image', $imageAdapter, 'validateUploadFile');
+            /** @var MediaGalleryConfigInterface $config */
+            $config = $this->configPool->getConfig($attributeCode);
+
+            /**
+             * if a validator is needed, there is a function $uploader->addValidateCallback();
+             */
+            /** @var FileUploader $uploader */
+            $uploader = $this->uploaderFactory->create(['fileId' => $fileField]);
+            $uploader->setAllowedExtensions($config->getAllowedExtensions());
             $uploader->setAllowRenameFiles(true);
             $uploader->setFilesDispersion(true);
 
             /** @var Read $directory */
             $directory = $this->fileSystem->getDirectoryRead(DirectoryList::MEDIA);
-            $result    = $uploader->save(
-                $directory->getAbsolutePath(
-                    $this->mediaGalleryConfig->getBaseTmpMediaPath()
-                )
-            );
+            $result    = $uploader->save($directory->getAbsolutePath($config->getBaseTmpMediaPath()));
 
             unset($result['tmp_name']);
             unset($result['path']);
 
-            $result['url']  = $this->mediaGalleryConfig->getTmpMediaUrl($result['file']);
-            $result['file'] = $result['file'] . '.tmp';
+            $result['url'] = $config->getTmpMediaUrl($result['file']);
         } catch (\Exception $e) {
             $result = ['error' => $e->getMessage(), 'errorcode' => $e->getCode()];
         }
@@ -101,6 +95,7 @@ class Upload extends \Magento\Backend\App\Action
         $response = $this->resultRawFactory->create();
         $response->setHeader('Content-type', 'text/plain');
         $response->setContents(json_encode($result));
+
         return $response;
     }
 }

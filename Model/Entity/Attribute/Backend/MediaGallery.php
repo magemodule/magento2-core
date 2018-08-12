@@ -20,10 +20,12 @@ namespace MageModule\Core\Model\Entity\Attribute\Backend;
 use MageModule\Core\Api\Data\MediaGalleryInterface;
 use MageModule\Core\Model\MediaGalleryFactory;
 use MageModule\Core\Model\MediaGalleryRepository;
+use Magento\Framework\Api\SearchCriteriaBuilder;
+use Magento\Framework\App\ResourceConnection;
 use Magento\Framework\DataObject;
 use Magento\Framework\Model\AbstractModel;
-use Magento\Framework\App\ResourceConnection;
 use Magento\Framework\Exception\CouldNotSaveException;
+use Magento\Framework\Exception\CouldNotDeleteException;
 
 class MediaGallery extends \MageModule\Core\Model\Entity\Attribute\Backend\AbstractBackend
 {
@@ -38,21 +40,60 @@ class MediaGallery extends \MageModule\Core\Model\Entity\Attribute\Backend\Abstr
     private $repository;
 
     /**
+     * @var SearchCriteriaBuilder
+     */
+    private $searchCriteriaBuilder;
+
+    /**
      * MediaGallery constructor.
      *
      * @param MediaGalleryFactory    $objectFactory
      * @param MediaGalleryRepository $repository
+     * @param SearchCriteriaBuilder  $searchCriteriaBuilder
      * @param ResourceConnection     $resource
      */
     public function __construct(
         MediaGalleryFactory $objectFactory,
         MediaGalleryRepository $repository,
+        SearchCriteriaBuilder $searchCriteriaBuilder,
         ResourceConnection $resource
     ) {
         parent::__construct($resource);
 
-        $this->objectFactory = $objectFactory;
-        $this->repository    = $repository;
+        $this->objectFactory         = $objectFactory;
+        $this->repository            = $repository;
+        $this->searchCriteriaBuilder = $searchCriteriaBuilder;
+    }
+
+    /**
+     * @param DataObject|AbstractModel $object
+     *
+     * @return AbstractBackend
+     */
+    public function afterLoad($object)
+    {
+        $attribute = $this->getAttribute();
+
+        $this->searchCriteriaBuilder->addFilter(
+            MediaGalleryInterface::ATTRIBUTE_ID,
+            $attribute->getAttributeId()
+        );
+
+        $this->searchCriteriaBuilder->addFilter(
+            MediaGalleryInterface::ENTITY_ID,
+            $object->getId()
+        );
+
+        $list = $this->repository->getList(
+            $this->searchCriteriaBuilder->create()
+        );
+
+        $object->setData(
+            $attribute->getAttributeCode(),
+            $list->getItems()
+        );
+
+        return parent::afterLoad($object);
     }
 
     /**
@@ -60,21 +101,30 @@ class MediaGallery extends \MageModule\Core\Model\Entity\Attribute\Backend\Abstr
      *
      * @return AbstractBackend
      * @throws CouldNotSaveException
+     * @throws CouldNotDeleteException
      */
     public function afterSave($object)
     {
-        //TODO still need to move image to specific directory
         $attribute = $this->getAttribute();
-        $attrCode = $attribute->getAttributeCode();
-        $value    = $object->getData($attrCode);
+        $attrCode  = $attribute->getAttributeCode();
+        $value     = $object->getData($attrCode);
 
         if (is_array($value) && isset($value['images'])) {
             foreach ($value['images'] as $image) {
-                /** @var MediaGalleryInterface $media */
-                $media = $this->objectFactory->create(['data' => $image]);
+                /** @var MediaGalleryInterface|DataObject $media */
+                $media = $this->objectFactory->create();
+                $media->addData($image);
+                $media->setValue($image['file']);
                 $media->setEntityId($object->getId());
                 $media->setAttributeId($attribute->getAttributeId());
-                $media->setValue($image['file']);
+
+                if ($media->getData('removed')) {
+                    if ($media->getValueId()) {
+                        $this->repository->delete($media);
+                    }
+
+                    continue;
+                }
 
                 if ($media instanceof DataObject && !$media->getValueId()) {
                     $media->unsetData(MediaGalleryInterface::VALUE_ID);

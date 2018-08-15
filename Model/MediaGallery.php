@@ -86,13 +86,53 @@ class MediaGallery extends \Magento\Framework\Model\AbstractModel implements
     }
 
     /**
-     * @param string|null|bool $value
+     * @param int $id
      *
      * @return $this
      */
-    public function setValue($value)
+    public function setStoreId($id)
     {
-        $this->setData(self::VALUE, $value);
+        $this->setData(self::STORE_ID, $id);
+
+        return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getStoreId()
+    {
+        return $this->getData(self::STORE_ID);
+    }
+
+    /**
+     * @param string $value
+     *
+     * @return $this
+     */
+    public function setFile($value)
+    {
+        $this->setData(self::FILE, $value);
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getFile()
+    {
+        return $this->getData(self::FILE);
+    }
+
+    /**
+     * @param string|null $label
+     *
+     * @return $this
+     */
+    public function setLabel($label)
+    {
+        $this->setData(self::LABEL, $label);
 
         return $this;
     }
@@ -100,8 +140,48 @@ class MediaGallery extends \Magento\Framework\Model\AbstractModel implements
     /**
      * @return string|null
      */
-    public function getValue()
+    public function getLabel()
     {
-        return $this->getData(self::VALUE);
+        return $this->getData(self::LABEL);
+    }
+
+    /**
+     * @param int $position
+     *
+     * @return $this
+     */
+    public function setPosition($position)
+    {
+        $this->setData(self::POSITION, $position);
+
+        return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getPosition()
+    {
+        return $this->getData(self::POSITION);
+    }
+
+    /**
+     * @param int|bool $disabled
+     *
+     * @return $this
+     */
+    public function setDisabled($disabled)
+    {
+        $this->setData(self::DISABLED, (int)$disabled);
+
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function getDisabled()
+    {
+        return (bool)$this->getData(self::DISABLED);
     }
 }

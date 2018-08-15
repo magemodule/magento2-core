@@ -10,9 +10,9 @@
  *  the web, please send a note to admin@magemodule.com so that we can mail
  *  you a copy immediately.
  *
- *  @author        MageModule admin@magemodule.com
- *  @copyright    2018 MageModule, LLC
- *  @license        https://www.magemodule.com/magento2-ext-license.html
+ * @author         MageModule admin@magemodule.com
+ * @copyright      2018 MageModule, LLC
+ * @license        https://www.magemodule.com/magento2-ext-license.html
  */
 
 namespace MageModule\Core\Api\Data;
@@ -22,7 +22,11 @@ interface MediaGalleryInterface
     const VALUE_ID     = 'value_id';
     const ATTRIBUTE_ID = 'attribute_id';
     const ENTITY_ID    = 'entity_id';
-    const VALUE        = 'value';
+    const STORE_ID     = 'store_id';
+    const FILE         = 'file';
+    const LABEL        = 'label';
+    const POSITION     = 'position';
+    const DISABLED     = 'disabled';
 
     /**
      * @param int $id
@@ -61,14 +65,62 @@ interface MediaGalleryInterface
     public function getEntityId();
 
     /**
-     * @param string|null|bool $value
+     * @param int $id
      *
      * @return $this
      */
-    public function setValue($value);
+    public function setStoreId($id);
+
+    /**
+     * @return int
+     */
+    public function getStoreId();
+
+    /**
+     * @param string $value
+     *
+     * @return $this
+     */
+    public function setFile($value);
+
+    /**
+     * @return string
+     */
+    public function getFile();
+
+    /**
+     * @param string|null $label
+     *
+     * @return $this
+     */
+    public function setLabel($label);
 
     /**
      * @return string|null
      */
-    public function getValue();
+    public function getLabel();
+
+    /**
+     * @param int $position
+     *
+     * @return $this
+     */
+    public function setPosition($position);
+
+    /**
+     * @return int
+     */
+    public function getPosition();
+
+    /**
+     * @param int|bool $disabled
+     *
+     * @return $this
+     */
+    public function setDisabled($disabled);
+
+    /**
+     * @return bool
+     */
+    public function getDisabled();
 }

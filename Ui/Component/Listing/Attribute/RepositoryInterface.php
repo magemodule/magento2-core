@@ -5,7 +5,7 @@ namespace MageModule\Core\Ui\Component\Listing\Attribute;
 interface RepositoryInterface
 {
     /**
-     * @return \Magento\Eav\Api\Data\AttributeSearchResultsInterface
+     * @return \Magento\Framework\Api\SearchResultsInterface
      */
     public function getList();
 }

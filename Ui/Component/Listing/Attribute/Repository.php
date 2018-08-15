@@ -18,9 +18,9 @@
 namespace MageModule\Core\Ui\Component\Listing\Attribute;
 
 use MageModule\Core\Api\Data\AttributeInterface;
-use Magento\Eav\Api\Data\AttributeSearchResultsInterface;
 use Magento\Eav\Api\AttributeRepositoryInterface;
 use Magento\Framework\Api\SearchCriteriaBuilder;
+use Magento\Framework\Api\SearchResultsInterface;
 
 class Repository implements \MageModule\Core\Ui\Component\Listing\Attribute\RepositoryInterface
 {
@@ -32,7 +32,7 @@ class Repository implements \MageModule\Core\Ui\Component\Listing\Attribute\Repo
     /**
      * @var SearchCriteriaBuilder
      */
-    protected $searchCriteriaBuilder;
+    private $searchCriteriaBuilder;
 
     /**
      * @var string
@@ -57,7 +57,7 @@ class Repository implements \MageModule\Core\Ui\Component\Listing\Attribute\Repo
     }
 
     /**
-     * @return AttributeSearchResultsInterface
+     * @return SearchResultsInterface
      */
     public function getList()
     {

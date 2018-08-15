@@ -7,7 +7,7 @@ interface AttributeRepositoryInterface
     /**
      * @param \Magento\Framework\Api\SearchCriteriaInterface $searchCriteria
      *
-     * @return \Magento\Eav\Api\Data\AttributeSearchResultsInterface
+     * @return \Magento\Framework\Api\SearchResultsInterface
      */
     public function getList(\Magento\Framework\Api\SearchCriteriaInterface $searchCriteria);
 

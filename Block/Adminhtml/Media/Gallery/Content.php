@@ -67,7 +67,7 @@ class Content extends \Magento\Backend\Block\Widget
         };
 
         $extensions = $this->getConfig()->getAllowedExtensions();
-        $files = array_map($callback, $extensions);
+        $files      = array_map($callback, $extensions);
 
         $filters = [
             'images' => [
@@ -290,7 +290,7 @@ class Content extends \Magento\Backend\Block\Widget
 
             /** @var MediaGalleryInterface|DataObject $image */
             foreach ($images as &$image) {
-                $file = $image->getValue();
+                $file = $image->getFile();
                 $image->setData('file', $file);
                 $image->setData('url', $config->getMediaUrl($file));
                 try {
@@ -304,8 +304,7 @@ class Content extends \Magento\Backend\Block\Widget
                 $resultArray[$image->getValueId()] = $image->getData();
             }
 
-            //TODO make this function work
-            //$resultArray   = $this->sortImagesByPosition($resultArray);
+            $resultArray = $this->sortImagesByPosition($resultArray);
 
             return $this->jsonEncoder->serialize($resultArray);
         }

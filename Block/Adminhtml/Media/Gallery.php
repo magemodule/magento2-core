@@ -28,8 +28,6 @@ use Magento\Framework\Data\Form;
 use Magento\Framework\Model\AbstractModel;
 use Magento\Framework\View\Element\Context;
 use Magento\Framework\View\Element\AbstractBlock;
-use Magento\Framework\Exception\NoSuchEntityException;
-use Magento\Store\Model\Store;
 use Magento\Store\Model\StoreManagerInterface;
 
 class Gallery extends \Magento\Framework\View\Element\AbstractBlock
@@ -83,11 +81,6 @@ class Gallery extends \Magento\Framework\View\Element\AbstractBlock
      * @var string
      */
     private $htmlId;
-
-    /**
-     * @var int
-     */
-    private $defaultStoreId = Store::DEFAULT_STORE_ID;
 
     /**
      * Gallery constructor.
@@ -266,49 +259,6 @@ class Gallery extends \Magento\Framework\View\Element\AbstractBlock
         $block->getUploader()->getConfig()->setMediaGallery($galleryJs);
 
         return $block->toHtml();
-    }
-
-    /**
-     * @param AttributeInterface|ScopedAttributeInterface $attribute
-     *
-     * @return bool
-     * @throws NoSuchEntityException
-     */
-    public function canDisplayUseDefault($attribute)
-    {
-        if ($attribute instanceof ScopedAttributeInterface &&
-            !$attribute->isScopeGlobal() &&
-            $this->getDataObject()->getStoreId()
-        ) {
-            return true;
-        }
-
-        return false;
-    }
-
-    /**
-     * @param AttributeInterface|ScopedAttributeInterface $attribute
-     *
-     * @return bool
-     * @throws NoSuchEntityException
-     */
-    public function usedDefault($attribute)
-    {
-        $attributeCode = $attribute->getAttributeCode();
-        //TODO check these functions
-        $defaultValue = $this->getDataObject()->getAttributeDefaultValue($attributeCode);
-
-        if (!$this->getDataObject()->getExistsStoreValueFlag($attributeCode)) {
-            return true;
-        } elseif ($this->getValue() == $defaultValue &&
-                  $this->getDataObject()->getStoreId() != $this->defaultStoreId
-        ) {
-            return false;
-        }
-        if ($defaultValue === false && !$attribute->getIsRequired() && $this->getValue()) {
-            return false;
-        }
-        return $defaultValue === false;
     }
 
     /**

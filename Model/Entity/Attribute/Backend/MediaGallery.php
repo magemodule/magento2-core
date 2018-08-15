@@ -20,12 +20,14 @@ namespace MageModule\Core\Model\Entity\Attribute\Backend;
 use MageModule\Core\Api\Data\MediaGalleryInterface;
 use MageModule\Core\Model\MediaGalleryFactory;
 use MageModule\Core\Model\MediaGalleryRepository;
+use MageModule\Core\Model\AbstractExtensibleModel;
 use Magento\Framework\Api\SearchCriteriaBuilder;
 use Magento\Framework\App\ResourceConnection;
 use Magento\Framework\DataObject;
 use Magento\Framework\Model\AbstractModel;
 use Magento\Framework\Exception\CouldNotSaveException;
 use Magento\Framework\Exception\CouldNotDeleteException;
+use Magento\Framework\Exception\NoSuchEntityException;
 
 class MediaGallery extends \MageModule\Core\Model\Entity\Attribute\Backend\AbstractBackend
 {
@@ -69,6 +71,7 @@ class MediaGallery extends \MageModule\Core\Model\Entity\Attribute\Backend\Abstr
      * @param DataObject|AbstractModel $object
      *
      * @return AbstractBackend
+     * @throws NoSuchEntityException
      */
     public function afterLoad($object)
     {
@@ -83,6 +86,13 @@ class MediaGallery extends \MageModule\Core\Model\Entity\Attribute\Backend\Abstr
             MediaGalleryInterface::ENTITY_ID,
             $object->getId()
         );
+
+        if ($object instanceof AbstractExtensibleModel) {
+            $this->searchCriteriaBuilder->addFilter(
+                MediaGalleryInterface::STORE_ID,
+                $object->getStoreId()
+            );
+        }
 
         $list = $this->repository->getList(
             $this->searchCriteriaBuilder->create()
@@ -102,6 +112,7 @@ class MediaGallery extends \MageModule\Core\Model\Entity\Attribute\Backend\Abstr
      * @return AbstractBackend
      * @throws CouldNotSaveException
      * @throws CouldNotDeleteException
+     * @throws NoSuchEntityException
      */
     public function afterSave($object)
     {
@@ -110,13 +121,20 @@ class MediaGallery extends \MageModule\Core\Model\Entity\Attribute\Backend\Abstr
         $value     = $object->getData($attrCode);
 
         if (is_array($value) && isset($value['images'])) {
+            $i = 0;
             foreach ($value['images'] as $image) {
+                $i++;
+
                 /** @var MediaGalleryInterface|DataObject $media */
                 $media = $this->objectFactory->create();
                 $media->addData($image);
-                $media->setValue($image['file']);
                 $media->setEntityId($object->getId());
                 $media->setAttributeId($attribute->getAttributeId());
+                $media->setPosition($i);
+
+                if ($object instanceof AbstractExtensibleModel) {
+                    $media->setStoreId($object->getStoreId());
+                }
 
                 if ($media->getData('removed')) {
                     if ($media->getValueId()) {

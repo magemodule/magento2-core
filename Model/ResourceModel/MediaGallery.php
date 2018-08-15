@@ -37,11 +37,6 @@ class MediaGallery extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
     private $configPool;
 
     /**
-     * @var string
-     */
-    private $mainTable;
-
-    /**
      * @var FileFactory
      */
     private $fileFactory;
@@ -52,6 +47,16 @@ class MediaGallery extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
     private $filesystem;
 
     /**
+     * @var string
+     */
+    private $mainTable;
+
+    /**
+     * @var string
+     */
+    private $valueTable;
+
+    /**
      * MediaGallery constructor.
      *
      * @param Context                         $context
@@ -59,6 +64,7 @@ class MediaGallery extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
      * @param FileFactory                     $ioFactory
      * @param Filesystem                      $filesystem
      * @param string|null                     $mainTable
+     * @param string|null                     $valueTable
      * @param string|null                     $connectionName
      */
     public function __construct(
@@ -67,9 +73,11 @@ class MediaGallery extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
         FileFactory $ioFactory,
         Filesystem $filesystem,
         $mainTable,
+        $valueTable,
         $connectionName = null
     ) {
-        $this->mainTable = $mainTable;
+        $this->mainTable  = $mainTable;
+        $this->valueTable = $valueTable;
         parent::__construct($context, $connectionName);
 
         $this->configPool  = $configPool;
@@ -94,14 +102,14 @@ class MediaGallery extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
     {
         $attrCode = $this->getAttributeCodeById($object->getAttributeId());
         $config   = $this->configPool->getConfig($attrCode);
-        $value    = $object->getData(MediaGalleryInterface::VALUE);
+        $value    = $object->getData(MediaGalleryInterface::FILE);
 
         if ($object->isObjectNew() &&
             $value &&
             $object instanceof MediaGalleryModel &&
             $config instanceof MediaGalleryConfigInterface
         ) {
-            $object->setOrigData(MediaGalleryInterface::VALUE, $value);
+            $object->setOrigData(MediaGalleryInterface::FILE, $value);
 
             $path = $this->getMediaPath(true, $config->getMediaPath($value));
 
@@ -111,10 +119,42 @@ class MediaGallery extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
             array_pop($parts);
             $parts[] = $file;
             $value   = implode(DIRECTORY_SEPARATOR, $parts);
-            $object->setValue($value);
+            $object->setFile($value);
         }
 
         return parent::_beforeSave($object);
+    }
+
+    /**
+     * @param string        $field
+     * @param mixed         $value
+     * @param AbstractModel $object
+     *
+     * @return \Magento\Framework\DB\Select
+     * @throws \Magento\Framework\Exception\LocalizedException
+     */
+    protected function _getLoadSelect($field, $value, $object)
+    {
+        $select = parent::_getLoadSelect($field, $value, $object);
+
+        $connection = $this->getConnection();
+        $valueTable = $this->getValueTable();
+        if ($connection->isTableExists($valueTable)) {
+            $select->joinLeft(
+                ['value_table' => $valueTable],
+                $this->getMainTable() . '.' . $this->getIdFieldName() . ' = value_table.' . $this->getIdFieldName(),
+                ['*']
+            );
+
+            $storeId = (int)$object->getData(MediaGalleryInterface::STORE_ID);
+            if ($connection->tableColumnExists($valueTable, MediaGalleryInterface::STORE_ID)) {
+                $select->where(
+                    'value_table.' . MediaGalleryInterface::STORE_ID . ' = ' . $storeId
+                );
+            }
+        }
+
+        return $select;
     }
 
     /**
@@ -127,8 +167,8 @@ class MediaGallery extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
         $parent    = parent::_afterSave($object);
         $attrCode  = $this->getAttributeCodeById($object->getAttributeId());
         $config    = $this->configPool->getConfig($attrCode);
-        $value     = $object->getData(MediaGalleryInterface::VALUE);
-        $origValue = $object->getOrigData(MediaGalleryInterface::VALUE);
+        $value     = $object->getData(MediaGalleryInterface::FILE);
+        $origValue = $object->getOrigData(MediaGalleryInterface::FILE);
 
         /** move tmp image file to final destination */
         if ($object->isObjectNew() &&
@@ -150,7 +190,83 @@ class MediaGallery extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
             $io->close();
         }
 
+        $this->insertUpdateValue($object);
+
         return $parent;
+    }
+
+    /**
+     * @return string
+     */
+    public function getValueTable()
+    {
+        if ($this->valueTable) {
+            return $this->getTable($this->valueTable);
+        }
+
+        return null;
+    }
+
+    /**
+     * @param AbstractModel $object
+     *
+     * @return array
+     */
+    private function getValueRow(AbstractModel $object)
+    {
+        $result = [];
+
+        $table = $this->getValueTable();
+        if ($table) {
+            $connection = $this->getConnection();
+
+            $select = $connection->select()->from($table);
+            $select->where(MediaGalleryInterface::VALUE_ID . ' =?', $object->getData(MediaGalleryInterface::VALUE_ID));
+
+            if ($connection->tableColumnExists($table, MediaGalleryModel::STORE_ID)) {
+                $select->where(MediaGalleryInterface::STORE_ID . ' =?', $object->getData(MediaGalleryModel::STORE_ID));
+            }
+
+            $row = $connection->fetchRow($select);
+            if ($row) {
+                $result = [];
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param AbstractModel $object
+     *
+     * @return bool
+     */
+    private function insertUpdateValue(AbstractModel $object)
+    {
+        $result = false;
+
+        $table = $this->getValueTable();
+        if ($table) {
+            $connection = $this->getConnection();
+
+            $row = $this->getValueRow($object);
+            foreach ($object->getData() as $key => $value) {
+                $row[$key] = $value;
+            }
+
+            $describe = $connection->describeTable($table);
+            foreach ($row as $column => &$value) {
+                if (!isset($describe[$column])) {
+                    unset($row[$column]);
+                } else {
+                    $value = $connection->prepareColumnValue($describe[$column], $value);
+                }
+            }
+
+            $result = (bool)$connection->insertOnDuplicate($table, $row);
+        }
+
+        return $result;
     }
 
     /**
@@ -162,7 +278,7 @@ class MediaGallery extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
     {
         $attrCode = $this->getAttributeCodeById($object->getAttributeId());
         $config   = $this->configPool->getConfig($attrCode);
-        $value    = $object->getData(MediaGalleryInterface::VALUE);
+        $value    = $object->getData(MediaGalleryInterface::FILE);
 
         if ($value && $config instanceof MediaGalleryConfigInterface) {
             $filepath = $config->getMediaPath($value);

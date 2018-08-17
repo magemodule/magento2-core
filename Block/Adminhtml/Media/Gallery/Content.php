@@ -366,4 +366,12 @@ class Content extends \Magento\Backend\Block\Widget
         }
         return $imageTypes;
     }
+
+    /**
+     * @return string
+     */
+    public function getImageTypesJson()
+    {
+        return json_encode($this->getImageTypes());
+    }
 }

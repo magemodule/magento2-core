@@ -1,4 +1,4 @@
-<?php
+<?php /** @noinspection MessDetectorValidationInspection */
 
 namespace MageModule\Core\Model\ResourceModel\Entity;
 
@@ -209,7 +209,7 @@ abstract class AbstractCollection extends \Magento\Eav\Model\Entity\Collection\A
         }
 
         return $select;
-    }
+    }/** @noinspection PhpTooManyParametersInspection */
 
     /**
      * @param string $method
@@ -221,6 +221,8 @@ abstract class AbstractCollection extends \Magento\Eav\Model\Entity\Collection\A
      *
      * @return \Magento\Eav\Model\Entity\Collection\AbstractCollection
      * @throws \Magento\Framework\Exception\NoSuchEntityException
+     *
+     * @noinspection PhpTooManyParametersInspection
      */
     protected function _joinAttributeToSelect($method, $attribute, $tableAlias, $condition, $fieldCode, $fieldAlias)
     {

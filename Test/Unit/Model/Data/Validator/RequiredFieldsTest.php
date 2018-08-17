@@ -1,4 +1,4 @@
-<?php
+<?php /** @noinspection ALL */
 
 namespace MageModule\Core\Test\Unit\Model\Data\Validator;
 

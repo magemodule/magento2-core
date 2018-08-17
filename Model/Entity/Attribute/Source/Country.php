@@ -59,10 +59,13 @@ class Country extends \Magento\Eav\Model\Entity\Attribute\Source\Table
     }
 
     /**
+     * @param bool $withEmpty Add empty option to array
+     * @param bool $defaultValues
+     *
      * @return array
      * @throws NoSuchEntityException
      */
-    public function getAllOptions()
+    public function getAllOptions($withEmpty = true, $defaultValues = false)
     {
         if (!$this->_options) {
             $this->_options = $this->createCountriesCollection()->loadByStore(

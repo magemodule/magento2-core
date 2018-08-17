@@ -1,4 +1,5 @@
-<?php
+<?php /** @noinspection PhpCSValidationInspection */
+
 /**
  * Copyright (c) 2018 MageModule: All rights reserved
  *

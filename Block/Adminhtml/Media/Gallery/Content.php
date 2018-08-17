@@ -15,8 +15,6 @@ use Magento\Framework\Model\AbstractModel;
 use Magento\Framework\View\Element\AbstractBlock;
 use Magento\Framework\Serialize\Serializer\Json as JsonEncoder;
 use Magento\Framework\App\Filesystem\DirectoryList;
-use Magento\Framework\Exception\FileSystemException;
-use Magento\Framework\Exception\NoSuchEntityException;
 
 class Content extends \Magento\Backend\Block\Widget
 {
@@ -228,7 +226,7 @@ class Content extends \Magento\Backend\Block\Widget
     /**
      * Retrieve uploader block
      *
-     * @return Uploader
+     * @return bool|Uploader|AbstractBlock
      */
     public function getUploader()
     {
@@ -276,7 +274,6 @@ class Content extends \Magento\Backend\Block\Widget
 
     /**
      * @return string
-     * @throws NoSuchEntityException
      */
     public function getImagesJson()
     {
@@ -292,11 +289,12 @@ class Content extends \Magento\Backend\Block\Widget
             foreach ($images as &$image) {
                 $file = $image->getFile();
                 $image->setData('file', $file);
-                $image->setData('url', $config->getMediaUrl($file));
+
                 try {
+                    $image->setData('url', $config->getMediaUrl($file));
                     $fileHandler = $mediaDir->stat($config->getMediaPath($file));
                     $image->setData('size', $fileHandler['size']);
-                } catch (FileSystemException $e) {
+                } catch (\Exception $e) {
                     $image->setData('size', 0);
                     $this->_logger->warning($e);
                 }

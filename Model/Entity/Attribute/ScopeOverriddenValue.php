@@ -1,4 +1,5 @@
-<?php
+<?php /** @noinspection PhpCSValidationInspection */
+
 /**
  * Copyright (c) 2018 MageModule, LLC: All rights reserved
  *
@@ -121,6 +122,7 @@ class ScopeOverriddenValue
      * @param int                                    $storeId
      *
      * @throws \Magento\Framework\Exception\LocalizedException
+     * @throws \Exception
      */
     private function initAttributeValues($entityType, $entity, $storeId)
     {

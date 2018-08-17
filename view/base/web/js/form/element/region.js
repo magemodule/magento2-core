@@ -72,7 +72,7 @@ define([
             this._super(value, field);
 
             var region = this.getRegionField();
-            var visible = this.size(this.indexedOptions) ? true : false;
+            var visible = !!this.size(this.indexedOptions);
 
             this.setVisible(visible);
             region.setVisible(!visible);

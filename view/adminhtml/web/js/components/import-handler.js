@@ -34,6 +34,7 @@ define([
             placeholders = str.match(/{{(.*?)}}/g); // Get placeholders
 
             _.each(placeholders, function (placeholder) {
+                // noinspection Annotator
                 placeholder = placeholder.replace(/[{{}}]/g, ''); // Remove curly braces
 
                 registry.get(this.queryTemplate + placeholder, function (component) {

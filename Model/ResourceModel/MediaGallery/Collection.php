@@ -68,6 +68,7 @@ class Collection extends \Magento\Framework\Model\ResourceModel\Db\Collection\Ab
                 }
 
                 if (count($selects) > 1) {
+                    /** @noinspection PhpUnhandledExceptionInspection */
                     $union = $connection->select()->union($selects);
                     $union->order($storeIdCol . ' ' . self::SORT_ORDER_DESC);
 

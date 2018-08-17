@@ -669,7 +669,9 @@ class Formatter implements FormatterInterface
             }
         } elseif ($item instanceof \Magento\Framework\DataObject) {
             foreach ($this->getDefaultValues() as $field => $value) {
-                if ($item->hasData($field) && ($item->getData($field) === null || trim($item->getData($field)) === '')) {
+                if ($item->hasData($field) &&
+                    ($item->getData($field) === null || trim($item->getData($field)) === '')
+                ) {
                     $item->setData($field, $value);
                 }
             }

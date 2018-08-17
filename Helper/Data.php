@@ -61,7 +61,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
      */
     public function removeTrue(array &$array)
     {
-        $array = array_filter($array, function($value) {
+        $array = array_filter($array, function ($value) {
             return $value !== true;
         });
     }
@@ -73,7 +73,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
      */
     public function removeFalse(array &$array)
     {
-        $array = array_filter($array, function($value) {
+        $array = array_filter($array, function ($value) {
             return $value !== false;
         });
     }
@@ -110,7 +110,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
      */
     public function removeElements(array &$array, array $keys)
     {
-        foreach ($array as $key => &$value) {
+        foreach (array_keys($array) as $key) {
             if (in_array($key, $keys)) {
                 unset($array[$key]);
             }

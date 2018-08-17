@@ -26,7 +26,7 @@ class Iterator extends \MageModule\Core\Model\Data\Formatter
     private $formatter;
 
     /**
-     * Formatter constructor.
+     * Iterator constructor.
      *
      * @param \Magento\Framework\DataObjectFactory           $objectFactory
      * @param \MageModule\Core\Helper\Data                   $helper
@@ -45,6 +45,8 @@ class Iterator extends \MageModule\Core\Model\Data\Formatter
      * @param bool                                           $allowNewlineChar
      * @param bool                                           $allowReturnChar
      * @param bool                                           $allowTabChar
+     *
+     * @throws \Magento\Framework\Exception\LocalizedException
      */
     public function __construct(
         \Magento\Framework\DataObjectFactory $objectFactory,

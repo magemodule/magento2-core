@@ -24,6 +24,7 @@ use Magento\Framework\App\ResourceConnection;
 use Magento\Framework\DataObject;
 use Magento\Framework\Model\AbstractModel;
 use Magento\Framework\Exception\LocalizedException;
+use Magento\Store\Model\Store;
 
 abstract class AbstractBackend extends \Magento\Eav\Model\Entity\Attribute\Backend\AbstractBackend
 {

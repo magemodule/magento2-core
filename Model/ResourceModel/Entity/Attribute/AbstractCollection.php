@@ -1,8 +1,9 @@
-<?php
+<?php /** @noinspection MessDetectorValidationInspection */
 
 namespace MageModule\Core\Model\ResourceModel\Entity\Attribute;
 
 use Magento\Framework\Exception\LocalizedException;
+use MageModule\Core\Model\Entity\Attribute;
 
 abstract class AbstractCollection extends \Magento\Eav\Model\ResourceModel\Entity\Attribute\Collection
 {

@@ -24,7 +24,8 @@ class RequiredFields implements \MageModule\Core\Model\Data\ValidatorInterface
     /**
      * RequiredFields constructor.
      *
-     * @param array $requiredFields
+     * @param \MageModule\Core\Model\Data\Validator\ResultFactory $resultFactory
+     * @param array                                               $requiredFields
      */
     public function __construct(
         \MageModule\Core\Model\Data\Validator\ResultFactory $resultFactory,
@@ -41,7 +42,7 @@ class RequiredFields implements \MageModule\Core\Model\Data\ValidatorInterface
      *     'entity_id', <===== singular required field
      *     'increment_id',
      *     [2 => ['state', 'status', 'not_present_1', 'not_present_2']], <===== 2 of these choices must be present
-     *     [1 => ['created_at', 'updated_at', 'not_present_1', 'not_present_2']] <===== 1 of these choices must be present
+     *     [1 => ['created_at', 'updated_at', 'not_present_1', 'not_present_2']] <=== 1 of these choices must be present
      * ]
      *
      * @param array $data

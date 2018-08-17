@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Copyright (c) 2018 MageModule: All rights reserved
  *
@@ -36,6 +37,8 @@ class Mapper
      * @param \MageModule\Core\Helper\Data $helper
      * @param array                        $extendMappings
      * @param array                        $mapping
+     *
+     * @throws \Magento\Framework\Exception\LocalizedException
      */
     public function __construct(
         \MageModule\Core\Helper\Data $helper,
@@ -61,16 +64,9 @@ class Mapper
      * @param array $mapping
      *
      * @return bool
-     * @throws \Magento\Framework\Exception\LocalizedException
      */
     public function validateMapping(array $mapping)
     {
-        foreach ($mapping as $field) {
-            if (!is_string($field)) {
-                //      throw new LocalizedException(__('Mapped field names must be a string.'));
-            }
-        }
-
         return true;
     }
 
@@ -120,6 +116,7 @@ class Mapper
      * @param string $newField
      *
      * @return $this
+     * @throws \Magento\Framework\Exception\LocalizedException
      */
     public function addMapping($oldField, $newField)
     {
@@ -178,7 +175,7 @@ class Mapper
         }
 
         $mappedData = $this->mapArray($allData, $keepOrigFields);
-        foreach ($mappedData as $key => &$value) {
+        foreach (array_keys($mappedData) as $key) {
             if (!in_array($key, $validKeys)) {
                 unset($mappedData[$key]);
             }

@@ -1,4 +1,5 @@
-<?php
+<?php /** @noinspection ALL */
+
 /**
  * Copyright (c) 2018 MageModule: All rights reserved
  *

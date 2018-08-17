@@ -85,7 +85,8 @@ class MediaGalleryConfig implements MediaGalleryConfigInterface
      */
     public function getBaseTmpMediaUrl()
     {
-        return $this->storeManager->getStore()->getBaseUrl(UrlInterface::URL_TYPE_MEDIA) . 'tmp/' . $this->getBaseMediaPath();
+        return $this->storeManager->getStore()
+                   ->getBaseUrl(UrlInterface::URL_TYPE_MEDIA) . 'tmp/' . $this->getBaseMediaPath();
     }
 
     /**

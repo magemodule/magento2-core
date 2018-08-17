@@ -72,13 +72,25 @@ abstract class AbstractExtensibleModel extends \Magento\Framework\Model\Abstract
      * @param string $attributeCode
      *
      * @return string|array|null
+     * @throws \Magento\Framework\Exception\LocalizedException
      */
     public function getAttributeText($attributeCode)
     {
-        //TODO make this function work
-        return $this->_resource->getAttribute($attributeCode)->getSource()->getOptionText(
-            $this->getData($attributeCode)
-        );
+        $result = $this->getData($attributeCode);
+
+        /** @var \Magento\Eav\Api\Data\AttributeInterface $attribute */
+        $attribute = $this->_resource->getAttribute($attributeCode);
+
+        if ($attribute instanceof \Magento\Eav\Model\Entity\Attribute\AbstractAttribute) {
+            /** @var \Magento\Eav\Model\Entity\Attribute\Source\SourceInterface $source */
+            $source = $attribute->getSource();
+
+            if ($source instanceof \Magento\Eav\Model\Entity\Attribute\Source\SourceInterface) {
+                $result = $source->getOptionText($this->getData($attributeCode));
+            }
+        }
+
+        return $result;
     }
 
     /**

@@ -76,6 +76,37 @@ class Country extends \Magento\Eav\Model\Entity\Attribute\Source\Table
     }
 
     /**
+     * @param int|string $value
+     *
+     * @return string|string[]
+     * @throws NoSuchEntityException
+     */
+    public function getOptionText($value)
+    {
+        $result    = [];
+        $origValue = $value;
+        $values    = explode(',', $value);
+
+        $options = $this->getAllOptions();
+
+        foreach ($values as $value) {
+            foreach ($options as $option) {
+                if (isset($option['value']) && $option['value'] === $value) {
+                    $result[$value] = $option['label'];
+                }
+            }
+        }
+
+        if (empty($result)) {
+            $result = $origValue;
+        } elseif (count($result) === 1) {
+            $result = current($result);
+        }
+
+        return $result;
+    }
+
+    /**
      * @return CountryCollection
      */
     private function createCountriesCollection()

@@ -277,7 +277,6 @@ class Content extends \Magento\Backend\Block\Widget
      */
     public function getImagesJson()
     {
-        //TODO need to make sure that collection is called by store ID
         $images = $this->getElement()->getImages();
         if ($images) {
             $resultArray = [];

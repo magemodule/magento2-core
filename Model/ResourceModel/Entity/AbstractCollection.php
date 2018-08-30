@@ -83,6 +83,7 @@ abstract class AbstractCollection extends \Magento\Eav\Model\Entity\Collection\A
         if ($storeId instanceof \Magento\Store\Api\Data\StoreInterface) {
             $storeId = $storeId->getId();
         }
+
         $this->storeId = (int)$storeId;
 
         return $this;

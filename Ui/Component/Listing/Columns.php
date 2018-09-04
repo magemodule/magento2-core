@@ -17,6 +17,11 @@
 
 namespace MageModule\Core\Ui\Component\Listing;
 
+/**
+ * Class Columns
+ *
+ * @package MageModule\Core\Ui\Component\Listing
+ */
 class Columns extends \Magento\Ui\Component\Listing\Columns
 {
     const DEFAULT_COLUMNS_MAX_ORDER = 100;

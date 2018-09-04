@@ -17,6 +17,13 @@
 
 namespace MageModule\Core\Ui\Component\Listing;
 
+use Magento\Eav\Model\Entity\Attribute\AbstractAttribute;
+
+/**
+ * Class ColumnFactory
+ *
+ * @package MageModule\Core\Ui\Component\Listing
+ */
 class ColumnFactory
 {
     /**
@@ -51,8 +58,9 @@ class ColumnFactory
     /**
      * @param \Magento\Framework\View\Element\UiComponentFactory $componentFactory
      */
-    public function __construct(\Magento\Framework\View\Element\UiComponentFactory $componentFactory)
-    {
+    public function __construct(
+        \Magento\Framework\View\Element\UiComponentFactory $componentFactory
+    ) {
         $this->componentFactory = $componentFactory;
     }
 
@@ -80,7 +88,7 @@ class ColumnFactory
             $config
         );
 
-        if ($attribute->usesSource()) {
+        if ($attribute instanceof AbstractAttribute && $attribute->usesSource()) {
             $config['options'] = $attribute->getSource()->getAllOptions();
         }
 

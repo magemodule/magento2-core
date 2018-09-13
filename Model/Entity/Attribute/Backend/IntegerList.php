@@ -19,6 +19,11 @@ namespace MageModule\Core\Model\Entity\Attribute\Backend;
 
 use Magento\Framework\Exception\LocalizedException;
 
+/**
+ * Class IntegerList
+ *
+ * @package MageModule\Core\Model\Entity\Attribute\Backend
+ */
 class IntegerList extends \MageModule\Core\Model\Entity\Attribute\Backend\AbstractBackend
 {
     /**

@@ -86,7 +86,11 @@ abstract class AbstractExtensibleModel extends \Magento\Framework\Model\Abstract
             $source = $attribute->getSource();
 
             if ($source instanceof \Magento\Eav\Model\Entity\Attribute\Source\SourceInterface) {
-                $result = $source->getOptionText($this->getData($attributeCode));
+                $data = $this->getData($attributeCode);
+                try {
+                    $data = json_decode($data);
+                } catch (\Exception $e) {}
+                $result = $source->getOptionText($data);
             }
         }
 

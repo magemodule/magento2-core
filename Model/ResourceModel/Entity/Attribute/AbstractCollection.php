@@ -1,4 +1,5 @@
-<?php /**
+<?php
+/**
  * Copyright (c) 2018 MageModule, LLC: All rights reserved
  *
  * LICENSE: This source file is subject to our standard End User License
@@ -9,16 +10,23 @@
  *  the web, please send a note to admin@magemodule.com so that we can mail
  *  you a copy immediately.
  *
- *  @author        MageModule admin@magemodule.com
- *  @copyright    2018 MageModule, LLC
- *  @license        https://www.magemodule.com/end-user-license-agreement/
- */ /** @noinspection MessDetectorValidationInspection */
+ * @author         MageModule admin@magemodule.com
+ * @copyright      2018 MageModule, LLC
+ * @license        https://www.magemodule.com/end-user-license-agreement/
+ */
+
+/** @noinspection MessDetectorValidationInspection */
 
 namespace MageModule\Core\Model\ResourceModel\Entity\Attribute;
 
 use Magento\Framework\Exception\LocalizedException;
 use MageModule\Core\Model\Entity\Attribute;
 
+/**
+ * Class AbstractCollection
+ *
+ * @package MageModule\Core\Model\ResourceModel\Entity\Attribute
+ */
 abstract class AbstractCollection extends \Magento\Eav\Model\ResourceModel\Entity\Attribute\Collection
 {
     /**

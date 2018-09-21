@@ -30,7 +30,7 @@ class StoreId implements \MageModule\Core\Model\Data\ValidatorInterface
     private $resultFactory;
 
     /**
-     * @var \MageModule\Core\Model\Data\Validator\Value\ValueFactory
+     * @var \MageModule\Core\Model\Data\Validator\ValueFactory
      */
     private $validatorFactory;
 

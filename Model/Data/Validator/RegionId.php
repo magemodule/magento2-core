@@ -18,11 +18,11 @@
 namespace MageModule\Core\Model\Data\Validator;
 
 /**
- * Class StoreCode
+ * Class RegionId
  *
  * @package MageModule\Core\Model\Data\Validator
  */
-class StoreCode implements \MageModule\Core\Model\Data\ValidatorInterface
+class RegionId implements \MageModule\Core\Model\Data\ValidatorInterface
 {
     /**
      * @var \MageModule\Core\Model\Data\Validator\ResultFactory
@@ -35,9 +35,9 @@ class StoreCode implements \MageModule\Core\Model\Data\ValidatorInterface
     private $validatorFactory;
 
     /**
-     * @var array
+     * @var \Magento\Directory\Model\ResourceModel\Region\CollectionFactory
      */
-    private $storeManager;
+    private $collectionFactory;
 
     /**
      * @var \MageModule\Core\Model\Data\Validator\Value
@@ -47,23 +47,23 @@ class StoreCode implements \MageModule\Core\Model\Data\ValidatorInterface
     /**
      * @var string[]
      */
-    private $storeCodes;
+    private $regionIds;
 
     /**
-     * StoreCode constructor.
+     * RegionId constructor.
      *
-     * @param \MageModule\Core\Model\Data\Validator\ResultFactory $resultFactory
-     * @param \MageModule\Core\Model\Data\Validator\ValueFactory  $validatorFactory
-     * @param \Magento\Store\Model\StoreManagerInterface          $storeManager
+     * @param \MageModule\Core\Model\Data\Validator\ResultFactory             $resultFactory
+     * @param \MageModule\Core\Model\Data\Validator\ValueFactory              $validatorFactory
+     * @param \Magento\Directory\Model\ResourceModel\Region\CollectionFactory $collectionFactory
      */
     public function __construct(
         \MageModule\Core\Model\Data\Validator\ResultFactory $resultFactory,
         \MageModule\Core\Model\Data\Validator\ValueFactory $validatorFactory,
-        \Magento\Store\Model\StoreManagerInterface $storeManager
+        \Magento\Directory\Model\ResourceModel\Region\CollectionFactory $collectionFactory
     ) {
-        $this->resultFactory    = $resultFactory;
-        $this->validatorFactory = $validatorFactory;
-        $this->storeManager     = $storeManager;
+        $this->resultFactory     = $resultFactory;
+        $this->validatorFactory  = $validatorFactory;
+        $this->collectionFactory = $collectionFactory;
     }
 
     /**
@@ -79,9 +79,9 @@ class StoreCode implements \MageModule\Core\Model\Data\ValidatorInterface
             $invalidData = $result->getInvalidData();
             $message     = null;
             if (count($invalidData) === 1) {
-                $message = sprintf('The following store code is invalid: %s', current($invalidData));
+                $message = sprintf('The following country ID is invalid: %s', current($invalidData));
             } elseif (count($invalidData) > 1) {
-                $message = sprintf('The following store codes are invalid: %s', implode(', ', $invalidData));
+                $message = sprintf('The following country IDs are invalid: %s', implode(', ', $invalidData));
             }
 
             $result = $this->resultFactory->create(
@@ -99,16 +99,17 @@ class StoreCode implements \MageModule\Core\Model\Data\ValidatorInterface
     /**
      * @return string[]
      */
-    private function getStoreCodes()
+    private function getRegionIds()
     {
-        if ($this->storeCodes === null) {
-            $this->storeCodes = [];
-            foreach ($this->storeManager->getStores(true) as $store) {
-                $this->storeCodes[] = $store->getCode();
+        if ($this->regionIds === null) {
+            $this->regionIds = [];
+            $collection      = $this->collectionFactory->create();
+            foreach ($collection as $object) {
+                $this->regionIds[] = $object->getCountryId();
             }
         }
 
-        return $this->storeCodes;
+        return $this->regionIds;
     }
 
     /**
@@ -118,7 +119,7 @@ class StoreCode implements \MageModule\Core\Model\Data\ValidatorInterface
     {
         if ($this->validator === null) {
             $this->validator = $this->validatorFactory->create(
-                ['validValues' => $this->getStoreCodes()]
+                ['validValues' => $this->getRegionIds()]
             );
         }
 

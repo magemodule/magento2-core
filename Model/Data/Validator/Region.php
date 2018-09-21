@@ -10,19 +10,19 @@
  *  the web, please send a note to admin@magemodule.com so that we can mail
  *  you a copy immediately.
  *
- * @author         MageModule admin@magemodule.com
- * @copyright      2018 MageModule, LLC
- * @license        https://www.magemodule.com/end-user-license-agreement/
+ *  @author        MageModule admin@magemodule.com
+ *  @copyright    2018 MageModule, LLC
+ *  @license        https://www.magemodule.com/end-user-license-agreement/
  */
 
 namespace MageModule\Core\Model\Data\Validator;
 
 /**
- * Class RegionId
+ * Class Region
  *
  * @package MageModule\Core\Model\Data\Validator
  */
-class RegionId implements \MageModule\Core\Model\Data\ValidatorInterface
+class Region implements \MageModule\Core\Model\Data\ValidatorInterface
 {
     /**
      * @var \MageModule\Core\Model\Data\Validator\ResultFactory
@@ -47,7 +47,7 @@ class RegionId implements \MageModule\Core\Model\Data\ValidatorInterface
     /**
      * @var string[]
      */
-    private $regionIds;
+    private $regions;
 
     /**
      * RegionId constructor.
@@ -79,9 +79,9 @@ class RegionId implements \MageModule\Core\Model\Data\ValidatorInterface
             $invalidData = $result->getInvalidData();
             $message     = null;
             if (count($invalidData) === 1) {
-                $message = sprintf('The following region ID is invalid: %s', current($invalidData));
+                $message = sprintf('The following region is invalid: %s', current($invalidData));
             } elseif (count($invalidData) > 1) {
-                $message = sprintf('The following region IDs are invalid: %s', implode(', ', $invalidData));
+                $message = sprintf('The following regions are invalid: %s', implode(', ', $invalidData));
             }
 
             $result = $this->resultFactory->create(
@@ -99,19 +99,19 @@ class RegionId implements \MageModule\Core\Model\Data\ValidatorInterface
     /**
      * @return string[]
      */
-    private function getRegionIds()
+    private function getRegions()
     {
-        if ($this->regionIds === null) {
-            $this->regionIds = [];
-            $collection      = $this->collectionFactory->create();
+        if ($this->regions === null) {
+            $this->regions = [];
+            $collection    = $this->collectionFactory->create();
 
             /** @var \Magento\Directory\Model\Region $object */
             foreach ($collection as $object) {
-                $this->regionIds[] = $object->getRegionId();
+                $this->regions[] = $object->getName();
             }
         }
 
-        return $this->regionIds;
+        return $this->regions;
     }
 
     /**
@@ -121,7 +121,7 @@ class RegionId implements \MageModule\Core\Model\Data\ValidatorInterface
     {
         if ($this->validator === null) {
             $this->validator = $this->validatorFactory->create(
-                ['validValues' => $this->getRegionIds()]
+                ['validValues' => $this->getRegions()]
             );
         }
 

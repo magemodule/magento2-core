@@ -17,12 +17,17 @@
 
 namespace MageModule\Core\Model\Data;
 
+/**
+ * Interface ValidatorInterface
+ *
+ * @package MageModule\Core\Model\Data
+ */
 interface ValidatorInterface
 {
     /**
      * @param array $data
      *
-     * @return bool|array
+     * @return \MageModule\Core\Model\Data\Validator\ResultInterface
      */
     public function validate(array $data);
 }

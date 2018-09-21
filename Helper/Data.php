@@ -17,6 +17,11 @@
 
 namespace MageModule\Core\Helper;
 
+/**
+ * Class Data
+ *
+ * @package MageModule\Core\Helper
+ */
 class Data extends \Magento\Framework\App\Helper\AbstractHelper
 {
     /**

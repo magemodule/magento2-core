@@ -29,6 +29,11 @@ use Magento\Framework\Filesystem\Io\FileFactory;
 use Magento\Framework\Model\AbstractModel;
 use Magento\Framework\Model\ResourceModel\Db\Context;
 
+/**
+ * Class MediaGallery
+ *
+ * @package MageModule\Core\Model\ResourceModel
+ */
 class MediaGallery extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
 {
     /**

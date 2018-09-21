@@ -17,6 +17,11 @@
 
 namespace MageModule\Core\Model\Data\Validator;
 
+/**
+ * Class Result
+ *
+ * @package MageModule\Core\Model\Data\Validator
+ */
 class Result implements \MageModule\Core\Model\Data\Validator\ResultInterface
 {
     /**

@@ -17,6 +17,11 @@
 
 namespace MageModule\Core\Model\Data\Validator;
 
+/**
+ * Interface ResultInterface
+ *
+ * @package MageModule\Core\Model\Data\Validator
+ */
 interface ResultInterface
 {
     /**

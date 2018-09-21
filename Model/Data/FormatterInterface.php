@@ -17,6 +17,11 @@
 
 namespace MageModule\Core\Model\Data;
 
+/**
+ * Interface FormatterInterface
+ *
+ * @package MageModule\Core\Model\Data
+ */
 interface FormatterInterface
 {
     /**

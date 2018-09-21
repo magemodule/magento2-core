@@ -17,6 +17,11 @@
 
 namespace MageModule\Core\Model\Data;
 
+/**
+ * Interface SanitizerInterface
+ *
+ * @package MageModule\Core\Model\Data
+ */
 interface SanitizerInterface
 {
     /**

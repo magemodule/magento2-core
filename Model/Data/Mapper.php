@@ -18,6 +18,11 @@
 
 namespace MageModule\Core\Model\Data;
 
+/**
+ * Class Mapper
+ *
+ * @package MageModule\Core\Model\Data
+ */
 class Mapper
 {
     /**

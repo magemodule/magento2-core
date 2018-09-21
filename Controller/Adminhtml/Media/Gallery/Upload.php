@@ -28,6 +28,11 @@ use Magento\Framework\App\Filesystem\DirectoryList;
 use Magento\Framework\Filesystem;
 use Magento\Framework\Filesystem\Directory\Read;
 
+/**
+ * Class Upload
+ *
+ * @package MageModule\Core\Controller\Adminhtml\Media\Gallery
+ */
 class Upload extends \Magento\Backend\App\Action
 {
     /**

@@ -20,6 +20,11 @@ namespace MageModule\Core\Model\ResourceModel\MediaGallery;
 use MageModule\Core\Api\Data\MediaGalleryInterface;
 use Magento\Store\Model\Store;
 
+/**
+ * Class Collection
+ *
+ * @package MageModule\Core\Model\ResourceModel\MediaGallery
+ */
 class Collection extends \Magento\Framework\Model\ResourceModel\Db\Collection\AbstractCollection
 {
     /**
@@ -43,6 +48,10 @@ class Collection extends \Magento\Framework\Model\ResourceModel\Db\Collection\Ab
         );
     }
 
+    /**
+     * @return $this|\Magento\Framework\Model\ResourceModel\Db\Collection\AbstractCollection
+     * @throws \Zend_Db_Select_Exception
+     */
     protected function _beforeLoad()
     {
         parent::_beforeLoad();

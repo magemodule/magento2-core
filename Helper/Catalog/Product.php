@@ -9,15 +9,22 @@
  *  the web, please send a note to admin@magemodule.com so that we can mail
  *  you a copy immediately.
  *
- *  @author        MageModule admin@magemodule.com
- *  @copyright    2018 MageModule, LLC
- *  @license        https://www.magemodule.com/end-user-license-agreement/
- */ /** @noinspection PhpCSValidationInspection */
+ * @author         MageModule admin@magemodule.com
+ * @copyright      2018 MageModule, LLC
+ * @license        https://www.magemodule.com/end-user-license-agreement/
+ */
+
+/** @noinspection PhpCSValidationInspection */
 
 namespace MageModule\Core\Helper\Catalog;
 
 use Magento\Catalog\Api\Data\ProductInterface;
 
+/**
+ * Class Product
+ *
+ * @package MageModule\Core\Helper\Catalog
+ */
 class Product extends \Magento\Framework\App\Helper\AbstractHelper
 {
     /**

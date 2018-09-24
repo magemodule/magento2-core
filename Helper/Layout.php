@@ -17,6 +17,11 @@
 
 namespace MageModule\Core\Helper;
 
+/**
+ * Class Layout
+ *
+ * @package MageModule\Core\Helper
+ */
 class Layout extends \Magento\Framework\App\Helper\AbstractHelper
 {
     /**

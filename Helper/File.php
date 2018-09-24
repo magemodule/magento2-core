@@ -17,6 +17,11 @@
 
 namespace MageModule\Core\Helper;
 
+/**
+ * Class File
+ *
+ * @package MageModule\Core\Helper
+ */
 class File extends \Magento\Framework\App\Helper\AbstractHelper
 {
     /**

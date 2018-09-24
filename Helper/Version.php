@@ -17,6 +17,11 @@
 
 namespace MageModule\Core\Helper;
 
+/**
+ * Class Version
+ *
+ * @package MageModule\Core\Helper
+ */
 class Version extends \Magento\Framework\App\Helper\AbstractHelper
 {
     /**

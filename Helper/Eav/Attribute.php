@@ -31,17 +31,35 @@ class Attribute extends \Magento\Framework\App\Helper\AbstractHelper
     private $resource;
 
     /**
+     * @var \Magento\Eav\Model\ResourceModel\Entity\Attribute\CollectionFactory
+     */
+    private $collectionFactory;
+
+    /**
+     * @var array
+     */
+    private $selectAttributeCodes;
+
+    /**
+     * @var array
+     */
+    private $multiselectAttributeCodes;
+
+    /**
      * Attribute constructor.
      *
-     * @param \Magento\Framework\App\Helper\Context     $context
-     * @param \Magento\Framework\App\ResourceConnection $resource
+     * @param \Magento\Framework\App\Helper\Context                        $context
+     * @param \Magento\Framework\App\ResourceConnection                    $resource
+     * @param \Magento\Eav\Model\ResourceModel\Entity\Attribute\CollectionFactory $collectionFactory
      */
     public function __construct(
         \Magento\Framework\App\Helper\Context $context,
-        \Magento\Framework\App\ResourceConnection $resource
+        \Magento\Framework\App\ResourceConnection $resource,
+        \Magento\Eav\Model\ResourceModel\Entity\Attribute\CollectionFactory $collectionFactory
     ) {
         parent::__construct($context);
         $this->resource = $resource;
+        $this->collectionFactory = $collectionFactory;
     }
 
     /**
@@ -72,5 +90,59 @@ class Attribute extends \Magento\Framework\App\Helper\AbstractHelper
         }
 
         return $result;
+    }
+
+    /**
+     * @param string|null $entityTypeCode
+     *
+     * @return array
+     */
+    public function getSelectAttributeCodes($entityTypeCode = null)
+    {
+        if ($this->selectAttributeCodes === null) {
+            /** @var \Magento\Eav\Model\ResourceModel\Attribute\Collection $collection */
+            $collection = $this->collectionFactory->create();
+            $collection->addFieldToFilter('frontend_input', 'select');
+            $collection->join(
+                ['eav_entity_type_table' => $collection->getTable('eav_entity_type')],
+                'main_table.entity_type_id = eav_entity_type_table.entity_type_id',
+                'entity_type_id'
+            );
+
+            if ($entityTypeCode) {
+                $collection->addFieldToFilter('eav_entity_type_table.entity_type_code', $entityTypeCode);
+            }
+
+            $this->selectAttributeCodes = $collection->getColumnValues('attribute_code');
+        }
+
+        return $this->selectAttributeCodes;
+    }
+
+    /**
+     * @param string|null $entityTypeCode
+     *
+     * @return array
+     */
+    public function getMultiselectAttributeCodes($entityTypeCode = null)
+    {
+        if ($this->multiselectAttributeCodes === null) {
+            /** @var \Magento\Eav\Model\ResourceModel\Attribute\Collection $collection */
+            $collection = $this->collectionFactory->create();
+            $collection->addFieldToFilter('frontend_input', 'multiselect');
+            $collection->join(
+                ['eav_entity_type_table' => $collection->getTable('eav_entity_type')],
+                'main_table.entity_type_id = eav_entity_type_table.entity_type_id',
+                'entity_type_id'
+            );
+
+            if ($entityTypeCode) {
+                $collection->addFieldToFilter('eav_entity_type_table.entity_type_code', $entityTypeCode);
+            }
+
+            $this->multiselectAttributeCodes = $collection->getColumnValues('attribute_code');
+        }
+
+        return $this->multiselectAttributeCodes;
     }
 }

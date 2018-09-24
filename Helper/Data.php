@@ -10,9 +10,9 @@
  *  the web, please send a note to admin@magemodule.com so that we can mail
  *  you a copy immediately.
  *
- *  @author        MageModule admin@magemodule.com
- *  @copyright    2018 MageModule, LLC
- *  @license        https://www.magemodule.com/end-user-license-agreement/
+ * @author         MageModule admin@magemodule.com
+ * @copyright      2018 MageModule, LLC
+ * @license        https://www.magemodule.com/end-user-license-agreement/
  */
 
 namespace MageModule\Core\Helper;
@@ -65,9 +65,10 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
      */
     public function removeTrue(array &$array)
     {
-        $array = array_filter($array, function ($value) {
-            return $value !== true;
-        });
+        $array = array_filter($array,
+            function ($value) {
+                return $value !== true;
+            });
     }
 
     /**
@@ -77,9 +78,10 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
      */
     public function removeFalse(array &$array)
     {
-        $array = array_filter($array, function ($value) {
-            return $value !== false;
-        });
+        $array = array_filter($array,
+            function ($value) {
+                return $value !== false;
+            });
     }
 
     /**
@@ -225,7 +227,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     {
         $modifier = $caseSensitive ? null : 'i';
 
-        return (bool)preg_match('/^'. preg_quote($needle) .'/' . $modifier, $haystack);
+        return (bool)preg_match('/^' . preg_quote($needle) . '/' . $modifier, $haystack);
     }
 
     /**
@@ -239,6 +241,19 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     {
         $modifier = $caseSensitive ? null : 'i';
 
-        return (bool)preg_match('/'. preg_quote($needle) .'$/' . $modifier, $haystack);
+        return (bool)preg_match('/' . preg_quote($needle) . '$/' . $modifier, $haystack);
+    }
+
+    /**
+     * @param string|array $string
+     * @param bool         $keepSpaces
+     *
+     * @return null|string|string[]
+     */
+    public function removeNonAlphaNumericChars($string, $keepSpaces = false)
+    {
+        $pattern = $keepSpaces ? '/[^\da-z0-9 ]/i' : '/[^\da-z0-9]/i';
+
+        return preg_replace($pattern, '', $string);
     }
 }

@@ -22,6 +22,11 @@ use Magento\Framework\Exception\CouldNotSaveException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Exception\CouldNotDeleteException;
 
+/**
+ * Class MediaGalleryRepository
+ *
+ * @package MageModule\Core\Model
+ */
 class MediaGalleryRepository implements \MageModule\Core\Api\MediaGalleryRepositoryInterface
 {
     /**

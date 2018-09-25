@@ -19,6 +19,11 @@ namespace MageModule\Core\Model;
 
 use Magento\Framework\Exception\NoSuchEntityException;
 
+/**
+ * Interface MediaGalleryConfigInterface
+ *
+ * @package MageModule\Core\Model
+ */
 interface MediaGalleryConfigInterface
 {
     /**

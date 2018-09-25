@@ -322,7 +322,7 @@ class MediaGallery extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
      *
      * @return string
      */
-    private function getAttributeCodeById($id)
+    protected function getAttributeCodeById($id)
     {
         $connection = $this->getConnection();
         $select     = $connection->select();

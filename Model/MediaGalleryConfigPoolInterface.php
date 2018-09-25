@@ -17,6 +17,11 @@
 
 namespace MageModule\Core\Model;
 
+/**
+ * Interface MediaGalleryConfigPoolInterface
+ *
+ * @package MageModule\Core\Model
+ */
 interface MediaGalleryConfigPoolInterface
 {
     /**

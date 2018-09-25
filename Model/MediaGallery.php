@@ -17,6 +17,11 @@
 
 namespace MageModule\Core\Model;
 
+/**
+ * Class MediaGallery
+ *
+ * @package MageModule\Core\Model
+ */
 class MediaGallery extends \Magento\Framework\Model\AbstractModel implements
     \MageModule\Core\Api\Data\MediaGalleryInterface
 {

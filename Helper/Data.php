@@ -59,6 +59,19 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     }
 
     /**
+     * @param string|array $string
+     * @param bool         $keepSpaces
+     *
+     * @return null|string|string[]
+     */
+    public function removeNonAlphaNumericChars($string, $keepSpaces = false)
+    {
+        $pattern = $keepSpaces ? '/[^\da-z0-9 ]/i' : '/[^\da-z0-9]/i';
+
+        return preg_replace($pattern, '', $string);
+    }
+
+    /**
      * Removes all boolean true values
      *
      * @param array $array
@@ -245,15 +258,25 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     }
 
     /**
-     * @param string|array $string
-     * @param bool         $keepSpaces
+     * Similar to PHP's native 'empty' but 0 is not considered an empty value
      *
-     * @return null|string|string[]
+     * @param string|int|float|bool|null|array $value
+     *
+     * @return bool
      */
-    public function removeNonAlphaNumericChars($string, $keepSpaces = false)
+    public function isEmpty($value)
     {
-        $pattern = $keepSpaces ? '/[^\da-z0-9 ]/i' : '/[^\da-z0-9]/i';
+        return ($value === null || $value === false || $value === '') ||
+        (is_array($value) && empty($value));
+    }
 
-        return preg_replace($pattern, '', $string);
+    /**
+     * @param string|int|float|bool|null|array $value
+     *
+     * @return bool
+     */
+    public function isNotEmpty($value)
+    {
+        return !$this->isEmpty($value);
     }
 }

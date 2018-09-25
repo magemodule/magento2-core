@@ -60,10 +60,8 @@ class Value implements \MageModule\Core\Model\Data\ValidatorInterface
         $message       = null;
         $invalidValues = [];
         foreach ($data as $key => $value) {
-            if (!is_object($value) && !is_array($value)) {
-                if (!in_array($value, $this->validValues)) {
-                    $invalidValues[] = $value;
-                }
+            if (!is_object($value) && !is_array($value) && !in_array($value, $this->validValues)) {
+                $invalidValues[] = $value;
             }
         }
 

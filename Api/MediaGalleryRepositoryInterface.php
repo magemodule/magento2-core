@@ -53,6 +53,15 @@ interface MediaGalleryRepositoryInterface
     public function deleteById($id);
 
     /**
+     * @param int $entityId
+     *
+     * @return bool
+     * @throws \Magento\Framework\Exception\CouldNotDeleteException
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     */
+    public function deleteByEntityId($entityId);
+
+    /**
      * @param \Magento\Framework\Api\SearchCriteriaInterface $criteria
      *
      * @return \Magento\Framework\Api\SearchResultsInterface

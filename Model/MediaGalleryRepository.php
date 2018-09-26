@@ -143,6 +143,24 @@ class MediaGalleryRepository implements \MageModule\Core\Api\MediaGalleryReposit
     }
 
     /**
+     * @param int $entityId
+     *
+     * @return bool
+     * @throws \Magento\Framework\Exception\CouldNotDeleteException
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     * @throws \Magento\Framework\Exception\LocalizedException
+     */
+    public function deleteByEntityId($entityId)
+    {
+        $ids = $this->resource->getAllIdsByEntityId($entityId);
+        foreach ($ids as $id) {
+            $this->deleteById($id);
+        }
+
+        return true;
+    }
+
+    /**
      * @param \Magento\Framework\Api\SearchCriteriaInterface $criteria
      *
      * @return \Magento\Framework\Api\SearchResultsInterface

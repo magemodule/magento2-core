@@ -331,4 +331,20 @@ class MediaGallery extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
 
         return $connection->fetchOne($select);
     }
+
+    /**
+     * @param int $entityId
+     *
+     * @return array
+     * @throws \Magento\Framework\Exception\LocalizedException
+     */
+    public function getAllIdsByEntityId($entityId)
+    {
+        $connection = $this->getConnection();
+        $select = $connection->select();
+        $select->from($this->getMainTable(), MediaGalleryInterface::VALUE_ID);
+        $select->where(MediaGalleryInterface::ENTITY_ID . '= ?', $entityId);
+
+        return $connection->fetchCol($select);
+    }
 }

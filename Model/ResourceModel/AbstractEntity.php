@@ -1,4 +1,5 @@
-<?php /**
+<?php
+/**
  * Copyright (c) 2018 MageModule, LLC: All rights reserved
  *
  * LICENSE: This source file is subject to our standard End User License
@@ -9,10 +10,12 @@
  *  the web, please send a note to admin@magemodule.com so that we can mail
  *  you a copy immediately.
  *
- *  @author        MageModule admin@magemodule.com
- *  @copyright    2018 MageModule, LLC
- *  @license        https://www.magemodule.com/end-user-license-agreement/
- */ /** @noinspection MessDetectorValidationInspection */
+ * @author         MageModule admin@magemodule.com
+ * @copyright      2018 MageModule, LLC
+ * @license        https://www.magemodule.com/end-user-license-agreement/
+ */
+
+/** @noinspection MessDetectorValidationInspection */
 
 namespace MageModule\Core\Model\ResourceModel;
 
@@ -23,7 +26,13 @@ use Magento\Eav\Model\Entity\Attribute\AbstractAttribute;
 use Magento\Framework\DataObject;
 use Magento\Framework\Model\AbstractModel;
 use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Framework\Exception\LocalizedException;
 
+/**
+ * Class AbstractEntity
+ *
+ * @package MageModule\Core\Model\ResourceModel
+ */
 abstract class AbstractEntity extends \Magento\Eav\Model\Entity\AbstractEntity
 {
     /**
@@ -99,8 +108,8 @@ abstract class AbstractEntity extends \Magento\Eav\Model\Entity\AbstractEntity
 
     /**
      * @param array                     &$delete
-     * @param AbstractAttribute         $attribute
-     * @param AbstractEntity|DataObject $object
+     * @param AbstractAttribute          $attribute
+     * @param AbstractEntity|DataObject  $object
      *
      * @return void
      *
@@ -528,5 +537,21 @@ abstract class AbstractEntity extends \Magento\Eav\Model\Entity\AbstractEntity
         $this->_afterLoad($object);
 
         return $this;
+    }
+
+    /**
+     * @return string
+     * @throws LocalizedException
+     */
+    public function getDefaultAttributeSetId()
+    {
+        $connection = $this->getConnection();
+        $select     = $connection->select()->from(
+            $this->getTable('eav_entity_type'),
+            'default_attribute_set_id'
+        );
+        $select->where('entity_type_code = ?', $this->getEntityType()->getEntityTypeCode());
+
+        return $connection->fetchOne($select);
     }
 }

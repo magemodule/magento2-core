@@ -33,6 +33,11 @@ use Magento\UrlRewrite\Service\V1\Data\UrlRewrite;
 use Magento\UrlRewrite\Service\V1\Data\UrlRewriteFactory;
 use Magento\UrlRewrite\Model\Exception\UrlAlreadyExistsException;
 
+/**
+ * Class UrlRewriteGenerator
+ *
+ * @package MageModule\Core\Model\ResourceModel\Entity
+ */
 class UrlRewriteGenerator
 {
     /**

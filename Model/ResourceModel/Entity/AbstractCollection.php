@@ -16,6 +16,11 @@
 
 namespace MageModule\Core\Model\ResourceModel\Entity;
 
+/**
+ * Class AbstractCollection
+ *
+ * @package MageModule\Core\Model\ResourceModel\Entity
+ */
 abstract class AbstractCollection extends \Magento\Eav\Model\Entity\Collection\AbstractCollection
 {
     /**

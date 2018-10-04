@@ -34,7 +34,6 @@ define([
         initialize: function () {
             this._super();
 
-            console.log(this.allowImport);
             if (this.allowImport) {
                 this.setHandlers();
             }
@@ -80,8 +79,6 @@ define([
             }
 
             _.each(this.values, function (propertyValue, propertyName) {
-                console.log('{{' + propertyName + '}}');
-                console.log(propertyValue);
                 string = string.replace('{{' + propertyName + '}}', propertyValue);
                 nonEmptyValueFlag = nonEmptyValueFlag || !!propertyValue;
             });

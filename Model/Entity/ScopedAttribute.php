@@ -17,6 +17,11 @@
 
 namespace MageModule\Core\Model\Entity;
 
+/**
+ * Class ScopedAttribute
+ *
+ * @package MageModule\Core\Model\Entity
+ */
 class ScopedAttribute extends \MageModule\Core\Model\Entity\Attribute implements
     \MageModule\Core\Api\Data\ScopedAttributeInterface,
     \Magento\Eav\Model\Entity\Attribute\ScopedAttributeInterface

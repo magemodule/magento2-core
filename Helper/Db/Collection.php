@@ -17,6 +17,11 @@
 
 namespace MageModule\Core\Helper\Db;
 
+/**
+ * Class Collection
+ *
+ * @package MageModule\Core\Helper\Db
+ */
 class Collection extends \Magento\Framework\App\Helper\AbstractHelper
 {
     /**

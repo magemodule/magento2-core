@@ -13,19 +13,19 @@ define([
             allIds: []
         },
         selectAll: function() {
-            var __self = this;
-            __self._super();
-            __self.allIds.forEach(function(value) {
-                __self.selected.push(value);
+            var $self = this;
+            $self._super();
+            $self.allIds.forEach(function(value) {
+                $self.selected.push(value);
             });
 
             return this;
         },
         deselectAll: function() {
-            var __self = this;
-            __self._super();
-            __self.allIds.forEach(function(value) {
-                __self.excluded.push(value);
+            var $self = this;
+            $self._super();
+            $self.allIds.forEach(function(value) {
+                $self.excluded.push(value);
             });
 
             return this;

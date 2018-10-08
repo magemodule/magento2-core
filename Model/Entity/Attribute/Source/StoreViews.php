@@ -17,6 +17,11 @@
 
 namespace MageModule\Core\Model\Entity\Attribute\Source;
 
+/**
+ * Class StoreViews
+ *
+ * @package MageModule\Core\Model\Entity\Attribute\Source
+ */
 class StoreViews extends \Magento\Eav\Model\Entity\Attribute\Source\AbstractSource
 {
     /**

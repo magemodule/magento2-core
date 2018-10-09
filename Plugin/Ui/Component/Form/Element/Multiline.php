@@ -17,6 +17,11 @@
 
 namespace MageModule\Core\Plugin\Ui\Component\Form\Element;
 
+/**
+ * Class Multiline
+ *
+ * @package MageModule\Core\Plugin\Ui\Component\Form\Element
+ */
 class Multiline
 {
     /**

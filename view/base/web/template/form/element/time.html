@@ -1,0 +1,11 @@
+<input class="admin__control-text" type="text" data-bind="
+    hasFocus: focused,
+    datepicker: { storage: shiftedValue, options: options },
+    valueUpdate: valueUpdate,
+    attr: {
+        value: formatValue(shiftedValue),
+        name: inputName,
+        placeholder: placeholder,
+        'aria-describedby': noticeId,
+        disabled: disabled
+    }" />

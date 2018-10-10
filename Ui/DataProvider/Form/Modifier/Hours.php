@@ -1,0 +1,179 @@
+<?php
+
+namespace MageModule\Core\Ui\DataProvider\Form\Modifier;
+
+use Magento\Framework\Stdlib\ArrayManager;
+
+/**
+ * Class Hours
+ *
+ * @package MageModule\Core\Ui\DataProvider\Form\Modifier
+ */
+class Hours implements \Magento\Ui\DataProvider\Modifier\ModifierInterface
+{
+    /**
+     * @var ArrayManager
+     */
+    private $arrayManager;
+
+    /**
+     * @var string
+     */
+    private $scope;
+
+    /**
+     * @var string
+     */
+    private $field;
+
+    /**
+     * @var array
+     */
+    private $days = [
+        'sunday',
+        'monday',
+        'tuesday',
+        'wednesday',
+        'thursday',
+        'friday',
+        'saturday'
+    ];
+
+    /**
+     * Hours constructor.
+     *
+     * @param ArrayManager $arrayManager
+     * @param string       $scope - the parent data scope
+     * @param string       $field - the attribute code of the field
+     */
+    public function __construct(
+        ArrayManager $arrayManager,
+        $scope,
+        $field
+    ) {
+        $this->arrayManager = $arrayManager;
+        $this->scope        = $scope;
+        $this->field        = $field;
+    }
+
+    /**
+     * @param array $meta
+     *
+     * @return array
+     */
+    public function modifyMeta(array $meta)
+    {
+        $path = $this->arrayManager->findPath($this->field, $meta);
+        if ($path) {
+            $field = &$meta['general']['children']['container_' . $this->field]['children'][$this->field];
+
+            $field['arguments']['data']['config'] = [
+                'label'         => __('Hours'),
+                'componentType' => \Magento\Ui\Component\DynamicRows::NAME,
+                'columnsHeader' => true,
+                'addButton'     => false,
+                'dndConfig'     => [
+                    'enabled' => false
+                ]
+            ];
+
+            $record = &$field['children']['record'];
+
+            $record['arguments']['data']['config'] = [
+                'componentType' => \Magento\Ui\Component\Container::NAME,
+                'isTemplate'    => true,
+                'is_collection' => false
+            ];
+
+            $record['children']['day']['arguments']['data']['config'] = [
+                'componentType' => \Magento\Ui\Component\Form\Field::NAME,
+                'component'     => 'Magento_Ui/js/form/element/text',
+                'elementTmpl'   => 'ui/dynamic-rows/cells/text',
+                'formElement'   => \Magento\Ui\Component\Form\Element\Input::NAME,
+                'dataType'      => \Magento\Ui\Component\Form\Element\DataType\Text::NAME,
+                'dataScope'     => 'day',
+                'sortOrder'     => 1
+            ];
+
+            $record['children']['open']['arguments']['data']['config'] = [
+                'label'         => __('Open'),
+                'componentType' => \Magento\Ui\Component\Form\Field::NAME,
+                'component'     => 'MageModule_Core/js/form/element/time',
+                'elementTmpl'   => 'MageModule_Core/form/element/time',
+                'formElement'   => 'date',
+                'dataType'      => \Magento\Ui\Component\Form\Element\DataType\Date::NAME,
+                'dataScope'     => 'open',
+                'sortOrder'     => 10,
+                'options'       => [
+                    'stepMinute' => 5
+                ],
+                'imports'       => [
+                    'disabled' => '${ $.parentName }.closed:checked'
+                ]
+            ];
+
+            $record['children']['close']['arguments']['data']['config'] = [
+                'label'         => __('Close'),
+                'componentType' => \Magento\Ui\Component\Form\Field::NAME,
+                'component'     => 'MageModule_Core/js/form/element/time',
+                'elementTmpl'   => 'MageModule_Core/form/element/time',
+                'formElement'   => 'date',
+                'dataType'      => \Magento\Ui\Component\Form\Element\DataType\Date::NAME,
+                'dataScope'     => 'close',
+                'sortOrder'     => 20,
+                'stepMinute'    => 5,
+                'options'       => [
+                    'stepMinute' => 5
+                ],
+                'imports'       => [
+                    'disabled' => '${ $.parentName }.closed:checked'
+                ]
+            ];
+
+            $record['children']['closed']['arguments']['data']['config'] = [
+                'label'         => __('Closed'),
+                'componentType' => \Magento\Ui\Component\Form\Field::NAME,
+                'formElement'   => \Magento\Ui\Component\Form\Element\Checkbox::NAME,
+                'dataType'      => \Magento\Ui\Component\Form\Element\DataType\Number::NAME,
+                'dataScope'     => 'closed',
+                'sortOrder'     => 30,
+                'value'         => '1',
+                'valueMap'      => [
+                    'true'  => '1',
+                    'false' => '0',
+                ],
+            ];
+        }
+
+        return $meta;
+    }
+
+    /**
+     * @param array $data
+     *
+     * @return array
+     */
+    public function modifyData(array $data)
+    {
+        $field = &$data[key($data)][$this->scope][$this->field];
+        foreach ($this->days as $key => $day) {
+            if (!isset($field[$key])) {
+                $field[$key] = ['day' => __(ucfirst($day)), 'open' => null, 'close' => null, 'closed' => '0'];
+            }
+        }
+
+        //puts the date in front of the time to satisfy the datepicker upon initialization
+        $stub = '1-29-2018 ';
+        foreach ($data[key($data)][$this->scope][$this->field] as &$day) {
+            if (isset($day['open']) && $day['open'] !== '' && strpos($day['open'], $stub) === false) {
+                $day['open'] = $stub . $day['open'];
+            }
+
+            if (isset($day['close']) && $day['close'] !== '' && strpos($day['close'], $stub) === false) {
+                $day['close'] = $stub . $day['close'];
+            }
+        }
+
+        return $data;
+    }
+}

@@ -105,6 +105,8 @@ class Hours implements \Magento\Ui\DataProvider\Modifier\ModifierInterface
                 'dataScope'     => 'open',
                 'sortOrder'     => 10,
                 'options'       => [
+                    'timeFormat' => 'h:mm TT',
+                    'timezone'   => 'Etc/GMT',
                     'stepMinute' => 5
                 ],
                 'imports'       => [
@@ -123,6 +125,8 @@ class Hours implements \Magento\Ui\DataProvider\Modifier\ModifierInterface
                 'sortOrder'     => 20,
                 'stepMinute'    => 5,
                 'options'       => [
+                    'timeFormat' => 'h:mm TT',
+                    'timezone'   => 'Etc/GMT',
                     'stepMinute' => 5
                 ],
                 'imports'       => [
@@ -159,18 +163,6 @@ class Hours implements \Magento\Ui\DataProvider\Modifier\ModifierInterface
         foreach ($this->days as $key => $day) {
             if (!isset($field[$key])) {
                 $field[$key] = ['day' => __(ucfirst($day)), 'open' => null, 'close' => null, 'closed' => '0'];
-            }
-        }
-
-        //puts the date in front of the time to satisfy the datepicker upon initialization
-        $stub = '1-29-2018 ';
-        foreach ($data[key($data)][$this->scope][$this->field] as &$day) {
-            if (isset($day['open']) && $day['open'] !== '' && strpos($day['open'], $stub) === false) {
-                $day['open'] = $stub . $day['open'];
-            }
-
-            if (isset($day['close']) && $day['close'] !== '' && strpos($day['close'], $stub) === false) {
-                $day['close'] = $stub . $day['close'];
             }
         }
 

@@ -18,42 +18,26 @@
  * @api
  */
 define([
-    'Magento_Ui/js/form/element/date',
-    'moment',
-    'mage/translate'
-], function(Component, moment, $t) {
+    'Magento_Ui/js/form/element/abstract',
+    'mage/translate',
+    'jquery',
+    'jquery/ui'
+], function(Component, $t, $) {
     'use strict';
 
-    /**
-     * this component allows us to skip time validation and accepts our time as entered.
-     * we use 'storeTimeZone' => 'Etc/GMT' because we want the users value to be accepted without tz conversion
-     */
     return Component.extend({
-        initialize: function() {
-            this._super();
-            this.options.showsDate = false;
-            this.options.showsTime = true;
-            this.options.timeOnly = true;
-            this.options.currentText = $t('Now');
-            this.outputDateTimeToISO = false;
-
-            return this;
+        options: {},
+        timepicker: null,
+        initTimepicker: function(element) {
+            this.timepicker = $(element).timepicker(this.options);
+            this.timepicker.next('.ui-datepicker-trigger')
+                .addClass('v-middle')
+                .text('');
         },
-        onValueChange: function(value) {
-            this.shiftedValue(value);
-        },
-        onShiftedValueChange: function(shiftedValue) {
-            this.value(shiftedValue);
-        },
-        formatValue(value) {
-            var parts = value().split(" ");
-            if (parts.length === 3) {
-                parts.shift();
-
-                return parts.join(" ");
+        openTimepicker: function() {
+            if (this.timepicker) {
+                this.timepicker.timepicker('show');
             }
-
-            return value;
         }
     });
 });

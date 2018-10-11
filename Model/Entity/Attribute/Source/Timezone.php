@@ -10,12 +10,14 @@
  *  the web, please send a note to admin@magemodule.com so that we can mail
  *  you a copy immediately.
  *
- *  @author        MageModule admin@magemodule.com
- *  @copyright    2018 MageModule, LLC
- *  @license        https://www.magemodule.com/magento2-ext-license.html
+ * @author         MageModule admin@magemodule.com
+ * @copyright      2018 MageModule, LLC
+ * @license        https://www.magemodule.com/magento2-ext-license.html
  */
 
 namespace MageModule\Core\Model\Entity\Attribute\Source;
+
+use Magento\Config\Model\Config\Source\Locale\Timezone as ConfigSource;
 
 /**
  * Class Timezone
@@ -24,8 +26,48 @@ namespace MageModule\Core\Model\Entity\Attribute\Source;
  */
 class Timezone extends \Magento\Eav\Model\Entity\Attribute\Source\AbstractSource
 {
+    /**
+     * @var ConfigSource
+     */
+    private $source;
+
+    /**
+     * Timezone constructor.
+     *
+     * @param ConfigSource $source
+     */
+    public function __construct(
+        ConfigSource $source
+    ) {
+        $this->source = $source;
+    }
+
+    /**
+     * @return array
+     */
     public function getAllOptions()
     {
-        // TODO: Implement getAllOptions() method.
+        if ($this->_options === null) {
+            $this->_options = [];
+
+            foreach ($this->source->toOptionArray() as $option) {
+                $this->_options[] = $option;
+            }
+        }
+
+        return $this->_options;
+    }
+
+    /**
+     * @return array
+     */
+    public function getOptionArray()
+    {
+        $_options = [];
+        foreach ($this->getAllOptions() as $option) {
+            $_options[$option['value']] = $option['label'];
+        }
+
+        return $_options;
     }
 }

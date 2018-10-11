@@ -73,7 +73,6 @@ class Timezone implements \MageModule\Core\Model\Data\ValidatorInterface
      */
     public function validate(array $data)
     {
-        $data   = array_map('strtolower', $data);
         $result = $this->getValidator()->validate($data);
 
         if (!$result->isValid()) {
@@ -107,7 +106,7 @@ class Timezone implements \MageModule\Core\Model\Data\ValidatorInterface
 
             foreach ($this->source->toOptionArray() as $item) {
                 if ($item['value']) {
-                    $this->timezones[] = strtolower($item['value']);
+                    $this->timezones[] = $item['value'];
                 }
             }
         }

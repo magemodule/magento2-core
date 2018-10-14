@@ -45,8 +45,8 @@ class Distance extends \Magento\Framework\App\Helper\AbstractHelper
      * @param float|string $latitude
      * @param float|string $longitude
      * @param string       $units
-     * @param string       $latitudeAttr
-     * @param string       $longitudeAttr
+     * @param string       $latitudeField
+     * @param string       $longitudeField
      *
      * @return string
      */
@@ -54,15 +54,25 @@ class Distance extends \Magento\Framework\App\Helper\AbstractHelper
         $latitude,
         $longitude,
         $units = self::FACTOR_KILOMETERS,
-        $latitudeAttr = self::DEFAULT_COL_LATITUDE,
-        $longitudeAttr = self::DEFAULT_COL_LONGITUDE
+        $latitudeField = self::DEFAULT_COL_LATITUDE,
+        $longitudeField = self::DEFAULT_COL_LONGITUDE
     ) {
         $sql = "({$this->getCalcFactor($units)} * DEGREES(ACOS(COS(RADIANS({$latitude})) ";
-        $sql .= "* COS(RADIANS({{{$latitudeAttr}}})) ";
-        $sql .= "* COS(RADIANS({$longitude}) - RADIANS({{{$longitudeAttr}}})) ";
+        $sql .= "* COS(RADIANS({$latitudeField})) ";
+        $sql .= "* COS(RADIANS({$longitude}) - RADIANS({$longitudeField})) ";
         $sql .= "+ SIN(RADIANS({$latitude})) ";
-        $sql .= "* SIN(RADIANS({{{$latitudeAttr}}})))))";
+        $sql .= "* SIN(RADIANS({$latitudeField})))))";
 
         return $sql;
+    }
+
+    /**
+     * @param string $units
+     *
+     * @return bool
+     */
+    public function validateUnits($units)
+    {
+        return in_array($units, [self::UNIT_KILOMETERS, self::UNIT_MILES]);
     }
 }

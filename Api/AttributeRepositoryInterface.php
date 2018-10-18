@@ -17,6 +17,11 @@
 
 namespace MageModule\Core\Api;
 
+/**
+ * Interface AttributeRepositoryInterface
+ *
+ * @package MageModule\Core\Api
+ */
 interface AttributeRepositoryInterface
 {
     /**

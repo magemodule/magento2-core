@@ -17,6 +17,11 @@
 
 namespace MageModule\Core\Model\Entity;
 
+/**
+ * Class AttributeRepository
+ *
+ * @package MageModule\Core\Model\Entity
+ */
 class AttributeRepository implements \MageModule\Core\Api\AttributeRepositoryInterface
 {
     /**

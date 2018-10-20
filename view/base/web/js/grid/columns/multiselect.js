@@ -1,7 +1,6 @@
 define([
-    'ko',
     'Magento_Ui/js/grid/columns/multiselect'
-], function (ko, Component) {
+], function (Component) {
     'use strict';
 
     /**
@@ -13,20 +12,18 @@ define([
             allIds: []
         },
         selectAll: function() {
-            var $self = this;
-            $self._super();
-            $self.allIds.forEach(function(value) {
-                $self.selected.push(value);
-            });
+            this._super();
+            this.allIds.forEach(function(value) {
+                this.selected.push(value);
+            }.bind(this));
 
             return this;
         },
         deselectAll: function() {
-            var $self = this;
-            $self._super();
-            $self.allIds.forEach(function(value) {
-                $self.excluded.push(value);
-            });
+            this._super();
+            this.allIds.forEach(function(value) {
+                this.excluded.push(value);
+            }.bind(this));
 
             return this;
         }

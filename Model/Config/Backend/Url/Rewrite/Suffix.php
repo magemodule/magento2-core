@@ -163,7 +163,6 @@ class Suffix extends \Magento\Framework\App\Config\Value
      */
     private function updateUrlRewrites()
     {
-        //TODO: END OF DEV: make sure that store locator group url_rewrites are being properly generated and 301 redirected
         $this->appConfig->clean();
 
         $attribute = $this->attributeRepository->get($this->urlKeyAttributeCode);

@@ -25,6 +25,11 @@ use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\UrlRewrite\Model\Exception\UrlAlreadyExistsException;
 
+/**
+ * Class InsertUrlRewriteValues
+ *
+ * @package MageModule\Core\Observer\Store\Add
+ */
 class InsertUrlRewriteValues implements \Magento\Framework\Event\ObserverInterface
 {
     /**
@@ -78,8 +83,6 @@ class InsertUrlRewriteValues implements \Magento\Framework\Event\ObserverInterfa
      */
     public function execute(Observer $observer)
     {
-        //TODO: END OF DEV: make sure that store locator group model url rewrites get properly inserted
-        //TODO: END OF DEV: make sure that this observer fires AFTER InsertWebsiteScopeValues observer
         $attribute = $this->attributeRepository->get($this->urlKeyAttributeCode);
 
         $attributeEntityTypeId  = (int)$attribute->getEntityTypeId();

@@ -65,7 +65,7 @@ class Hours implements \Magento\Ui\DataProvider\Modifier\ModifierInterface
     {
         $path = $this->arrayManager->findPath($this->field, $meta);
         if ($path) {
-            $field = &$meta['general']['children']['container_' . $this->field]['children'][$this->field];
+            $field = &$meta['additional-information']['children']['container_' . $this->field]['children'][$this->field];
 
             $field['arguments']['data']['config'] = [
                 'label'         => __('Hours'),

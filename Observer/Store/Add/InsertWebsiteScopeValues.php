@@ -68,8 +68,6 @@ class InsertWebsiteScopeValues implements \Magento\Framework\Event\ObserverInter
      */
     public function execute(Observer $observer)
     {
-        //TODO: END OF DEV: make sure that store locator group model website scope attributes get properly inserted
-        //TODO: END OF DEV: make sure that store locator store model website scope attributes get properly inserted
         $storeId = $observer->getEvent()->getStore()->getStoreId();
         if ($storeId) {
             /** @var SearchCriteriaInterface $searchCriteria */

@@ -177,25 +177,27 @@ $formName    = $block->getFormName();
                     </label>
                     <div class="admin__field-value" data-message="<?php echo __('{width}^{height} px') ?>"></div>
                 </div>
-                
-                <div class="admin__field field-image-hide">
-                    <div class="admin__field-control">
-                        <div class="admin__field admin__field-option">
-                            <input type="checkbox"
-                                   id="hide-from-page"
-                                   data-role="visibility-trigger"
-                                   data-form-part="<?php echo $formName ?>"
-                                   value="1"
-                                   class="admin__control-checkbox"
-                                   name="<?php echo $elementName ?>[<%- data.file_id %>][disabled]"
-                            <% if (data.disabled == 1) { %>checked="checked"<% } %> />
-                            
-                            <label for="hide-from-page" class="admin__field-label">
-                                <?php echo __('Hide from Page') ?>
-                            </label>
+
+                <?php if ($block->getData('show_hide_from_page_option')) : ?>
+                    <div class="admin__field field-image-hide">
+                        <div class="admin__field-control">
+                            <div class="admin__field admin__field-option">
+                                <input type="checkbox"
+                                       id="hide-from-page"
+                                       data-role="visibility-trigger"
+                                       data-form-part="<?php echo $formName ?>"
+                                       value="1"
+                                       class="admin__control-checkbox"
+                                       name="<?php echo $elementName ?>[<%- data.file_id %>][disabled]"
+                                <% if (data.disabled == 1) { %>checked="checked"<% } %> />
+
+                                <label for="hide-from-page" class="admin__field-label">
+                                    <?php echo __('Hide from Page') ?>
+                                </label>
+                            </div>
                         </div>
                     </div>
-                </div>
+                <?php endif; ?>
             </fieldset>
         </div>
     </script>

@@ -10,9 +10,9 @@
  *  the web, please send a note to admin@magemodule.com so that we can mail
  *  you a copy immediately.
  *
- *  @author        MageModule admin@magemodule.com
- *  @copyright    2018 MageModule, LLC
- *  @license        https://www.magemodule.com/end-user-license-agreement/
+ * @author         MageModule admin@magemodule.com
+ * @copyright      2018 MageModule, LLC
+ * @license        https://www.magemodule.com/end-user-license-agreement/
  */
 
 namespace MageModule\Core\Block\Adminhtml\Form\Edit\Button;
@@ -78,7 +78,7 @@ abstract class AbstractButton implements \Magento\Framework\View\Element\UiCompo
      * @param string|null            $registryKey
      * @param string|null            $label
      * @param string|null            $cssClass
-     * @param int|null               $sortOrder
+     * @param string|int|null        $sortOrder
      * @param string|null            $route
      * @param string|null            $aclResource
      */

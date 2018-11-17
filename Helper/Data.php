@@ -279,4 +279,18 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     {
         return !$this->isEmpty($value);
     }
+
+    /**
+     * @param string $phone
+     *
+     * @return string
+     */
+    public function preparePhoneNumberForLink($phone)
+    {
+        $parts = preg_split('/[^[:alnum:]]+/', $phone);
+        $parts = array_filter($parts, 'strlen');
+        $phone = implode('-', $parts);
+
+        return $phone;
+    }
 }

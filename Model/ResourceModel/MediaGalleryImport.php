@@ -10,9 +10,9 @@
  *  the web, please send a note to admin@magemodule.com so that we can mail
  *  you a copy immediately.
  *
- *  @author        MageModule admin@magemodule.com
- *  @copyright    2018 MageModule, LLC
- *  @license        https://www.magemodule.com/end-user-license-agreement/
+ * @author         MageModule admin@magemodule.com
+ * @copyright      2018 MageModule, LLC
+ * @license        https://www.magemodule.com/end-user-license-agreement/
  */
 
 namespace MageModule\Core\Model\ResourceModel;
@@ -113,8 +113,16 @@ class MediaGalleryImport extends MediaGallery
                     $this->getAttributeCodeById($object->getData(MediaGalleryInterface::ATTRIBUTE_ID))
                 );
 
-                $filename       = $this->helper->getBasename($relFilepath);
-                $dispersionPath = Uploader::getDispersionPath($filename);
+                $filename = $this->helper->getBasename($relFilepath);
+
+                if (method_exists(Uploader::class, 'getDispersionPath')) {
+                    $dispersionPath = Uploader::getDispersionPath($filename);
+                } elseif (method_exists(Uploader::class, 'getDispretionPath')) {
+                    $dispersionPath = Uploader::getDispretionPath($filename);
+                } else {
+                    // should never reach here but don't want a potentially undefined variable
+                    $dispersionPath = $filename;
+                }
 
                 $mediaDir    = $this->filesystem->getDirectoryRead(DirectoryList::MEDIA);
                 $tmpMediaDir = $mediaDir->getAbsolutePath($config->getTmpMediaPath($dispersionPath));

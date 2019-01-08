@@ -2,6 +2,11 @@
 
 namespace MageModule\Core\Ui\Component\Listing\Columns;
 
+/**
+ * Class AbstractActions
+ *
+ * @package MageModule\Core\Ui\Component\Listing\Columns
+ */
 abstract class AbstractActions extends \Magento\Ui\Component\Listing\Columns\Column
 {
     /**

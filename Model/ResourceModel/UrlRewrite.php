@@ -4,6 +4,11 @@ namespace MageModule\Core\Model\ResourceModel;
 
 use Magento\UrlRewrite\Service\V1\Data\UrlRewrite as UrlRewriteService;
 
+/**
+ * Class UrlRewrite
+ *
+ * @package MageModule\Core\Model\ResourceModel
+ */
 class UrlRewrite extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
 {
     /**

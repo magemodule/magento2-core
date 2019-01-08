@@ -20,6 +20,11 @@ namespace MageModule\Core\Model\Data;
 
 use Magento\Framework\Exception\LocalizedException;
 
+/**
+ * Class Formatter
+ *
+ * @package MageModule\Core\Model\Data
+ */
 class Formatter implements FormatterInterface
 {
     /**

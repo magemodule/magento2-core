@@ -4,6 +4,11 @@ namespace MageModule\Core\Model\Eav\Entity\Attribute\Backend;
 
 use Magento\UrlRewrite\Service\V1\Data\UrlRewrite;
 
+/**
+ * Class UrlKey
+ *
+ * @package MageModule\Core\Model\Eav\Entity\Attribute\Backend
+ */
 class UrlKey extends \Magento\Eav\Model\Entity\Attribute\Backend\AbstractBackend
 {
     /**
@@ -142,7 +147,6 @@ class UrlKey extends \Magento\Eav\Model\Entity\Attribute\Backend\AbstractBackend
      * @param \Magento\Framework\DataObject|\MageModule\Core\Model\AbstractExtensibleModel $object
      *
      * @return null|string
-     * @throws \Magento\Framework\Exception\NoSuchEntityException
      */
     protected function getSuffix($object)
     {
@@ -150,11 +154,10 @@ class UrlKey extends \Magento\Eav\Model\Entity\Attribute\Backend\AbstractBackend
     }
 
     /**
-     * @param \Magento\Framework\DataObject|\MageModule\Core\Model\AbstractExtensibleModel $object
+     * @param \Magento\Framework\DataObject $object
      *
      * @return \Magento\Eav\Model\Entity\Attribute\Backend\AbstractBackend
-     * @throws \Magento\Framework\Exception\AlreadyExistsException
-     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     * @throws \Exception
      */
     public function afterSave($object)
     {
@@ -181,8 +184,6 @@ class UrlKey extends \Magento\Eav\Model\Entity\Attribute\Backend\AbstractBackend
                 }
 
                 $storeIds = array_diff($storeIds, $storesWithValue);
-            } elseif ($value) {
-
             }
 
             foreach ($storeIds as $storeId) {
@@ -217,6 +218,11 @@ class UrlKey extends \Magento\Eav\Model\Entity\Attribute\Backend\AbstractBackend
         return parent::afterSave($object);
     }
 
+    /**
+     * @param \Magento\Framework\DataObject $object
+     *
+     * @return \Magento\Eav\Model\Entity\Attribute\Backend\AbstractBackend
+     */
     public function afterDelete($object)
     {
         //TODO delete URL rewrite

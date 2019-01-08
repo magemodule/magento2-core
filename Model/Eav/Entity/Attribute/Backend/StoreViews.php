@@ -17,6 +17,11 @@
 
 namespace MageModule\Core\Model\Eav\Entity\Attribute\Backend;
 
+/**
+ * Class StoreViews
+ *
+ * @package MageModule\Core\Model\Eav\Entity\Attribute\Backend
+ */
 class StoreViews extends \Magento\Eav\Model\Entity\Attribute\Backend\ArrayBackend
 {
     /**

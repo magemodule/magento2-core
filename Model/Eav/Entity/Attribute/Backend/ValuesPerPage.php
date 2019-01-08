@@ -17,6 +17,11 @@
 
 namespace MageModule\Core\Model\Eav\Entity\Attribute\Backend;
 
+/**
+ * Class ValuesPerPage
+ *
+ * @package MageModule\Core\Model\Eav\Entity\Attribute\Backend
+ */
 class ValuesPerPage extends \Magento\Eav\Model\Entity\Attribute\Backend\AbstractBackend
 {
     /**
@@ -37,6 +42,12 @@ class ValuesPerPage extends \Magento\Eav\Model\Entity\Attribute\Backend\Abstract
         return $this;
     }
 
+    /**
+     * @param \Magento\Framework\DataObject $object
+     *
+     * @return bool
+     * @throws \Magento\Framework\Exception\LocalizedException
+     */
     public function validate($object)
     {
         //TODO validate postive values, integers only, comma separated

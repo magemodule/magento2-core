@@ -67,7 +67,6 @@ class ConditionBuilder
      *
      * @return array
      * @throws LocalizedException
-     * @throws NoSuchEntityException
      */
     public function buildExistingAttributeWebsiteScope(
         AbstractAttribute $attribute,
@@ -106,7 +105,6 @@ class ConditionBuilder
      *
      * @return array
      * @throws LocalizedException
-     * @throws NoSuchEntityException
      */
     public function buildNewAttributesWebsiteScope(
         AbstractAttribute $attribute,
@@ -138,7 +136,6 @@ class ConditionBuilder
      * @param array $scopes
      *
      * @return WebsiteInterface|null
-     * @throws NoSuchEntityException
      * @throws LocalizedException
      */
     private function getWebsiteForWebsiteScope(array $scopes)
@@ -155,7 +152,6 @@ class ConditionBuilder
      * @param array $scopes
      *
      * @return StoreInterface|null
-     * @throws NoSuchEntityException
      */
     private function getStoreFromScopes(array $scopes)
     {

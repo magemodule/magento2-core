@@ -24,7 +24,8 @@ class RequiredFields implements \MageModule\Core\Model\Data\ValidatorInterface
     /**
      * RequiredFields constructor.
      *
-     * @param array $requiredFields
+     * @param ResultFactory $resultFactory
+     * @param array         $requiredFields
      */
     public function __construct(
         \MageModule\Core\Model\Data\Validator\ResultFactory $resultFactory,

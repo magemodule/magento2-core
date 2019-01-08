@@ -20,6 +20,11 @@ namespace MageModule\Core\Exception;
 
 use MageModule\Core\Model\Data\Validator\ResultInterface;
 
+/**
+ * Class FieldValidatorException
+ *
+ * @package MageModule\Core\Exception
+ */
 class FieldValidatorException extends \Exception
 {
     /**

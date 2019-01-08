@@ -18,6 +18,11 @@
 
 namespace MageModule\Core\Model\Data\Sanitizer;
 
+/**
+ * Class Date
+ *
+ * @package MageModule\Core\Model\Data\Sanitizer
+ */
 class Date implements \MageModule\Core\Model\Data\SanitizerInterface
 {
     /**

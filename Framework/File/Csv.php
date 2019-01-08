@@ -20,6 +20,11 @@ namespace MageModule\Core\Framework\File;
 
 use Magento\Framework\Exception\LocalizedException;
 
+/**
+ * Class Csv
+ *
+ * @package MageModule\Core\Framework\File
+ */
 class Csv extends \Magento\Framework\File\Csv
 {
     /**

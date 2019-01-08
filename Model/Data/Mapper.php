@@ -18,6 +18,11 @@
 
 namespace MageModule\Core\Model\Data;
 
+/**
+ * Class Mapper
+ *
+ * @package MageModule\Core\Model\Data
+ */
 class Mapper
 {
     /**
@@ -61,7 +66,6 @@ class Mapper
      * @param array $mapping
      *
      * @return bool
-     * @throws \Magento\Framework\Exception\LocalizedException
      */
     public function validateMapping(array $mapping)
     {
@@ -81,7 +85,6 @@ class Mapper
      * @param array $mapping
      *
      * @return $this
-     * @throws \Magento\Framework\Exception\LocalizedException
      */
     public function setMapping(array $mapping)
     {

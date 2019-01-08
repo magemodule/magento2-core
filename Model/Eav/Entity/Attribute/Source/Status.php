@@ -2,6 +2,11 @@
 
 namespace MageModule\Core\Model\Eav\Entity\Attribute\Source;
 
+/**
+ * Class Status
+ *
+ * @package MageModule\Core\Model\Eav\Entity\Attribute\Source
+ */
 class Status extends \Magento\Eav\Model\Entity\Attribute\Source\AbstractSource
 {
     const ENABLED  = 1;

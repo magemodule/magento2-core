@@ -243,8 +243,6 @@ class UrlKeyGenerator
      * @param AbstractModel|AbstractExtensibleModel $object
      *
      * @return string
-     * @throws LocalizedException
-     * @throws NoSuchEntityException
      */
     public function generate(AbstractModel $object)
     {

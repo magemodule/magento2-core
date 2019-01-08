@@ -18,6 +18,11 @@
 
 namespace MageModule\Core\Model\Data;
 
+/**
+ * Class Sanitizer
+ *
+ * @package MageModule\Core\Model\Data
+ */
 class Sanitizer
 {
     /**

@@ -17,6 +17,11 @@
 
 namespace MageModule\Core\Helper\Eav;
 
+/**
+ * Class Attribute
+ *
+ * @package MageModule\Core\Helper\Eav
+ */
 class Attribute extends \Magento\Framework\App\Helper\AbstractHelper
 {
     /**

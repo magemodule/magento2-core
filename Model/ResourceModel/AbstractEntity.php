@@ -353,7 +353,6 @@ abstract class AbstractEntity extends \Magento\Eav\Model\Entity\AbstractEntity
      * @param AbstractModel|AbstractExtensibleModel $object
      *
      * @return $this
-     * @throws \Magento\Framework\Exception\NoSuchEntityException
      */
     protected function prepareUseDefaults(AbstractModel $object)
     {

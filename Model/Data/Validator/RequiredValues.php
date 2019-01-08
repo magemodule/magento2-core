@@ -38,9 +38,10 @@ class RequiredValues implements \MageModule\Core\Model\Data\ValidatorInterface
     private $requiredFields;
 
     /**
-     * RequiredFields constructor.
+     * RequiredValues constructor.
      *
-     * @param array $requiredFields
+     * @param ResultFactory $resultFactory
+     * @param array         $requiredFields
      */
     public function __construct(
         \MageModule\Core\Model\Data\Validator\ResultFactory $resultFactory,

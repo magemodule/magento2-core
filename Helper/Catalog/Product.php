@@ -20,6 +20,11 @@ namespace MageModule\Core\Helper\Catalog;
 
 use Magento\Catalog\Api\Data\ProductInterface;
 
+/**
+ * Class Product
+ *
+ * @package MageModule\Core\Helper\Catalog
+ */
 class Product extends \Magento\Framework\App\Helper\AbstractHelper
 {
     /**

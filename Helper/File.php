@@ -18,6 +18,11 @@
 
 namespace MageModule\Core\Helper;
 
+/**
+ * Class File
+ *
+ * @package MageModule\Core\Helper
+ */
 class File extends \Magento\Framework\App\Helper\AbstractHelper
 {
     /**
@@ -35,6 +40,7 @@ class File extends \Magento\Framework\App\Helper\AbstractHelper
      *
      * @param \Magento\Framework\App\Helper\Context           $context
      * @param \Magento\Framework\App\Filesystem\DirectoryList $directoryList
+     * @param \Magento\Framework\Filesystem\Io\File           $fileIo
      */
     public function __construct(
         \Magento\Framework\App\Helper\Context $context,
@@ -83,6 +89,7 @@ class File extends \Magento\Framework\App\Helper\AbstractHelper
 
     /**
      * @param array  $parts
+     * @param bool   $absolute
      * @param string $glue
      *
      * @return string

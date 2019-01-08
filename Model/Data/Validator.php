@@ -18,6 +18,11 @@
 
 namespace MageModule\Core\Model\Data;
 
+/**
+ * Class Validator
+ *
+ * @package MageModule\Core\Model\Data
+ */
 class Validator
 {
     /**

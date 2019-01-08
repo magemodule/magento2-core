@@ -1,23 +1,27 @@
 <?php
 /**
- * Copyright (c) 2018 MageModule: All rights reserved
+ * Copyright (c) 2018 MageModule, LLC: All rights reserved
  *
  * LICENSE: This source file is subject to our standard End User License
  * Agreeement (EULA) that is available through the world-wide-web at the
- * following URI: http://www.magemodule.com/magento2-ext-license.html.
+ * following URI: https://www.magemodule.com/end-user-license-agreement/.
  *
- * If you did not receive a copy of the EULA and are unable to obtain it through
- * the web, please send a note to admin@magemodule.com so that we can mail
- * you a copy immediately.
+ *  If you did not receive a copy of the EULA and are unable to obtain it through
+ *  the web, please send a note to admin@magemodule.com so that we can mail
+ *  you a copy immediately.
  *
- * @author        MageModule admin@magemodule.com
- * @copyright     2018 MageModule
- * @license       http://www.magemodule.com/magento2-ext-license.html
- *
+ * @author         MageModule admin@magemodule.com
+ * @copyright      2018 MageModule, LLC
+ * @license        https://www.magemodule.com/end-user-license-agreement/
  */
 
 namespace MageModule\Core\Helper;
 
+/**
+ * Class Data
+ *
+ * @package MageModule\Core\Helper
+ */
 class Data extends \Magento\Framework\App\Helper\AbstractHelper
 {
     /**
@@ -34,6 +38,63 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
 
             return $value;
         }, $array);
+    }
+
+    /**
+     * Converts any string, number, or null to boolean
+     *
+     * @param array $array
+     */
+    public function boolify(array &$array)
+    {
+        $array = array_map(function ($value) {
+            if (!is_array($value) && !is_object($value)) {
+                $value = (bool)$value;
+            } elseif (!empty($value)) {
+                $value = true;
+            }
+
+            return $value;
+        }, $array);
+    }
+
+    /**
+     * @param string|array $string
+     * @param bool         $keepSpaces
+     *
+     * @return null|string|string[]
+     */
+    public function removeNonAlphaNumericChars($string, $keepSpaces = false)
+    {
+        $pattern = $keepSpaces ? '/[^\da-z0-9 ]/i' : '/[^\da-z0-9]/i';
+
+        return preg_replace($pattern, '', $string);
+    }
+
+    /**
+     * Removes all boolean true values
+     *
+     * @param array $array
+     */
+    public function removeTrue(array &$array)
+    {
+        $array = array_filter($array,
+            function ($value) {
+                return $value !== true;
+            });
+    }
+
+    /**
+     * Removes all boolean false
+     *
+     * @param array $array
+     */
+    public function removeFalse(array &$array)
+    {
+        $array = array_filter($array,
+            function ($value) {
+                return $value !== false;
+            });
     }
 
     /**
@@ -68,7 +129,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
      */
     public function removeElements(array &$array, array $keys)
     {
-        foreach ($array as $key => &$value) {
+        foreach (array_keys($array) as $key) {
             if (in_array($key, $keys)) {
                 unset($array[$key]);
             }
@@ -179,7 +240,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     {
         $modifier = $caseSensitive ? null : 'i';
 
-        return (bool)preg_match('/^'. preg_quote($needle) .'/' . $modifier, $haystack);
+        return (bool)preg_match('/^' . preg_quote($needle) . '/' . $modifier, $haystack);
     }
 
     /**
@@ -193,6 +254,43 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     {
         $modifier = $caseSensitive ? null : 'i';
 
-        return (bool)preg_match('/'. preg_quote($needle) .'$/' . $modifier, $haystack);
+        return (bool)preg_match('/' . preg_quote($needle) . '$/' . $modifier, $haystack);
+    }
+
+    /**
+     * Similar to PHP's native 'empty' but 0 is not considered an empty value
+     *
+     * @param string|int|float|bool|null|array $value
+     *
+     * @return bool
+     */
+    public function isEmpty($value)
+    {
+        return ($value === null || $value === false || $value === '') ||
+        (is_array($value) && empty($value));
+    }
+
+    /**
+     * @param string|int|float|bool|null|array $value
+     *
+     * @return bool
+     */
+    public function isNotEmpty($value)
+    {
+        return !$this->isEmpty($value);
+    }
+
+    /**
+     * @param string $phone
+     *
+     * @return string
+     */
+    public function preparePhoneNumberForLink($phone)
+    {
+        $parts = preg_split('/[^[:alnum:]]+/', $phone);
+        $parts = array_filter($parts, 'strlen');
+        $phone = implode('-', $parts);
+
+        return $phone;
     }
 }

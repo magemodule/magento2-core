@@ -2,6 +2,11 @@
 
 namespace MageModule\Core\Console\Command;
 
+/**
+ * Class AbstractCommand
+ *
+ * @package MageModule\Core\Console\Command
+ */
 abstract class AbstractCommand extends \Symfony\Component\Console\Command\Command
 {
     /**

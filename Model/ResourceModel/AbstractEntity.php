@@ -135,8 +135,16 @@ abstract class AbstractEntity extends \Magento\Eav\Model\Entity\AbstractEntity
             $object->setData(AbstractExtensibleModel::STORE_ID, Store::DEFAULT_STORE_ID);
         }
 
-        $this->prepareUseDefaults($object);
+        if ($object->isObjectNew()) {
+            /**
+             * do not remove this line
+             * without it, when using entity manager,
+             * attribute backend beforeSave function will not be called
+             */
+            $this->loadAllAttributes($object);
+        }
 
+        $this->prepareUseDefaults($object);
         $this->_entityManager->save($object);
 
         return $this;

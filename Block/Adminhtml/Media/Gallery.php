@@ -10,9 +10,9 @@
  *  the web, please send a note to admin@magemodule.com so that we can mail
  *  you a copy immediately.
  *
- *  @author        MageModule admin@magemodule.com
- *  @copyright    2018 MageModule, LLC
- *  @license        https://www.magemodule.com/end-user-license-agreement/
+ * @author         MageModule admin@magemodule.com
+ * @copyright      2018 MageModule, LLC
+ * @license        https://www.magemodule.com/end-user-license-agreement/
  */
 
 namespace MageModule\Core\Block\Adminhtml\Media;
@@ -290,8 +290,9 @@ class Gallery extends \Magento\Framework\View\Element\AbstractBlock
      */
     public function getAttributeFieldName($attribute)
     {
-        $name = $attribute->getAttributeCode();
-        if ($suffix = $this->getFieldNameSuffix()) {
+        $name   = $attribute->getAttributeCode();
+        $suffix = $this->getFieldNameSuffix();
+        if ($suffix) {
             $name = $this->form->addSuffixToName($name, $suffix);
         }
 

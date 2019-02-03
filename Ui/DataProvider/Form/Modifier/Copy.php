@@ -65,7 +65,7 @@ class Copy implements \Magento\Ui\DataProvider\Modifier\ModifierInterface
         \Magento\Framework\Stdlib\ArrayManager $arrayManager,
         array $links,
         $registryKey,
-        $dataScopeKey
+        $dataScopeKey = 'data'
     ) {
         $this->registry     = $registry;
         $this->arrayManager = $arrayManager;

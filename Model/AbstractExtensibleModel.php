@@ -10,12 +10,14 @@
  *  the web, please send a note to admin@magemodule.com so that we can mail
  *  you a copy immediately.
  *
- *  @author        MageModule admin@magemodule.com
- *  @copyright    2018 MageModule, LLC
- *  @license        https://www.magemodule.com/end-user-license-agreement/
+ * @author         MageModule admin@magemodule.com
+ * @copyright      2018 MageModule, LLC
+ * @license        https://www.magemodule.com/end-user-license-agreement/
  */
 
 namespace MageModule\Core\Model;
+
+use Magento\Framework\Exception\NoSuchEntityException;
 
 /**
  * Class AbstractExtensibleModel
@@ -33,6 +35,19 @@ abstract class AbstractExtensibleModel extends \Magento\Framework\Model\Abstract
     protected $_resource;
 
     /**
+     * @var \Magento\Store\Model\StoreManagerInterface
+     */
+    private $storeManager;
+
+    protected function _construct()
+    {
+        $this->storeManager = $this->_getData('storeManager');
+        $this->unsetData('storeManager');
+
+        parent::_construct();
+    }
+
+    /**
      * @return \Magento\Framework\Model\AbstractExtensibleModel
      */
     public function _afterLoad()
@@ -45,11 +60,11 @@ abstract class AbstractExtensibleModel extends \Magento\Framework\Model\Abstract
     }
 
     /**
-     * @return null|\Magento\Store\Model\StoreManagerInterface
+     * @return \Magento\Store\Model\StoreManagerInterface
      */
     protected function getStoreManager()
     {
-        return $this->_getData('storeManager');
+        return $this->storeManager;
     }
 
     /**
@@ -100,7 +115,8 @@ abstract class AbstractExtensibleModel extends \Magento\Framework\Model\Abstract
                 $data = $this->getData($attributeCode);
                 try {
                     $data = json_decode($data);
-                } catch (\Exception $e) {}
+                } catch (\Exception $e) {
+                }
                 $result = $source->getOptionText($data);
             }
         }
@@ -122,6 +138,7 @@ abstract class AbstractExtensibleModel extends \Magento\Framework\Model\Abstract
 
     /**
      * @return int
+     * @throws NoSuchEntityException
      */
     public function getStoreId()
     {

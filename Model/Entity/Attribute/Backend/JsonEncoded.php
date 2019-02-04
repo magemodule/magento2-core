@@ -26,4 +26,3 @@ class JsonEncoded extends \Magento\Eav\Model\Entity\Attribute\Backend\JsonEncode
         return parent::beforeSave($object);
     }
 }
-//todo when error in form, use defaults checkbox gets rechecked but new value still present

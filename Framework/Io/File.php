@@ -17,6 +17,11 @@
 
 namespace MageModule\Core\Framework\Io;
 
+/**
+ * Class File
+ *
+ * @package MageModule\Core\Framework\Io
+ */
 class File extends \Magento\Framework\Filesystem\Io\File
 {
     /**

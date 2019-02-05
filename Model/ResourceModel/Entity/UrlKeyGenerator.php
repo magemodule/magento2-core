@@ -29,6 +29,11 @@ use Magento\Store\Model\StoreManagerInterface;
 use Magento\UrlRewrite\Model\StorageInterface;
 use Magento\UrlRewrite\Service\V1\Data\UrlRewrite;
 
+/**
+ * Class UrlKeyGenerator
+ *
+ * @package MageModule\Core\Model\ResourceModel\Entity
+ */
 class UrlKeyGenerator
 {
     /**
@@ -238,8 +243,6 @@ class UrlKeyGenerator
      * @param AbstractModel|AbstractExtensibleModel $object
      *
      * @return string
-     * @throws LocalizedException
-     * @throws NoSuchEntityException
      */
     public function generate(AbstractModel $object)
     {

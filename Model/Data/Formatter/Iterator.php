@@ -17,6 +17,11 @@
 
 namespace MageModule\Core\Model\Data\Formatter;
 
+/**
+ * Class Iterator
+ *
+ * @package MageModule\Core\Model\Data\Formatters
+ */
 class Iterator extends \MageModule\Core\Model\Data\Formatter
 {
     /**

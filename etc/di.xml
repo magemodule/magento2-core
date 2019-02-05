@@ -31,4 +31,17 @@
             </argument>
         </arguments>
     </type>
+
+    <type name="MageModule\Core\Model\ResourceModel\AbstractEntity">
+        <arguments>
+            <argument name="data" xsi:type="array">
+                <item name="helper" xsi:type="object">MageModule\Core\Helper\Data</item>
+                <item name="storeHelper" xsi:type="object">MageModule\Core\Helper\Store</item>
+                <item name="scopeConfig" xsi:type="object">Magento\Framework\App\Config\ScopeConfigInterface</item>
+                <item name="entityManager" xsi:type="object">Magento\Framework\EntityManager\EntityManager</item>
+                <item name="storeManager" xsi:type="object">Magento\Store\Model\StoreManagerInterface</item>
+                <item name="logger" xsi:type="object">Psr\Log\LoggerInterface</item>
+            </argument>
+        </arguments>
+    </type>
 </config>

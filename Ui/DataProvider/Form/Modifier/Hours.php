@@ -43,17 +43,17 @@ class Hours implements \Magento\Ui\DataProvider\Modifier\ModifierInterface
      * Hours constructor.
      *
      * @param ArrayManager $arrayManager
-     * @param string       $scope - the parent data scope
      * @param string       $field - the attribute code of the field
+     * @param string|null  $scope - the parent data scope
      */
     public function __construct(
         ArrayManager $arrayManager,
-        $scope,
-        $field
+        $field,
+        $scope = null
     ) {
         $this->arrayManager = $arrayManager;
-        $this->scope        = $scope;
         $this->field        = $field;
+        $this->scope        = $scope;
     }
 
     /**
@@ -159,7 +159,12 @@ class Hours implements \Magento\Ui\DataProvider\Modifier\ModifierInterface
      */
     public function modifyData(array $data)
     {
-        $field = &$data[key($data)][$this->scope][$this->field];
+        if ($this->scope) {
+            $field = &$data[key($data)][$this->scope][$this->field];
+        } else {
+            $field = &$data[key($data)][$this->field];
+        }
+
         foreach ($this->days as $key => $day) {
             if (!isset($field[$key])) {
                 $field[$key] = ['day' => __(ucfirst($day)), 'open' => null, 'close' => null, 'closed' => '0'];

@@ -17,6 +17,11 @@
 
 namespace MageModule\Core\Api\Data;
 
+/**
+ * Interface AttributeInterface
+ *
+ * @package MageModule\Core\Api\Data
+ */
 interface AttributeInterface extends \Magento\Eav\Api\Data\AttributeInterface
 {
     const VALUE                 = 'value';

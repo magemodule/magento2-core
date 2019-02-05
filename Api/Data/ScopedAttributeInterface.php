@@ -17,6 +17,11 @@
 
 namespace MageModule\Core\Api\Data;
 
+/**
+ * Interface ScopedAttributeInterface
+ *
+ * @package MageModule\Core\Api\Data
+ */
 interface ScopedAttributeInterface extends \MageModule\Core\Api\Data\AttributeInterface
 {
     const STORE_ID           = 'store_id';

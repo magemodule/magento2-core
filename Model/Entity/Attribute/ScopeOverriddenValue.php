@@ -19,6 +19,11 @@ namespace MageModule\Core\Model\Entity\Attribute;
 use Magento\Eav\Model\Entity\Attribute\ScopedAttributeInterface;
 use Magento\Store\Model\Store;
 
+/**
+ * Class ScopeOverriddenValue
+ *
+ * @package MageModule\Core\Model\Entity\Attribute
+ */
 class ScopeOverriddenValue
 {
     /**

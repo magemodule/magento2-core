@@ -81,7 +81,6 @@ class Mapper
      * @param array $mapping
      *
      * @return $this
-     * @throws \Magento\Framework\Exception\LocalizedException
      */
     public function setMapping(array $mapping)
     {

@@ -19,6 +19,11 @@ namespace MageModule\Core\Exception;
 
 use MageModule\Core\Model\Data\Validator\ResultInterface;
 
+/**
+ * Class ValidatorException
+ *
+ * @package MageModule\Core\Exception
+ */
 class ValidatorException extends \Exception
 {
     /**

@@ -1,509 +1,87 @@
-<?php /**
+<?php
+/**
  * Copyright (c) 2018 MageModule, LLC: All rights reserved
  *
  * LICENSE: This source file is subject to our standard End User License
  * Agreeement (EULA) that is available through the world-wide-web at the
- * following URI: https://www.magemodule.com/end-user-license-agreement/.
+ * following URI: https://www.magemodule.com/magento2-ext-license.html.
  *
  *  If you did not receive a copy of the EULA and are unable to obtain it through
  *  the web, please send a note to admin@magemodule.com so that we can mail
  *  you a copy immediately.
  *
- *  @author        MageModule admin@magemodule.com
- *  @copyright    2018 MageModule, LLC
- *  @license        https://www.magemodule.com/end-user-license-agreement/
- */ /** @noinspection MessDetectorValidationInspection */
+ * @author         MageModule admin@magemodule.com
+ * @copyright      2018 MageModule, LLC
+ * @license        https://www.magemodule.com/magento2-ext-license.html
+ */
 
 namespace MageModule\Core\Model\ResourceModel;
 
-use MageModule\Core\Model\AbstractExtensibleModel;
+use MageModule\Core\Helper\Data as CoreHelper;
+use MageModule\Core\Helper\Store as StoreHelper;
 use MageModule\Core\Api\Data\ScopedAttributeInterface;
-use Magento\Store\Model\Store;
+use MageModule\Core\Model\AbstractExtensibleModel;
 use Magento\Eav\Model\Entity\Attribute\AbstractAttribute;
+use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\DataObject;
+use Magento\Framework\EntityManager\EntityManager;
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Model\AbstractModel;
-use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Store\Model\StoreManagerInterface;
+use Magento\Store\Model\Store;
+use Psr\Log\LoggerInterface;
 
+/**
+ * Class AbstractEntity
+ *
+ * @package MageModule\Core\Model\ResourceModel
+ */
 abstract class AbstractEntity extends \Magento\Eav\Model\Entity\AbstractEntity
 {
     /**
-     * @var \MageModule\Core\Helper\Data
+     * @var CoreHelper
      */
-    private $helper;
+    protected $_helper;
 
     /**
-     * @var \Magento\Framework\EntityManager\EntityManager
+     * @var StoreHelper
      */
-    private $entityManager;
+    protected $_storeHelper;
 
     /**
-     * @var \Magento\Store\Model\StoreManagerInterface
+     * @var EntityManager
      */
-    private $storeManager;
+    protected $_entityManager;
+
+    /**
+     * @var StoreManagerInterface
+     */
+    protected $_storeManager;
+
+    /**
+     * @var ScopeConfigInterface
+     */
+    protected $_scopeConfig;
+
+    /**
+     * @var LoggerInterface
+     */
+    protected $_logger;
 
     /**
      * @var array
      */
-    private $websiteStoreIds = [];
+    protected $staticAttributeValuesToSave = [];
 
     /**
-     * AbstractEntity constructor.
-     *
-     * @param \MageModule\Core\Helper\Data                   $helper
-     * @param \Magento\Eav\Model\Entity\Context              $context
-     * @param \Magento\Framework\EntityManager\EntityManager $entityManager
-     * @param \Magento\Store\Model\StoreManagerInterface     $storeManager
-     * @param array                                          $data
+     * @var array
      */
-    public function __construct(
-        \MageModule\Core\Helper\Data $helper,
-        \Magento\Eav\Model\Entity\Context $context,
-        \Magento\Framework\EntityManager\EntityManager $entityManager,
-        \Magento\Store\Model\StoreManagerInterface $storeManager,
-        array $data = []
-    ) {
-        parent::__construct($context, $data);
-        $this->helper        = $helper;
-        $this->entityManager = $entityManager;
-        $this->storeManager  = $storeManager;
-    }
+    private $tablePrimaryFields = [];
 
     /**
-     * @param DataObject|AbstractModel|AbstractExtensibleModel $object
-     *
-     * @return \Magento\Eav\Model\Entity\AbstractEntity
-     * @throws \Magento\Framework\Exception\LocalizedException
-     */
-    protected function _beforeSave(DataObject $object)
-    {
-        if ($object->isObjectNew() &&
-            !$object->getData(AbstractExtensibleModel::ATTRIBUTE_SET_ID)
-        ) {
-            $object->setData(
-                AbstractExtensibleModel::ATTRIBUTE_SET_ID,
-                $this->getEntityType()->getDefaultAttributeSetId()
-            );
-        }
-
-        if (!$object->hasData(AbstractExtensibleModel::STORE_ID)) {
-            $object->setData(
-                AbstractExtensibleModel::STORE_ID,
-                Store::DEFAULT_STORE_ID
-            );
-        }
-
-        $this->prepareUseDefaults($object);
-
-        return parent::_beforeSave($object);
-    }
-
-    /**
-     * @param array                     &$delete
-     * @param AbstractAttribute         $attribute
-     * @param AbstractEntity|DataObject $object
-     *
-     * @return void
-     *
-     * @throws \Magento\Framework\Exception\LocalizedException
-     */
-    private function _aggregateDeleteData(&$delete, $attribute, $object)
-    {
-        foreach ($attribute->getBackend()->getAffectedFields($object) as $tableName => $valuesData) {
-            if (!isset($delete[$tableName])) {
-                $delete[$tableName] = [];
-            }
-            $delete[$tableName] = array_merge((array)$delete[$tableName], $valuesData);
-        }
-    }
-
-    /**
-     * @param AbstractModel|AbstractExtensibleModel $newObject
-     *
-     * @return array
-     * @throws \Magento\Framework\Exception\LocalizedException
-     */
-    protected function _collectSaveData($newObject)
-    {
-        if (!$newObject instanceof AbstractExtensibleModel) {
-            return parent::_collectSaveData($newObject);
-        }
-
-        $newData  = $newObject->getData();
-        $entityId = $newObject->getData($this->getEntityIdField());
-
-        $entityRow = [];
-        $insert    = [];
-        $update    = [];
-        $delete    = [];
-
-        if (!empty($entityId)) {
-            $origData = $newObject->getOrigData();
-            if (empty($origData)) {
-                $origData = $this->_getOrigObject($newObject)->getOrigData();
-            }
-
-            if ($origData === null) {
-                $origData = [];
-            }
-
-            foreach ($origData as $k => $v) {
-                if (!array_key_exists($k, $newData)) {
-                    unset($origData[$k]);
-                }
-            }
-        } else {
-            $origData = [];
-        }
-
-        $staticFields   = $this->getConnection()->describeTable($this->getEntityTable());
-        $staticFields   = array_keys($staticFields);
-        $attributeCodes = array_keys($this->_attributesByCode);
-
-        $useDefault = $newObject->getData('use_default');
-        if (!is_array($useDefault)) {
-            $useDefault = [];
-        }
-
-        foreach ($newData as $k => $v) {
-            if (!in_array($k, $staticFields) && !in_array($k, $attributeCodes)) {
-                continue;
-            }
-
-            $attribute = $this->getAttribute($k);
-            if (empty($attribute)) {
-                continue;
-            }
-
-            if ((!$attribute->isInSet($newObject->getAttributeSetId()) && !in_array($k, $staticFields)) ||
-                (array_key_exists($attribute->getAttributeCode(), $useDefault) && $newObject->getStoreId())
-            ) {
-                $this->_aggregateDeleteData($delete, $attribute, $newObject);
-                continue;
-            }
-
-            $attrId = $attribute->getAttributeId();
-
-            if (!$attribute->getBackend()->isScalar()) {
-                continue;
-            }
-
-            if ($this->isAttributeStatic($k)) {
-                $entityRow[$k] = $this->_prepareStaticValue($k, $v);
-                continue;
-            }
-
-            if ($this->_canUpdateAttribute($attribute, $v, $origData)) {
-                if ($this->_isAttributeValueEmpty($attribute, $v)) {
-                    $this->_aggregateDeleteData($delete, $attribute, $newObject);
-                } else {
-                    $update[$attrId] = [
-                        'value_id' => $attribute->getBackend()->getEntityValueId($newObject),
-                        'value'    => is_array($v) ? array_shift($v) : $v
-                    ];
-                }
-            } elseif (!$this->_isAttributeValueEmpty($attribute, $v)) {
-                $insert[$attrId] = is_array($v) ? array_shift($v) : $v;
-            }
-        }
-
-        $result = compact('newObject', 'entityRow', 'insert', 'update', 'delete');
-
-        return $result;
-    }
-
-    /**
-     * @param AbstractModel|AbstractExtensibleModel $object
-     * @param AbstractAttribute                     $attribute
-     * @param mixed                                 $value
-     *
-     * @return \Magento\Eav\Model\Entity\AbstractEntity
-     * @throws \Magento\Framework\Exception\LocalizedException
-     */
-    protected function _saveAttribute($object, $attribute, $value)
-    {
-        if ($attribute instanceof ScopedAttributeInterface) {
-            $table = $attribute->getBackend()->getTable();
-            if (!isset($this->_attributeValuesToSave[$table])) {
-                $this->_attributeValuesToSave[$table] = [];
-            }
-
-            $entityIdField = $attribute->getBackend()->getEntityIdField();
-
-            $storeId = $object->getStoreId();
-            if ($attribute->isScopeWebsite()) {
-                $storeIds = $this->_getStoreIdsForWebsite($storeId);
-            } elseif ($attribute->isScopeStore()) {
-                $storeIds = [$storeId];
-            } else {
-                $storeIds = [Store::DEFAULT_STORE_ID];
-            }
-
-            foreach ($storeIds as $storeId) {
-                $data = [
-                    $entityIdField                         => $object->getId(),
-                    ScopedAttributeInterface::ATTRIBUTE_ID => $attribute->getId(),
-                    ScopedAttributeInterface::STORE_ID     => $storeId,
-                    ScopedAttributeInterface::VALUE        => $this->_prepareValueForSave($value, $attribute)
-                ];
-
-                if (!$this->getEntityTable() ||
-                    $this->getEntityTable() == \Magento\Eav\Model\Entity::DEFAULT_ENTITY_TABLE
-                ) {
-                    $data['entity_type_id'] = $object->getEntityTypeId();
-                }
-
-                $this->_attributeValuesToSave[$table][] = $data;
-            }
-
-            return $this;
-        }
-
-        return parent::_saveAttribute($object, $attribute, $value);
-    }
-
-    /**
-     * @param AbstractModel|AbstractExtensibleModel $object
-     * @param string                                $table
-     * @param array                                 $info
-     *
-     * @return $this|\Magento\Framework\DataObject
-     * @throws \Magento\Framework\Exception\NoSuchEntityException
-     */
-    protected function _deleteAttributes($object, $table, $info)
-    {
-        if ($object instanceof AbstractExtensibleModel) {
-            $connection = $this->getConnection();
-            $valueIds   = [];
-            foreach ($info as $itemData) {
-                /** @var ScopedAttributeInterface $attribute */
-                $attribute = $this->getAttribute($itemData['attribute_id']);
-                $storeId   = $object->getStoreId();
-                if ($attribute->isScopeWebsite()) {
-                    $storeIds = $this->_getStoreIdsForWebsite($storeId);
-                } elseif ($attribute->isScopeStore()) {
-                    $storeIds = [$storeId];
-                } else {
-                    $storeIds = [Store::DEFAULT_STORE_ID];
-                }
-
-                $select = $connection->select()->from($table, ScopedAttributeInterface::VALUE_ID);
-                $select->where($attribute->getEntityIdField() . ' =?', $object->getEntityId());
-                $select->where(ScopedAttributeInterface::ATTRIBUTE_ID . ' =?', $itemData['attribute_id']);
-                $select->where(ScopedAttributeInterface::STORE_ID . ' IN(?)', $storeIds);
-
-                $valueIds = array_merge($valueIds, $connection->fetchCol($select));
-            }
-
-            if (empty($valueIds)) {
-                return $this;
-            }
-
-            if (isset($this->_attributeValuesToDelete[$table])) {
-                $this->_attributeValuesToDelete[$table] =
-                    array_merge($this->_attributeValuesToDelete[$table], $valueIds);
-            } else {
-                $this->_attributeValuesToDelete[$table] = $valueIds;
-            }
-
-            return $this;
-        }
-
-        return parent::_deleteAttributes($object, $table, $info);
-    }
-
-    /**
-     * @param int $storeId
-     *
-     * @return int[]
-     * @throws \Magento\Framework\Exception\NoSuchEntityException
-     */
-    protected function _getStoreIdsForWebsite($storeId)
-    {
-        if (!isset($this->websiteStoreIds[$storeId])) {
-            $this->websiteStoreIds[$storeId] = $this->storeManager
-                ->getStore($storeId)
-                ->getWebsite()
-                ->getStoreIds();
-        }
-
-        return $this->websiteStoreIds[$storeId];
-    }
-
-    /**
-     * @param DataObject|AbstractModel|AbstractExtensibleModel $object
-     *
-     * @return \Magento\Eav\Model\Entity\AbstractEntity
-     * @throws \Exception
-     */
-    protected function _afterSave(DataObject $object)
-    {
-        $this->processUseDefaults($object);
-
-        return parent::_afterSave($object);
-    }
-
-    /**
-     * @param AbstractModel|AbstractExtensibleModel $object
-     *
-     * @return $this
-     * @throws \Magento\Framework\Exception\NoSuchEntityException
-     */
-    protected function prepareUseDefaults(AbstractModel $object)
-    {
-        if ($object->getStoreId()) {
-            $useDefaults = $object->getData('use_default');
-            if (!is_array($useDefaults)) {
-                $useDefaults = [];
-            }
-
-            foreach ($object->getData() as $key => $value) {
-                if ($value === false) {
-                    $useDefaults[$key] = 1;
-                }
-            }
-
-            $eligibleAttributes = [];
-
-            $attributes = $this->getAttributesByCode();
-
-            /** @var ScopedAttributeInterface|AbstractAttribute $attribute */
-            foreach ($attributes as $attributeCode => $attribute) {
-                if (!$attribute->isStatic() && !$attribute->isScopeGlobal()) {
-                    $eligibleAttributes[$attributeCode] = $attribute;
-                }
-            }
-
-            $this->helper->boolify($useDefaults);
-            $this->helper->removeFalse($useDefaults);
-            $eligibleAttributes = array_intersect_key($eligibleAttributes, $useDefaults);
-
-            if (!empty($eligibleAttributes)) {
-                $useDefaults = array_fill_keys(array_keys($eligibleAttributes), false);
-            }
-
-            $object->addData($useDefaults);
-            $object->addData(['use_default' => $eligibleAttributes]);
-        }
-
-        return $this;
-    }
-
-    /**
-     * @param AbstractModel|AbstractExtensibleModel $object
-     *
-     * @return $this
-     * @throws \Exception
-     */
-    protected function processUseDefaults(AbstractModel $object)
-    {
-        $storeId = $object->getStoreId();
-        if ($storeId) {
-            $websiteStoreIds = $this->_getStoreIdsForWebsite($object->getStoreId());
-            if (!$websiteStoreIds) {
-                return $this;
-            }
-
-            $useDefaults = $object->getData('use_default');
-            if (is_array($useDefaults)) {
-                $connection = $this->getConnection();
-
-                /** @var ScopedAttributeInterface|AbstractAttribute $attribute */
-                foreach ($useDefaults as $attribute) {
-                    if ($attribute->isScopeWebsite()) {
-                        $storeIds = $this->_getStoreIdsForWebsite($storeId);
-                    } elseif ($attribute->isScopeStore()) {
-                        $storeIds = [$storeId];
-                    } else {
-                        $storeIds = [Store::DEFAULT_STORE_ID];
-                    }
-
-                    $connection->delete(
-                        $attribute->getBackendTable(),
-                        [
-                            $attribute->getEntityIdField() . ' =?'         => $object->getId(),
-                            ScopedAttributeInterface::ATTRIBUTE_ID . ' =?' => $attribute->getAttributeId(),
-                            ScopedAttributeInterface::STORE_ID . ' IN(?)'  => $storeIds
-                        ]
-                    );
-                }
-            }
-        }
-
-        return $this;
-    }
-
-    /**
-     * @param AbstractAttribute|int|string $attribute
-     * @param null|int|int[]               $objectId
-     * @param null|int                     $storeId
-     *
-     * @return $this
-     * @throws NoSuchEntityException
-     */
-    public function fillWebsiteValuesForAttribute($attribute, $objectId = null, $storeId = null)
-    {
-        if (is_numeric($attribute) || is_string($attribute)) {
-            $attribute = $this->getAttribute($attribute);
-        }
-
-        if (!$attribute instanceof ScopedAttributeInterface || !$attribute->isScopeWebsite()) {
-            return $this;
-        }
-
-        $objectIds = [];
-        if (is_numeric($objectId)) {
-            $objectIds = [$objectId];
-        } elseif (is_array($objectId)) {
-            $objectIds = $objectId;
-        }
-
-        $connection    = $this->getConnection();
-        $entityIdField = $attribute->getEntityIdField();
-        $table         = $attribute->getBackendTable();
-        $attributeId   = $attribute->getAttributeId();
-
-        $insertUpdate = [];
-
-        $websites = $this->storeManager->getWebsites();
-        if ($storeId) {
-            $websites = [$this->storeManager->getStore($storeId)->getWebsite()];
-        }
-
-        foreach ($websites as $website) {
-            $storeIds = $website->getStoreIds();
-
-            $select = $connection->select()->from($table);
-            if ($objectIds) {
-                $select->where($entityIdField . ' IN(?)', $objectIds);
-            }
-            $select->where(ScopedAttributeInterface::ATTRIBUTE_ID . ' =?', $attributeId);
-            $select->where(ScopedAttributeInterface::STORE_ID . ' IN(?)', $storeIds);
-            $select->where(ScopedAttributeInterface::STORE_ID . ' NOT IN(?)', Store::DEFAULT_STORE_ID);
-            $select->group($entityIdField);
-            $result = $connection->fetchAll($select);
-
-            foreach ($result as &$row) {
-                unset($row[ScopedAttributeInterface::VALUE_ID]);
-                foreach ($storeIds as $storeId) {
-                    $row[ScopedAttributeInterface::STORE_ID] = $storeId;
-                    $insertUpdate[]                          = $row;
-                }
-            }
-        }
-
-        if ($insertUpdate) {
-            foreach ($insertUpdate as $data) {
-                $connection->insertOnDuplicate($table, $data);
-            }
-        }
-
-        return $this;
-    }
-
-    /**
-     * @param AbstractModel|AbstractExtensibleModel $object
-     * @param int                                   $entityId
-     * @param array|null                            $attributes
+     * @param AbstractModel $object
+     * @param int           $entityId
+     * @param array|null    $attributes
      *
      * @return $this
      */
@@ -519,14 +97,333 @@ abstract class AbstractEntity extends \Magento\Eav\Model\Entity\AbstractEntity
         }
 
         $this->loadAttributesForObject($attributes, $object);
-        //TODO get rid of entity manager
-        $this->entityManager->load($object, $entityId);
-        foreach ($object->getData() as $key => $value) {
-            $object->setOrigData($key, $value);
-        }
-
-        $this->_afterLoad($object);
+        $this->_entityManager->load($object, $entityId);
 
         return $this;
+    }
+
+    /**
+     * @param DataObject|AbstractModel $object
+     *
+     * @return $this
+     */
+    protected function _afterLoad(DataObject $object)
+    {
+        parent::_afterLoad($object);
+        if ($object instanceof AbstractModel) {
+            foreach ($object->getData() as $key => $value) {
+                $object->setOrigData($key, $value);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param  AbstractModel $object
+     *
+     * @return $this
+     * @throws \Exception
+     */
+    public function save(AbstractModel $object)
+    {
+        if ($object->isObjectNew() && !$object->getData(AbstractExtensibleModel::ATTRIBUTE_SET_ID)) {
+            $object->setData(AbstractExtensibleModel::ATTRIBUTE_SET_ID, $this->getDefaultAttributeSetId());
+        }
+
+        if (!$object->hasData(AbstractExtensibleModel::STORE_ID)) {
+            $object->setData(AbstractExtensibleModel::STORE_ID, Store::DEFAULT_STORE_ID);
+        }
+
+        if ($object->isObjectNew()) {
+            /**
+             * do not remove this line
+             * without it, when using entity manager,
+             * attribute backend beforeSave function will not be called
+             */
+            $this->loadAllAttributes($object);
+        }
+
+        $this->prepareUseDefaults($object);
+        $this->_entityManager->save($object);
+
+        return $this;
+    }
+
+    /**
+     * @param AbstractModel $object
+     *
+     * @return $this
+     * @throws \Exception
+     */
+    public function delete($object)
+    {
+        $this->_entityManager->delete($object);
+
+        return $this;
+    }
+
+    /**
+     * @return string|null
+     * @throws LocalizedException
+     */
+    public function getDefaultAttributeSetId()
+    {
+        return $this->getEntityType()->getDefaultAttributeSetId();
+    }
+
+    /**
+     * @return int[]
+     */
+    public function getAllIds()
+    {
+        $connection = $this->getConnection();
+        $select     = $connection->select()->from(
+            $this->getEntityTable(),
+            $this->getEntityIdField()
+        );
+
+        return $connection->fetchCol($select);
+    }
+
+    /**
+     * @param DataObject                 $object
+     * @param AbstractAttribute          $attribute
+     * @param int|float|bool|string|null $value
+     *
+     * @return $this
+     * @throws LocalizedException
+     */
+    protected function _insertStaticAttribute($object, $attribute, $value)
+    {
+        return $this->_updateStaticAttribute($object, $attribute, $value);
+    }
+
+    /**
+     * @param DataObject                 $object
+     * @param AbstractAttribute          $attribute
+     * @param int|float|bool|string|null $value
+     *
+     * @return $this
+     * @throws LocalizedException
+     */
+    protected function _updateStaticAttribute($object, $attribute, $value)
+    {
+        $table = $attribute->getBackend()->getTable();
+        if (!isset($this->staticAttributeValuesToSave[$table])) {
+            $this->staticAttributeValuesToSave[$table] = [];
+        }
+
+        $idField    = $attribute->getBackend()->getEntityIdField();
+        $valueField = $attribute->getAttributeCode();
+
+        $data = [
+            $idField    => $object->getData($idField),
+            $valueField => $this->_prepareStaticValue($valueField, $value)
+        ];
+
+        $this->staticAttributeValuesToSave[$table][] = $data;
+
+        return $this;
+    }
+
+    /**
+     * @param DataObject        $object
+     * @param AbstractAttribute $attribute
+     *
+     * @return $this
+     * @throws LocalizedException
+     */
+    protected function _deleteStaticAttribute($object, $attribute)
+    {
+        $this->_updateStaticAttribute($object, $attribute, null);
+
+        return $this;
+    }
+
+    /**
+     * @return $this
+     */
+    protected function _processAttributeValues()
+    {
+        parent::_processAttributeValues();
+        $this->_processStaticAttributeValues();
+
+        return $this;
+    }
+
+    /**
+     * @return $this
+     */
+    protected function _processStaticAttributeValues()
+    {
+        $connection = $this->getConnection();
+        foreach ($this->staticAttributeValuesToSave as $table => $data) {
+            foreach ($data as $datum) {
+                $id = $datum[$this->getEntityIdField()];
+                unset($datum[$this->getEntityIdField()]);
+                $connection->update($table, $datum, [$this->getEntityIdField() . '=?' => $id]);
+            }
+        }
+
+        $this->staticAttributeValuesToSave = [];
+
+        return $this;
+    }
+
+    /**
+     * @param DataObject $object
+     * @param string     $attributeCode
+     *
+     * @return $this
+     * @throws \Exception
+     */
+    public function saveAttribute(DataObject $object, $attributeCode)
+    {
+        $attribute = $this->getAttribute($attributeCode);
+        if ($attribute->isStatic()) {
+            $connection = $this->getConnection();
+            $connection->beginTransaction();
+
+            try {
+                $newValue = $object->getData($attributeCode);
+                if ($newValue === null || $newValue === false) {
+                    $this->_deleteStaticAttribute($object, $attribute);
+                } else {
+                    $this->_updateStaticAttribute($object, $attribute, $newValue);
+                }
+                $this->_processAttributeValues();
+                $connection->commit();
+            } catch (\Exception $e) {
+                $connection->rollBack();
+                throw $e;
+            }
+
+            return $this;
+        }
+
+        return parent::saveAttribute($object, $attributeCode);
+    }
+
+    /**
+     * @param AbstractModel|AbstractExtensibleModel $object
+     * @param AbstractAttribute                     $attribute
+     * @param mixed                                 $value
+     *
+     * @return $this
+     * @throws LocalizedException
+     */
+    protected function _saveAttribute($object, $attribute, $value)
+    {
+        if ($attribute->isStatic()) {
+            if ($value === null || $value === false) {
+                $this->_deleteStaticAttribute($object, $attribute);
+            } else {
+                $this->_updateStaticAttribute($object, $attribute, $value);
+            }
+        } elseif ($attribute instanceof ScopedAttributeInterface) {
+            $table = $attribute->getBackend()->getTable();
+            if (!isset($this->_attributeValuesToSave[$table])) {
+                $this->_attributeValuesToSave[$table] = [];
+            }
+
+            $entityIdField = $attribute->getBackend()->getEntityIdField();
+
+            $storeId = $object->getStoreId();
+            if ($attribute->isScopeWebsite()) {
+                $storeIds = $this->_storeHelper->getStoreIdsByWebsiteId($storeId);
+            } elseif ($attribute->isScopeStore()) {
+                $storeIds = [$storeId];
+            } else {
+                $storeIds = [Store::DEFAULT_STORE_ID];
+            }
+
+            foreach ($storeIds as $storeId) {
+                $data = [
+                    $entityIdField                     => $object->getId(),
+                    $attribute->getIdFieldName()       => $attribute->getId(),
+                    ScopedAttributeInterface::STORE_ID => $storeId,
+                    ScopedAttributeInterface::VALUE    => $this->_prepareValueForSave($value, $attribute)
+                ];
+
+                $this->_attributeValuesToSave[$table][] = $data;
+            }
+        } else {
+            return parent::_saveAttribute($object, $attribute, $value);
+        }
+
+        return $this;
+    }
+
+    /**
+     * Determine which fields that "use default value" was selected for
+     *
+     * @param AbstractModel|AbstractExtensibleModel $object
+     *
+     * @return $this
+     */
+    protected function prepareUseDefaults(AbstractModel $object)
+    {
+        if ($object->getStoreId()) {
+            $useDefaults = $object->getData('use_default');
+            if (!is_array($useDefaults)) {
+                $useDefaults = [];
+            }
+
+            foreach ($object->getData() as $key => $value) {
+                if ($value === false) {
+                    $useDefaults[$key] = 1;
+                }
+            }
+
+            $this->_helper->boolify($useDefaults);
+            $this->_helper->removeFalse($useDefaults);
+
+            if ($useDefaults) {
+                $useDefaults = array_fill_keys(array_keys($useDefaults), false);
+
+                $attributes = $this->getAttributesByCode();
+                foreach ($useDefaults as $attributeCode => &$value) {
+                    if (isset($attributes[$attributeCode])) {
+                        /** @var ScopedAttributeInterface|AbstractAttribute $attribute */
+                        $attribute = $attributes[$attributeCode];
+                        if ($attribute->getBackendType() === 'int' || $attribute->getBackendType() === 'decimal') {
+                            $value = null;
+                        }
+                    }
+                }
+            }
+
+            $object->addData($useDefaults);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param string $table
+     *
+     * @return bool|string
+     */
+    protected function getTablePrimaryIdField($table)
+    {
+        if (!isset($this->tablePrimaryFields[$table])) {
+            $connection = $this->getConnection();
+
+            $field = $connection->getAutoIncrementField($table);
+            if (!$field) {
+                $describe = $connection->describeTable($table);
+                foreach ($describe as $description) {
+                    if (isset($description['PRIMARY']) && (bool)$description['PRIMARY'] === true) {
+                        $field = $description['COLUMN_NAME'];
+                        break;
+                    }
+                }
+            }
+
+            $this->tablePrimaryFields[$table] = $field;
+        }
+
+        return $this->tablePrimaryFields[$table];
     }
 }

@@ -49,6 +49,7 @@ class Collection extends \Magento\Framework\App\Helper\AbstractHelper
      * @param string $date
      *
      * @return string
+     * @throws \Exception
      */
     public function getFromDateFilter($date)
     {
@@ -66,6 +67,7 @@ class Collection extends \Magento\Framework\App\Helper\AbstractHelper
      * @param string $date
      *
      * @return string
+     * @throws \Exception
      */
     public function getToDateFilter($date)
     {

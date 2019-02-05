@@ -1,19 +1,4 @@
 <?php
-/**
- * Copyright (c) 2018 MageModule, LLC: All rights reserved
- *
- * LICENSE: This source file is subject to our standard End User License
- * Agreeement (EULA) that is available through the world-wide-web at the
- * following URI: https://www.magemodule.com/end-user-license-agreement/.
- *
- *  If you did not receive a copy of the EULA and are unable to obtain it through
- *  the web, please send a note to admin@magemodule.com so that we can mail
- *  you a copy immediately.
- *
- *  @author        MageModule admin@magemodule.com
- *  @copyright    2018 MageModule, LLC
- *  @license        https://www.magemodule.com/end-user-license-agreement/
- */
 
 namespace MageModule\Core\Model\Data\Validator;
 
@@ -39,8 +24,8 @@ class RequiredFields implements \MageModule\Core\Model\Data\ValidatorInterface
     /**
      * RequiredFields constructor.
      *
-     * @param \MageModule\Core\Model\Data\Validator\ResultFactory $resultFactory
-     * @param array                                               $requiredFields
+     * @param ResultFactory $resultFactory
+     * @param array         $requiredFields
      */
     public function __construct(
         \MageModule\Core\Model\Data\Validator\ResultFactory $resultFactory,
@@ -57,7 +42,7 @@ class RequiredFields implements \MageModule\Core\Model\Data\ValidatorInterface
      *     'entity_id', <===== singular required field
      *     'increment_id',
      *     [2 => ['state', 'status', 'not_present_1', 'not_present_2']], <===== 2 of these choices must be present
-     *     [1 => ['created_at', 'updated_at', 'not_present_1', 'not_present_2']] <=== 1 of these choices must be present
+     *     [1 => ['created_at', 'updated_at', 'not_present_1', 'not_present_2']] <===== 1 of these choices must be present
      * ]
      *
      * @param array $data

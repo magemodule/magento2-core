@@ -10,9 +10,9 @@
  *  the web, please send a note to admin@magemodule.com so that we can mail
  *  you a copy immediately.
  *
- *  @author        MageModule admin@magemodule.com
- *  @copyright    2018 MageModule, LLC
- *  @license        https://www.magemodule.com/end-user-license-agreement/
+ * @author         MageModule admin@magemodule.com
+ * @copyright      2018 MageModule, LLC
+ * @license        https://www.magemodule.com/end-user-license-agreement/
  */
 
 namespace MageModule\Core\Ui\DataProvider\Form\Modifier\Entity;
@@ -125,7 +125,7 @@ class Eav implements \Magento\Ui\DataProvider\Modifier\ModifierInterface
      * Eav constructor.
      *
      * @param \MageModule\Core\Ui\Component\Form\Rule\Eav\Validation\RulesBuilder $rulesBuilder
-     * @param \MageModule\Core\Model\Entity\Attribute\ScopeOverriddenValue    $scopeOverriddenValue
+     * @param \MageModule\Core\Model\Entity\Attribute\ScopeOverriddenValue        $scopeOverriddenValue
      * @param \Magento\Eav\Api\AttributeRepositoryInterface                       $attributeRepository
      * @param \Magento\Eav\Api\AttributeGroupRepositoryInterface                  $attributeGroupRepository
      * @param \Magento\Store\Model\StoreManagerInterface                          $storeManager
@@ -152,7 +152,7 @@ class Eav implements \Magento\Ui\DataProvider\Modifier\ModifierInterface
         $entityTypeCode,
         $entityType,
         $registryKey,
-        $dataScopeKey,
+        $dataScopeKey = 'data',
         array $nonCollapsibleFieldsets = []
     ) {
         $this->rulesBuilder             = $rulesBuilder;

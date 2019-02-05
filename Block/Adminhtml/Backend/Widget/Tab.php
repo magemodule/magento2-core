@@ -17,6 +17,11 @@
 
 namespace MageModule\Core\Block\Adminhtml\Backend\Widget;
 
+/**
+ * Class Tab
+ *
+ * @package MageModule\Core\Block\Adminhtml\Backend\Widget
+ */
 class Tab extends \Magento\Backend\Block\Widget\Tab
 {
     /**

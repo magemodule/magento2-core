@@ -30,7 +30,13 @@ use Magento\Framework\Model\AbstractModel;
 use Magento\Framework\View\Element\AbstractBlock;
 use Magento\Framework\Serialize\Serializer\Json as JsonEncoder;
 use Magento\Framework\App\Filesystem\DirectoryList;
+use Magento\Framework\View\Element\Template;
 
+/**
+ * Class Content
+ *
+ * @package MageModule\Core\Block\Adminhtml\Media\Gallery
+ */
 class Content extends \Magento\Backend\Block\Widget
 {
     /**
@@ -245,7 +251,12 @@ class Content extends \Magento\Backend\Block\Widget
      */
     public function getUploader()
     {
-        return $this->getChildBlock('uploader');
+        $block = $this->getChildBlock('uploader');
+        if ($block instanceof Template) {
+            $block->setTemplate('MageModule_Core::media/uploader.phtml');
+        }
+
+        return $block;
     }
 
     /**

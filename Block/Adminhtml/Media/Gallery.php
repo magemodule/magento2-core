@@ -220,7 +220,6 @@ class Gallery extends \Magento\Framework\View\Element\AbstractBlock
     public function getUploadUrl()
     {
         return $this->_urlBuilder
-            ->addSessionParam()
             ->getUrl(
                 $this->getConfig()->getUploadControllerRoute(),
                 [
